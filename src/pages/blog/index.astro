@@ -1,0 +1,55 @@
+---
+import { getCollection } from "astro:content";
+import Base from "@/layouts/Base.astro";
+
+const posts = (await getCollection("blog", ({ data }) => !data.draft)).sort(
+  (a, b) => b.data.date.valueOf() - a.data.date.valueOf(),
+);
+
+const fmt = new Intl.DateTimeFormat("en", { year: "numeric", month: "short", day: "2-digit" });
+---
+
+<Base title="Blog" description="Writing on robotics, autonomy, and software by Erwin Lejeune.">
+  <div class="mx-auto max-w-3xl pt-36 pb-24">
+    <p class="font-mono text-accent mb-3 text-sm" data-reveal>/blog</p>
+    <h1 class="text-4xl font-semibold sm:text-5xl" data-reveal>Field Notes</h1>
+    <p class="text-muted mt-4 max-w-xl" data-reveal style="--reveal-delay: 100ms">
+      Occasional writing on swarm autonomy, robotics software, and whatever I'm building.
+    </p>
+
+    <ul class="mt-16 space-y-2">
+      {
+        posts.map((post, i) => (
+          <li data-reveal style={`--reveal-delay: ${Math.min(i, 5) * 80}ms`}>
+            <a
+              href={`/blog/${post.id}/`}
+              class="group border-line hover:border-accent/40 hover:bg-bg-raised -mx-4 flex flex-col gap-1 rounded-lg border border-transparent px-4 py-5 transition-colors sm:flex-row sm:items-baseline sm:gap-6"
+            >
+              <time
+                datetime={post.data.date.toISOString()}
+                class="font-mono text-faint shrink-0 text-xs sm:w-28"
+              >
+                {fmt.format(post.data.date)}
+              </time>
+              <div>
+                <h2 class="group-hover:text-accent text-lg font-medium transition-colors">
+                  {post.data.title}
+                </h2>
+                <p class="text-muted mt-1 text-sm">{post.data.description}</p>
+                {post.data.tags.length > 0 && (
+                  <ul class="mt-2 flex flex-wrap gap-x-3">
+                    {post.data.tags.map((t) => (
+                      <li class="chip">#{t}</li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+
+    {posts.length === 0 && <p class="text-muted mt-16">Nothing here yet — soon.</p>}
+  </div>
+</Base>

@@ -1,0 +1,131 @@
+---
+import { nav, site } from "@/data/site";
+---
+
+<header
+  id="site-nav"
+  class="fixed inset-x-0 top-0 z-50 transition-transform duration-300 ease-out"
+>
+  <nav
+    class="border-line/60 flex h-[72px] items-center justify-between border-b bg-[rgba(10,14,20,0.82)] px-6 backdrop-blur-md sm:px-10"
+    aria-label="Primary"
+  >
+    <a
+      href="/"
+      class="font-mono text-accent group flex items-center gap-2 text-sm"
+      aria-label="Home"
+    >
+      <svg
+        width="30"
+        height="30"
+        viewBox="0 0 32 32"
+        fill="none"
+        class="transition-transform duration-300 group-hover:rotate-90"
+        aria-hidden="true"
+      >
+        <polygon
+          points="16,2 29,9.5 29,24.5 16,30 3,24.5 3,9.5"
+          stroke="currentColor"
+          stroke-width="1.6"
+          fill="none"
+        ></polygon>
+        <text
+          x="16"
+          y="20.5"
+          text-anchor="middle"
+          fill="currentColor"
+          font-size="12"
+          font-family="inherit">el</text
+        >
+      </svg>
+      <span class="text-faint hidden lg:inline">/{site.handle}</span>
+    </a>
+
+    <button
+      id="nav-toggle"
+      class="text-accent z-50 -mr-2 p-2 md:hidden"
+      aria-label="Toggle menu"
+      aria-expanded="false"
+      aria-controls="nav-menu"
+    >
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+        <path class="ham-top" d="M3 6h18" />
+        <path class="ham-mid" d="M3 12h18" />
+        <path class="ham-bot" d="M3 18h18" />
+      </svg>
+    </button>
+
+    <ol
+      id="nav-menu"
+      class="max-md:bg-bg-raised max-md:border-line fixed inset-y-0 right-0 hidden w-[min(75vw,320px)] translate-x-full flex-col items-start justify-center gap-8 border-l px-10 transition-transform duration-300 ease-out max-md:flex max-md:shadow-2xl md:static md:flex md:w-auto md:translate-x-0 md:flex-row md:items-center md:gap-8 md:border-0 md:bg-transparent md:px-0 md:shadow-none"
+    >
+      {
+        nav.map((item, i) => (
+          <li>
+            <a
+              href={item.href}
+              class="group font-mono text-body hover:text-accent text-sm transition-colors"
+            >
+              <span class="text-accent">{String(i + 1).padStart(2, "0")}.</span>
+              <span class="ml-1">{item.label}</span>
+            </a>
+          </li>
+        ))
+      }
+      <li>
+        <a href={site.resume} target="_blank" rel="noopener noreferrer" class="btn !px-4 !py-2">
+          résumé
+        </a>
+      </li>
+    </ol>
+  </nav>
+</header>
+
+<style>
+  /* Hide-on-scroll-down state (class toggled by script) */
+  #site-nav.nav-hidden {
+    transform: translateY(-100%);
+  }
+  /* Mobile menu open state */
+  #nav-menu.menu-open {
+    transform: translateX(0);
+  }
+</style>
+
+<script>
+  const header = document.getElementById("site-nav")!;
+  const toggle = document.getElementById("nav-toggle");
+  const menu = document.getElementById("nav-menu");
+
+  // Hide nav when scrolling down, reveal when scrolling up.
+  let lastY = window.scrollY;
+  let ticking = false;
+  window.addEventListener("scroll", () => {
+    if (ticking) return;
+    ticking = true;
+    requestAnimationFrame(() => {
+      const y = window.scrollY;
+      const menuOpen = menu?.classList.contains("menu-open");
+      if (!menuOpen) {
+        if (y > lastY && y > 120) header.classList.add("nav-hidden");
+        else header.classList.remove("nav-hidden");
+      }
+      lastY = y;
+      ticking = false;
+    });
+  });
+
+  // Mobile menu
+  toggle?.addEventListener("click", () => {
+    const open = menu?.classList.toggle("menu-open");
+    toggle.setAttribute("aria-expanded", String(!!open));
+    document.body.style.overflow = open ? "hidden" : "";
+  });
+  menu?.querySelectorAll("a").forEach((a) =>
+    a.addEventListener("click", () => {
+      menu.classList.remove("menu-open");
+      toggle?.setAttribute("aria-expanded", "false");
+      document.body.style.overflow = "";
+    }),
+  );
+</script>

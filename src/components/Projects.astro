@@ -1,0 +1,168 @@
+---
+import Section from "@/components/Section.astro";
+import Icon from "@/components/Icon.astro";
+import { featured, projects } from "@/data/site";
+
+/** Abstract SVG motif per featured project — no fake screenshots. */
+const glyphs: Record<string, string> = {
+  flock: `
+    <g fill="rgba(255,180,84,0.5)">
+      <path d="M40 90 l14 -5 -3 9 z"/><path d="M90 60 l14 -5 -3 9 z"/>
+      <path d="M150 95 l14 -5 -3 9 z"/><path d="M210 55 l14 -5 -3 9 z"/>
+      <path d="M260 100 l14 -5 -3 9 z"/><path d="M120 140 l14 -5 -3 9 z"/>
+      <path d="M190 150 l14 -5 -3 9 z"/><path d="M70 160 l14 -5 -3 9 z"/>
+    </g>
+    <g stroke="rgba(255,180,84,0.15)" stroke-width="1" fill="none">
+      <path d="M47 88 Q 70 70 97 58 T 157 93 T 217 53 T 267 98"/>
+      <path d="M77 158 Q 100 145 127 138 T 197 148"/>
+    </g>`,
+  chart: `
+    <g stroke="rgba(255,180,84,0.35)" stroke-width="1.5" fill="none">
+      <path d="M30 160 L 80 120 L 130 140 L 180 80 L 230 95 L 280 50"/>
+    </g>
+    <g fill="rgba(255,180,84,0.5)">
+      <circle cx="80" cy="120" r="3"/><circle cx="130" cy="140" r="3"/>
+      <circle cx="180" cy="80" r="3"/><circle cx="230" cy="95" r="3"/>
+    </g>
+    <g stroke="rgba(255,180,84,0.12)" stroke-width="1">
+      <line x1="30" y1="60" x2="280" y2="60"/><line x1="30" y1="110" x2="280" y2="110"/>
+      <line x1="30" y1="160" x2="280" y2="160"/>
+    </g>`,
+  docs: `
+    <g stroke="rgba(255,180,84,0.3)" stroke-width="1.5" fill="none">
+      <rect x="60" y="45" width="120" height="140" rx="6"/>
+      <rect x="130" y="65" width="120" height="140" rx="6" fill="rgba(18,24,38,0.9)"/>
+    </g>
+    <g stroke="rgba(255,180,84,0.35)" stroke-width="2" stroke-linecap="round">
+      <line x1="150" y1="95" x2="230" y2="95"/><line x1="150" y1="115" x2="215" y2="115"/>
+      <line x1="150" y1="135" x2="225" y2="135"/><line x1="150" y1="155" x2="200" y2="155"/>
+    </g>`,
+};
+---
+
+<Section id="projects" index="03" title="Things I've Built">
+  {/* Featured spotlight cards */}
+  <div class="space-y-8">
+    {
+      featured.map((p, i) => (
+        <article
+          class="group border-line bg-bg-raised hover:border-accent/40 relative grid overflow-hidden rounded-lg border transition-colors duration-300 md:grid-cols-[1fr_280px]"
+          data-reveal
+        >
+          <div class="relative z-[1] p-7 sm:p-9">
+            <p class="font-mono text-accent mb-2 text-xs">Featured · {String(i + 1).padStart(2, "0")}</p>
+            <h3 class="text-xl font-semibold sm:text-2xl">
+              {p.external || p.github ? (
+                <a
+                  href={p.external ?? p.github}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="hover:text-accent transition-colors after:absolute after:inset-0"
+                >
+                  {p.title}
+                </a>
+              ) : (
+                p.title
+              )}
+            </h3>
+            <p class="text-body mt-4 max-w-xl text-[0.95rem]">{p.blurb}</p>
+            <ul class="mt-5 flex flex-wrap gap-x-4 gap-y-1">
+              {p.tech.map((t) => (
+                <li class="chip">{t}</li>
+              ))}
+            </ul>
+            <div class="relative z-[1] mt-5 flex items-center gap-4">
+              {p.github && (
+                <a
+                  href={p.github}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={`${p.title} on GitHub`}
+                  class="text-muted hover:text-accent transition-colors"
+                >
+                  <Icon name="github" size={22} />
+                </a>
+              )}
+              {p.external && (
+                <a
+                  href={p.external}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="font-mono text-muted hover:text-accent inline-flex items-center gap-2 text-xs transition-colors"
+                >
+                  {p.externalLabel ?? "Visit"}
+                  <Icon name="external" size={14} />
+                </a>
+              )}
+            </div>
+          </div>
+          <div class="relative hidden items-center justify-center md:flex" aria-hidden="true">
+            <svg
+              viewBox="0 0 310 230"
+              class="h-full w-full opacity-70 transition-all duration-500 group-hover:scale-105 group-hover:opacity-100"
+              set:html={glyphs[p.glyph ?? "flock"]}
+            />
+          </div>
+        </article>
+      ))
+    }
+  </div>
+
+  {/* Noteworthy grid */}
+  <h3 class="mt-20 mb-8 text-center text-xl font-medium" data-reveal>
+    Other noteworthy projects
+  </h3>
+  <ul class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+    {
+      projects.map((p, i) => (
+        <li data-reveal style={`--reveal-delay: ${(i % 3) * 100}ms`}>
+          <article class="group border-line bg-bg-raised hover:border-accent/40 relative flex h-full flex-col rounded-lg border p-6 transition-all duration-300 hover:-translate-y-1.5">
+            <header class="mb-4 flex items-center justify-between">
+              <Icon name="folder" size={34} class="text-accent" />
+              <div class="relative z-[1] flex items-center gap-3">
+                {p.github && (
+                  <a
+                    href={p.github}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={`${p.title} on GitHub`}
+                    class="text-muted hover:text-accent transition-colors"
+                  >
+                    <Icon name="github" size={18} />
+                  </a>
+                )}
+                {p.external && (
+                  <a
+                    href={p.external}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={`${p.title} external link`}
+                    class="text-muted hover:text-accent transition-colors"
+                  >
+                    <Icon name="external" size={18} />
+                  </a>
+                )}
+              </div>
+            </header>
+            <h4 class="text-base font-medium">
+              <a
+                href={p.github ?? p.external}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="group-hover:text-accent transition-colors after:absolute after:inset-0"
+              >
+                {p.title}
+              </a>
+            </h4>
+            <p class="text-muted mt-2 grow text-sm">{p.blurb}</p>
+            <ul class="mt-5 flex flex-wrap gap-x-3 gap-y-1">
+              {p.tech.map((t) => (
+                <li class="chip">{t}</li>
+              ))}
+            </ul>
+          </article>
+        </li>
+      ))
+    }
+  </ul>
+</Section>

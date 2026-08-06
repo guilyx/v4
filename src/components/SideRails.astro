@@ -1,0 +1,42 @@
+---
+import Icon from "@/components/Icon.astro";
+import { site } from "@/data/site";
+---
+
+{/* Left rail — social icons */}
+<aside
+  class="fixed bottom-0 left-8 z-10 hidden flex-col items-center gap-5 lg:flex xl:left-12"
+  data-reveal
+  style="--reveal-delay: 900ms"
+>
+  {
+    site.socials.map((s) => (
+      <a
+        href={s.url}
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label={s.label}
+        class="text-muted hover:text-accent transition-all duration-200 hover:-translate-y-1"
+      >
+        <Icon name={s.icon} />
+      </a>
+    ))
+  }
+  <span class="bg-line mt-2 block h-24 w-px"></span>
+</aside>
+
+{/* Right rail — email */}
+<aside
+  class="fixed right-8 bottom-0 z-10 hidden flex-col items-center gap-6 lg:flex xl:right-12"
+  data-reveal
+  style="--reveal-delay: 1000ms"
+>
+  <a
+    href={`mailto:${site.email}`}
+    class="font-mono text-muted hover:text-accent text-xs tracking-widest transition-all duration-200 hover:-translate-y-1"
+    style="writing-mode: vertical-rl"
+  >
+    {site.email}
+  </a>
+  <span class="bg-line block h-24 w-px"></span>
+</aside>

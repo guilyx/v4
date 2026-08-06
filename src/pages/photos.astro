@@ -1,0 +1,60 @@
+---
+import { getCollection } from "astro:content";
+import { Image } from "astro:assets";
+import Base from "@/layouts/Base.astro";
+
+const photos = (await getCollection("photos")).sort(
+  (a, b) => b.data.date.valueOf() - a.data.date.valueOf(),
+);
+const fmt = new Intl.DateTimeFormat("en", { year: "numeric", month: "short" });
+---
+
+<Base title="Photos" description="Photography by Erwin Lejeune.">
+  <div class="mx-auto max-w-4xl pt-36 pb-24">
+    <p class="font-mono text-accent mb-3 text-sm" data-reveal>/photos</p>
+    <h1 class="text-4xl font-semibold sm:text-5xl" data-reveal>Through the Lens</h1>
+    <p class="text-muted mt-4 max-w-xl" data-reveal style="--reveal-delay: 100ms">
+      Places, light, and the occasional robot.
+    </p>
+
+    {
+      photos.length > 0 ? (
+        <ul class="mt-16 columns-1 gap-4 space-y-4 sm:columns-2 lg:columns-3">
+          {photos.map((photo, i) => (
+            <li class="break-inside-avoid" data-reveal style={`--reveal-delay: ${(i % 3) * 80}ms`}>
+              <figure class="group border-line bg-bg-raised relative overflow-hidden rounded-lg border">
+                <Image
+                  src={photo.data.cover}
+                  alt={photo.data.title}
+                  widths={[400, 800]}
+                  sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
+                  class="w-full transition-transform duration-500 group-hover:scale-[1.03]"
+                />
+                <figcaption class="absolute inset-x-0 bottom-0 translate-y-full bg-gradient-to-t from-black/80 to-transparent p-4 pt-10 transition-transform duration-300 group-hover:translate-y-0">
+                  <p class="text-heading text-sm font-medium">{photo.data.title}</p>
+                  <p class="font-mono text-muted mt-0.5 text-xs">
+                    {photo.data.location && `${photo.data.location} · `}
+                    {fmt.format(photo.data.date)}
+                  </p>
+                </figcaption>
+              </figure>
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <div
+          class="border-line mt-16 rounded-lg border border-dashed p-12 text-center"
+          data-reveal
+          style="--reveal-delay: 200ms"
+        >
+          <p class="font-mono text-accent text-sm">// film still developing</p>
+          <p class="text-muted mx-auto mt-3 max-w-md text-sm">
+            The gallery is warming up. To add a photo, drop an image in
+            <code class="text-heading font-mono text-xs"> src/content/photos/ </code>
+            with a small markdown file next to it — the grid takes care of itself.
+          </p>
+        </div>
+      )
+    }
+  </div>
+</Base>

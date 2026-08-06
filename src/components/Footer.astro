@@ -1,0 +1,30 @@
+---
+import Icon from "@/components/Icon.astro";
+import { site } from "@/data/site";
+---
+
+<footer class="py-10 text-center">
+  <div class="mb-4 flex justify-center gap-6 lg:hidden">
+    {
+      site.socials.map((s) => (
+        <a
+          href={s.url}
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label={s.label}
+          class="text-muted hover:text-accent transition-colors"
+        >
+          <Icon name={s.icon} />
+        </a>
+      ))
+    }
+  </div>
+  <a
+    href="https://github.com/guilyx/v4"
+    target="_blank"
+    rel="noopener noreferrer"
+    class="font-mono text-faint hover:text-accent text-xs transition-colors"
+  >
+    designed & built by {site.name} — v4
+  </a>
+</footer>

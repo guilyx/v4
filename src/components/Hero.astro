@@ -1,0 +1,284 @@
+---
+import { site } from "@/data/site";
+---
+
+<section class="relative flex min-h-screen flex-col justify-center">
+  {/* Flocking simulation — full-bleed behind the hero copy */}
+  <canvas
+    id="boids"
+    class="pointer-events-none absolute top-0 left-1/2 -z-[1] h-full w-screen -translate-x-1/2"
+    aria-hidden="true"></canvas>
+
+  <div class="max-w-3xl">
+    <p
+      class="font-mono text-accent mb-5 text-sm sm:text-base"
+      data-reveal
+      style="--reveal-delay: 100ms"
+    >
+      Hi, my name is
+    </p>
+    <h1
+      class="text-4xl font-semibold sm:text-6xl md:text-7xl"
+      data-reveal
+      style="--reveal-delay: 200ms"
+    >
+      {site.name}.
+    </h1>
+    <h2
+      class="text-muted mt-2 text-3xl font-semibold sm:text-5xl md:text-6xl"
+      data-reveal
+      style="--reveal-delay: 300ms"
+    >
+      {site.tagline}
+    </h2>
+    <p
+      class="text-body mt-6 max-w-xl text-base sm:text-lg"
+      data-reveal
+      style="--reveal-delay: 400ms"
+    >
+      I'm a robotics software engineer specializing in <span class="text-heading"
+        >decentralized autonomy</span
+      > — drone swarms that navigate, perceive, and decide without anyone holding
+      the joystick. Currently leading autonomy at
+      <a href="https://sirb.ai/" target="_blank" rel="noopener noreferrer" class="link">SIRB.AI</a>
+      and the
+      <a href="https://www.tii.ae/" target="_blank" rel="noopener noreferrer" class="link"
+        >Technology Innovation Institute</a
+      > in Abu Dhabi.
+    </p>
+    <p class="chip mt-4" data-reveal style="--reveal-delay: 500ms">
+      ↑ the dots up there? that's a flocking algorithm. it's kind of my thing.
+    </p>
+    <div class="mt-10" data-reveal style="--reveal-delay: 600ms">
+      <a href="/#projects" class="btn">Check out my work</a>
+    </div>
+  </div>
+
+  <a
+    href="/#about"
+    class="text-faint hover:text-accent absolute bottom-8 left-1/2 hidden -translate-x-1/2 transition-colors sm:block"
+    aria-label="Scroll to about section"
+    data-reveal
+    style="--reveal-delay: 1200ms"
+  >
+    <svg
+      width="22"
+      height="22"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="1.7"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      class="animate-bounce"
+      aria-hidden="true"
+    >
+      <path d="M12 4v16m-6-6 6 6 6-6"></path>
+    </svg>
+  </a>
+</section>
+
+<script>
+  // ---------------------------------------------------------------------
+  // Boids — a tiny decentralized flocking simulation (Reynolds, 1987).
+  // Each agent steers by three local rules: separation, alignment,
+  // cohesion. No leader, no global state — same principle as the drone
+  // swarms I work on, at 1/1000th of the stakes.
+  // ---------------------------------------------------------------------
+  const canvas = document.getElementById("boids") as HTMLCanvasElement | null;
+
+  if (canvas) {
+    const ctx = canvas.getContext("2d")!;
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    const ACCENT = "255, 180, 84";
+    const COUNT = window.innerWidth < 640 ? 28 : 56;
+    const PERCEPTION = 70;
+    const MAX_SPEED = 1.4;
+    const MAX_FORCE = 0.035;
+
+    let w = 0;
+    let h = 0;
+    let dpr = 1;
+
+    interface Boid {
+      x: number;
+      y: number;
+      vx: number;
+      vy: number;
+    }
+
+    const boids: Boid[] = [];
+    const pointer = { x: -9999, y: -9999, active: false };
+
+    function resize() {
+      dpr = Math.min(window.devicePixelRatio || 1, 2);
+      w = canvas!.clientWidth;
+      h = canvas!.clientHeight;
+      canvas!.width = Math.floor(w * dpr);
+      canvas!.height = Math.floor(h * dpr);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+
+    function spawn() {
+      boids.length = 0;
+      for (let i = 0; i < COUNT; i++) {
+        const a = Math.random() * Math.PI * 2;
+        boids.push({
+          x: Math.random() * w,
+          y: Math.random() * h,
+          vx: Math.cos(a) * MAX_SPEED * 0.7,
+          vy: Math.sin(a) * MAX_SPEED * 0.7,
+        });
+      }
+    }
+
+    function limit(vx: number, vy: number, max: number): [number, number] {
+      const m = Math.hypot(vx, vy);
+      if (m > max && m > 0) return [(vx / m) * max, (vy / m) * max];
+      return [vx, vy];
+    }
+
+    function step() {
+      for (const b of boids) {
+        let sepX = 0, sepY = 0;
+        let aliX = 0, aliY = 0;
+        let cohX = 0, cohY = 0;
+        let n = 0;
+
+        for (const o of boids) {
+          if (o === b) continue;
+          const dx = o.x - b.x;
+          const dy = o.y - b.y;
+          const d = Math.hypot(dx, dy);
+          if (d > 0 && d < PERCEPTION) {
+            n++;
+            // separation: steer away, weighted by closeness
+            sepX -= dx / (d * d);
+            sepY -= dy / (d * d);
+            // alignment: average heading
+            aliX += o.vx;
+            aliY += o.vy;
+            // cohesion: average position
+            cohX += o.x;
+            cohY += o.y;
+          }
+        }
+
+        let ax = 0, ay = 0;
+        if (n > 0) {
+          [sepX, sepY] = limit(sepX * 18, sepY * 18, MAX_FORCE * 1.5);
+          [aliX, aliY] = limit(aliX / n - b.vx, aliY / n - b.vy, MAX_FORCE);
+          [cohX, cohY] = limit((cohX / n - b.x) * 0.01, (cohY / n - b.y) * 0.01, MAX_FORCE * 0.8);
+          ax = sepX + aliX + cohX;
+          ay = sepY + aliY + cohY;
+        }
+
+        // gentle avoidance of the pointer, so the flock parts around it
+        if (pointer.active) {
+          const dx = b.x - pointer.x;
+          const dy = b.y - pointer.y;
+          const d = Math.hypot(dx, dy);
+          if (d > 0 && d < 110) {
+            ax += (dx / d) * 0.12 * (1 - d / 110);
+            ay += (dy / d) * 0.12 * (1 - d / 110);
+          }
+        }
+
+        b.vx += ax;
+        b.vy += ay;
+        [b.vx, b.vy] = limit(b.vx, b.vy, MAX_SPEED);
+        // keep a minimum cruise speed so nobody stalls
+        const sp = Math.hypot(b.vx, b.vy);
+        if (sp < 0.4 && sp > 0) {
+          b.vx = (b.vx / sp) * 0.4;
+          b.vy = (b.vy / sp) * 0.4;
+        }
+        b.x += b.vx;
+        b.y += b.vy;
+
+        // toroidal wrap
+        if (b.x < -10) b.x = w + 10;
+        if (b.x > w + 10) b.x = -10;
+        if (b.y < -10) b.y = h + 10;
+        if (b.y > h + 10) b.y = -10;
+      }
+    }
+
+    function draw() {
+      ctx.clearRect(0, 0, w, h);
+
+      // faint connection lines between close neighbours
+      ctx.lineWidth = 1;
+      for (let i = 0; i < boids.length; i++) {
+        for (let j = i + 1; j < boids.length; j++) {
+          const a = boids[i]!;
+          const o = boids[j]!;
+          const d = Math.hypot(a.x - o.x, a.y - o.y);
+          if (d < 55) {
+            ctx.strokeStyle = `rgba(${ACCENT}, ${0.10 * (1 - d / 55)})`;
+            ctx.beginPath();
+            ctx.moveTo(a.x, a.y);
+            ctx.lineTo(o.x, o.y);
+            ctx.stroke();
+          }
+        }
+      }
+
+      // agents: small triangles oriented along velocity
+      for (const b of boids) {
+        const ang = Math.atan2(b.vy, b.vx);
+        ctx.save();
+        ctx.translate(b.x, b.y);
+        ctx.rotate(ang);
+        ctx.fillStyle = `rgba(${ACCENT}, 0.55)`;
+        ctx.beginPath();
+        ctx.moveTo(5, 0);
+        ctx.lineTo(-4, 3);
+        ctx.lineTo(-4, -3);
+        ctx.closePath();
+        ctx.fill();
+        ctx.restore();
+      }
+    }
+
+    let raf = 0;
+    function loop() {
+      step();
+      draw();
+      raf = requestAnimationFrame(loop);
+    }
+
+    resize();
+    spawn();
+
+    if (reduceMotion) {
+      // static formation for reduced-motion users
+      step();
+      draw();
+    } else {
+      loop();
+      // pause when tab is hidden
+      document.addEventListener("visibilitychange", () => {
+        if (document.hidden) {
+          cancelAnimationFrame(raf);
+        } else {
+          raf = requestAnimationFrame(loop);
+        }
+      });
+    }
+
+    window.addEventListener("resize", () => {
+      resize();
+    });
+    window.addEventListener("pointermove", (e) => {
+      const rect = canvas.getBoundingClientRect();
+      pointer.x = e.clientX - rect.left;
+      pointer.y = e.clientY - rect.top;
+      pointer.active = pointer.y >= 0 && pointer.y <= h;
+    });
+    window.addEventListener("pointerleave", () => {
+      pointer.active = false;
+    });
+  }
+</script>

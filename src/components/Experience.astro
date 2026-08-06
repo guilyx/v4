@@ -1,0 +1,177 @@
+---
+import Section from "@/components/Section.astro";
+import { experience } from "@/data/site";
+---
+
+<Section id="experience" index="02" title="Where I've Worked">
+  <div class="grid gap-8 md:grid-cols-[max-content_1fr]" data-reveal>
+    {/* Tab list — vertical on desktop, horizontal scroll on mobile */}
+    <div
+      role="tablist"
+      aria-label="Jobs"
+      class="border-line flex overflow-x-auto max-md:border-b md:flex-col md:border-b-0 md:border-l"
+      id="job-tabs"
+    >
+      {
+        experience.map((job, i) => (
+          <button
+            role="tab"
+            id={`tab-${i}`}
+            aria-selected={i === 0 ? "true" : "false"}
+            aria-controls={`panel-${i}`}
+            tabindex={i === 0 ? 0 : -1}
+            class="job-tab font-mono text-muted hover:text-accent hover:bg-accent-soft relative shrink-0 px-5 py-3 text-left text-[0.8rem] whitespace-nowrap transition-colors"
+          >
+            {job.shortName}
+          </button>
+        ))
+      }
+      <span id="tab-marker" aria-hidden="true"></span>
+    </div>
+
+    {/* Panels */}
+    <div class="min-h-[320px]">
+      {
+        experience.map((job, i) => (
+          <div
+            role="tabpanel"
+            id={`panel-${i}`}
+            aria-labelledby={`tab-${i}`}
+            hidden={i !== 0}
+            class="job-panel"
+          >
+            <h3 class="text-lg font-medium sm:text-xl">
+              {job.role}{" "}
+              <span class="text-accent">
+                @{" "}
+                <a href={job.url} target="_blank" rel="noopener noreferrer" class="link">
+                  {job.company}
+                </a>
+              </span>
+            </h3>
+            <p class="font-mono text-muted mt-1 text-xs">
+              {job.period}
+              {job.location && <span class="text-faint"> · {job.location}</span>}
+            </p>
+            <ul class="mt-6 space-y-3">
+              {job.bullets.map((b) => (
+                <li class="flex gap-3 text-[0.95rem]">
+                  <span class="text-accent mt-1 shrink-0" aria-hidden="true">
+                    ▸
+                  </span>
+                  <span>{b}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))
+      }
+    </div>
+  </div>
+</Section>
+
+<style>
+  /* Sliding active-tab marker */
+  #job-tabs {
+    position: relative;
+  }
+  #tab-marker {
+    position: absolute;
+    background: var(--color-accent);
+    transition:
+      transform 0.25s var(--ease-swift),
+      width 0.25s var(--ease-swift),
+      height 0.25s var(--ease-swift);
+    /* mobile: underline */
+    bottom: 0;
+    left: 0;
+    height: 2px;
+    width: var(--marker-size, 80px);
+    transform: translateX(var(--marker-pos, 0));
+  }
+  @media (min-width: 768px) {
+    #tab-marker {
+      /* desktop: left bar */
+      bottom: auto;
+      top: 0;
+      left: -1px;
+      width: 2px;
+      height: var(--marker-size, 44px);
+      transform: translateY(var(--marker-pos, 0));
+    }
+  }
+  .job-tab[aria-selected="true"] {
+    color: var(--color-accent);
+    background: var(--color-accent-soft);
+  }
+  .job-panel {
+    animation: panel-in 0.35s var(--ease-swift);
+  }
+  @keyframes panel-in {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .job-panel {
+      animation: none;
+    }
+    #tab-marker {
+      transition: none;
+    }
+  }
+</style>
+
+<script>
+  const tablist = document.getElementById("job-tabs");
+  const tabs = Array.from(document.querySelectorAll<HTMLButtonElement>(".job-tab"));
+  const panels = Array.from(document.querySelectorAll<HTMLElement>(".job-panel"));
+
+  function positionMarker(tab: HTMLButtonElement) {
+    if (!tablist) return;
+    const desktop = window.matchMedia("(min-width: 768px)").matches;
+    const pos = desktop ? tab.offsetTop : tab.offsetLeft;
+    const size = desktop ? tab.offsetHeight : tab.offsetWidth;
+    tablist.style.setProperty("--marker-pos", `${pos}px`);
+    tablist.style.setProperty("--marker-size", `${size}px`);
+  }
+
+  function select(index: number) {
+    tabs.forEach((t, i) => {
+      const active = i === index;
+      t.setAttribute("aria-selected", String(active));
+      t.tabIndex = active ? 0 : -1;
+    });
+    panels.forEach((p, i) => {
+      p.hidden = i !== index;
+    });
+    const tab = tabs[index];
+    if (tab) positionMarker(tab);
+  }
+
+  tabs.forEach((tab, i) => {
+    tab.addEventListener("click", () => select(i));
+    tab.addEventListener("keydown", (e) => {
+      let next = -1;
+      if (e.key === "ArrowDown" || e.key === "ArrowRight") next = (i + 1) % tabs.length;
+      if (e.key === "ArrowUp" || e.key === "ArrowLeft") next = (i - 1 + tabs.length) % tabs.length;
+      if (next >= 0) {
+        e.preventDefault();
+        select(next);
+        tabs[next]?.focus();
+      }
+    });
+  });
+
+  const first = tabs[0];
+  if (first) positionMarker(first);
+  window.addEventListener("resize", () => {
+    const active = tabs.find((t) => t.getAttribute("aria-selected") === "true");
+    if (active) positionMarker(active);
+  });
+</script>
