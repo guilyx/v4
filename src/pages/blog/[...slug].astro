@@ -23,7 +23,7 @@ const fmt = new Intl.DateTimeFormat("en", { year: "numeric", month: "long", day:
       <Icon name="arrow" size={14} class="rotate-180" /> all posts
     </a>
     <header class="mt-8 mb-12">
-      <h1 class="text-3xl font-semibold sm:text-4xl">{post.data.title}</h1>
+      <h1 class="text-2xl font-semibold sm:text-3xl">{post.data.title}</h1>
       <p class="font-mono text-muted mt-4 text-xs">
         <time datetime={post.data.date.toISOString()}>{fmt.format(post.data.date)}</time>
         {post.data.tags.map((t) => <span class="text-faint ml-3">#{t}</span>)}

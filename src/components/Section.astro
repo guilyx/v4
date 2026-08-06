@@ -10,8 +10,8 @@ const { id, index, title, class: className = "" } = Astro.props;
 ---
 
 <section id={id} class={`mx-auto max-w-4xl scroll-mt-24 py-24 md:py-32 ${className}`}>
-  <h2 class="mb-10 flex items-center gap-4 text-2xl font-semibold sm:text-3xl" data-reveal>
-    <span class="font-mono text-accent text-lg font-normal sm:text-xl">{index}.</span>
+  <h2 class="mb-10 flex items-center gap-4 text-xl font-semibold sm:text-2xl" data-reveal>
+    <span class="font-mono text-accent text-base font-normal sm:text-lg">{index}.</span>
     {title}
     <span class="bg-line ml-2 hidden h-px grow sm:block" style="max-width: 300px"></span>
   </h2>

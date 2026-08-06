@@ -18,21 +18,21 @@ import { site } from "@/data/site";
       Hi, my name is
     </p>
     <h1
-      class="text-4xl font-semibold sm:text-6xl md:text-7xl"
+      class="text-3xl font-semibold sm:text-5xl md:text-6xl"
       data-reveal
       style="--reveal-delay: 200ms"
     >
       {site.name}.
     </h1>
     <h2
-      class="text-muted mt-2 text-3xl font-semibold sm:text-5xl md:text-6xl"
+      class="text-muted mt-2 text-2xl font-semibold sm:text-4xl md:text-5xl"
       data-reveal
       style="--reveal-delay: 300ms"
     >
       {site.tagline}
     </h2>
     <p
-      class="text-body mt-6 max-w-xl text-base sm:text-lg"
+      class="text-body mt-6 max-w-xl text-base"
       data-reveal
       style="--reveal-delay: 400ms"
     >
@@ -91,8 +91,8 @@ import { site } from "@/data/site";
     const ctx = canvas.getContext("2d")!;
     const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-    const ACCENT = "255, 180, 84";
-    const COUNT = window.innerWidth < 640 ? 28 : 56;
+    const ACCENT = "100, 255, 218";
+    const COUNT = window.innerWidth < 640 ? 24 : 48;
     const PERCEPTION = 70;
     const MAX_SPEED = 1.4;
     const MAX_FORCE = 0.035;
@@ -216,7 +216,7 @@ import { site } from "@/data/site";
           const o = boids[j]!;
           const d = Math.hypot(a.x - o.x, a.y - o.y);
           if (d < 55) {
-            ctx.strokeStyle = `rgba(${ACCENT}, ${0.10 * (1 - d / 55)})`;
+            ctx.strokeStyle = `rgba(${ACCENT}, ${0.06 * (1 - d / 55)})`;
             ctx.beginPath();
             ctx.moveTo(a.x, a.y);
             ctx.lineTo(o.x, o.y);
@@ -231,7 +231,7 @@ import { site } from "@/data/site";
         ctx.save();
         ctx.translate(b.x, b.y);
         ctx.rotate(ang);
-        ctx.fillStyle = `rgba(${ACCENT}, 0.55)`;
+        ctx.fillStyle = `rgba(${ACCENT}, 0.35)`;
         ctx.beginPath();
         ctx.moveTo(5, 0);
         ctx.lineTo(-4, 3);

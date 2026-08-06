@@ -1,19 +1,19 @@
 @import "tailwindcss";
 
 /* ---------------------------------------------------------------------------
-   Design tokens — "night ops" palette: deep blue-charcoal, warm signal amber.
+   Design tokens — sober navy/slate palette with a quiet mint accent.
 --------------------------------------------------------------------------- */
 @theme {
-  --color-bg: #0a0e14;
-  --color-bg-raised: #0e131c;
-  --color-surface: #121826;
-  --color-line: #1d2636;
-  --color-heading: #f2f5f9;
-  --color-body: #b7c1cf;
-  --color-muted: #8b96a8;
-  --color-faint: #5c6775;
-  --color-accent: #ffb454;
-  --color-accent-soft: rgba(255, 180, 84, 0.08);
+  --color-bg: #0a192f;
+  --color-bg-raised: #112240;
+  --color-surface: #112240;
+  --color-line: #233554;
+  --color-heading: #ccd6f6;
+  --color-body: #a8b2d1;
+  --color-muted: #8892b0;
+  --color-faint: #495670;
+  --color-accent: #64ffda;
+  --color-accent-soft: rgba(100, 255, 218, 0.07);
 
   --font-display: "Space Grotesk Variable", ui-sans-serif, system-ui, sans-serif;
   --font-sans: "Inter Variable", ui-sans-serif, system-ui, sans-serif;
@@ -44,7 +44,7 @@ body {
 }
 
 ::selection {
-  background-color: rgba(255, 180, 84, 0.25);
+  background-color: rgba(100, 255, 218, 0.2);
   color: var(--color-heading);
 }
 
@@ -110,8 +110,6 @@ h1, h2, h3, h4 {
 .btn:hover,
 .btn:focus-visible {
   background-color: var(--color-accent-soft);
-  transform: translate(-3px, -3px);
-  box-shadow: 3px 3px 0 0 var(--color-accent);
 }
 
 /* Mono tag chip */
