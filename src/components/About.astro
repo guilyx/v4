@@ -44,30 +44,7 @@ function md(text: string): string {
         <div
           class="border-line bg-surface relative flex aspect-square items-center justify-center overflow-hidden rounded border"
         >
-          <svg viewBox="0 0 280 280" class="absolute inset-0 h-full w-full" aria-hidden="true">
-            <defs>
-              <radialGradient id="glow" cx="50%" cy="42%" r="65%">
-                <stop offset="0%" stop-color="rgba(100,255,218,0.16)"></stop>
-                <stop offset="100%" stop-color="rgba(100,255,218,0)"></stop>
-              </radialGradient>
-            </defs>
-            <rect width="280" height="280" fill="url(#glow)"></rect>
-            {/* orbiting agents around the monogram */}
-            <g fill="rgba(100,255,218,0.5)">
-              <circle cx="60" cy="80" r="3"></circle>
-              <circle cx="222" cy="66" r="2.5"></circle>
-              <circle cx="238" cy="180" r="3"></circle>
-              <circle cx="52" cy="204" r="2.5"></circle>
-              <circle cx="140" cy="40" r="2"></circle>
-            </g>
-            <g stroke="rgba(100,255,218,0.18)" stroke-width="1">
-              <line x1="60" y1="80" x2="140" y2="40"></line>
-              <line x1="140" y1="40" x2="222" y2="66"></line>
-              <line x1="222" y1="66" x2="238" y2="180"></line>
-              <line x1="52" y1="204" x2="60" y2="80"></line>
-            </g>
-          </svg>
-          <span class="font-display text-accent relative text-6xl font-semibold tracking-tight">
+          <span class="font-display text-heading relative text-6xl font-semibold tracking-tight">
             el
           </span>
         </div>

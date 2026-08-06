@@ -91,8 +91,9 @@ import { site } from "@/data/site";
     const ctx = canvas.getContext("2d")!;
     const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-    const ACCENT = "100, 255, 218";
-    const COUNT = window.innerWidth < 640 ? 24 : 48;
+    // slate, not accent — the flock is texture, not decoration
+    const ACCENT = "136, 146, 176";
+    const COUNT = window.innerWidth < 640 ? 24 : 44;
     const PERCEPTION = 70;
     const MAX_SPEED = 1.4;
     const MAX_FORCE = 0.035;
@@ -231,7 +232,7 @@ import { site } from "@/data/site";
         ctx.save();
         ctx.translate(b.x, b.y);
         ctx.rotate(ang);
-        ctx.fillStyle = `rgba(${ACCENT}, 0.35)`;
+        ctx.fillStyle = `rgba(${ACCENT}, 0.3)`;
         ctx.beginPath();
         ctx.moveTo(5, 0);
         ctx.lineTo(-4, 3);
