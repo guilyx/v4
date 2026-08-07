@@ -2,20 +2,24 @@
 import { Image } from "astro:assets";
 import Section from "@/components/Section.astro";
 import Icon from "@/components/Icon.astro";
-import { featured, projects } from "@/data/site";
+import { featured, projects, layers, buildsIntro } from "@/data/site";
 import flockingPromo from "@/assets/projects/flocking.png";
 import t212Promo from "@/assets/projects/t212.png";
-import doxmosisPromo from "@/assets/projects/doxmosis.png";
+import setupPromo from "@/assets/projects/setup.png";
 
 /** Promo artifact per featured project, keyed by `glyph` in site data. */
 const promos = {
   flock: flockingPromo,
   chart: t212Promo,
-  docs: doxmosisPromo,
+  provision: setupPromo,
 } as const;
 ---
 
 <Section id="projects" title="Selected Builds">
+  <p class="text-muted mb-10 max-w-xl text-sm" data-reveal>
+    {buildsIntro.replace(/\s+/g, " ")}
+  </p>
+
   {/* Featured spotlight cards */}
   <div class="space-y-8">
     {
@@ -25,7 +29,7 @@ const promos = {
           data-reveal
         >
           <div class="relative z-[1] p-7 sm:p-8">
-            <p class="font-mono text-accent mb-2 text-xs">Featured · {String(i + 1).padStart(2, "0")}</p>
+            <p class="font-mono text-accent mb-2 text-xs">{layers[p.layer]}</p>
             <h3 class="text-xl font-semibold sm:text-2xl">
               {p.external || p.github ? (
                 <a
@@ -95,8 +99,13 @@ const promos = {
         <li data-reveal style={`--reveal-delay: ${(i % 3) * 100}ms`}>
           <article class="group border-line bg-bg-raised hover:border-accent/40 relative flex h-full flex-col rounded-lg border p-6 transition-all duration-300 hover:-translate-y-1.5">
             <header class="mb-4 flex items-center justify-between">
-              <Icon name="folder" size={34} class="text-accent" />
+              <span class="font-mono text-accent text-[0.7rem]">{layers[p.layer]}</span>
               <div class="relative z-[1] flex items-center gap-3">
+                {p.closed && (
+                  <span class="font-mono text-faint text-[0.68rem]" title="Closed source">
+                    closed
+                  </span>
+                )}
                 {p.github && (
                   <a
                     href={p.github}
@@ -122,14 +131,18 @@ const promos = {
               </div>
             </header>
             <h4 class="text-base font-medium">
-              <a
-                href={p.github ?? p.external}
-                target="_blank"
-                rel="noopener noreferrer"
-                class="group-hover:text-accent transition-colors after:absolute after:inset-0"
-              >
-                {p.title}
-              </a>
+              {p.github || p.external ? (
+                <a
+                  href={p.github ?? p.external}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="group-hover:text-accent transition-colors after:absolute after:inset-0"
+                >
+                  {p.title}
+                </a>
+              ) : (
+                p.title
+              )}
             </h4>
             <p class="text-muted mt-2 grow text-sm">{p.blurb}</p>
             <ul class="mt-5 flex flex-wrap gap-x-3 gap-y-1">
