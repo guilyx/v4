@@ -301,6 +301,14 @@ export const projects: Project[] = [
     external: "https://kymatics.vercel.app/",
   },
   {
+    title: "epsteinexposed-mcp",
+    blurb:
+      "An MCP server over a public-records API, so an assistant can query the archive — persons, documents, flight logs — directly instead of being told about it.",
+    tech: ["Python", "MCP", "Public Data"],
+    layer: "agent",
+    github: "https://github.com/guilyx/epsteinexposed-mcp",
+  },
+  {
     title: "ROS 2 Real-Time Benchmarks",
     blurb:
       "Real-time jitter measurements under ROS 2 on the inverted pendulum case — tooling and a published preprint. Xenomai/XDDP underneath, because soft real-time isn't real-time.",
@@ -318,14 +326,6 @@ export const projects: Project[] = [
     layer: "field",
     external:
       "https://www.researchgate.net/publication/348716625_Survey_of_the_Multi-Agent_Pathfinding_Solutions",
-  },
-  {
-    title: "epsteinexposed-mcp",
-    blurb:
-      "An MCP server over a public-records API, so an assistant can query the archive directly instead of being told about it.",
-    tech: ["MCP", "TypeScript", "Public Data"],
-    layer: "agent",
-    github: "https://github.com/guilyx/epsteinexposed-mcp",
   },
   {
     title: "autonomous-uav",
