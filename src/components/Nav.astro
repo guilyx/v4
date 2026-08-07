@@ -1,0 +1,128 @@
+---
+import { nav, site } from "@/data/site";
+---
+
+<header
+  id="site-nav"
+  class="fixed inset-x-0 top-0 z-50 transition-transform duration-300 ease-out"
+>
+  <nav
+    class="border-line/60 bg-bg/85 flex h-[72px] items-center justify-between border-b px-6 backdrop-blur-md sm:px-10"
+    aria-label="Primary"
+  >
+    <a
+      href="/"
+      class="font-mono text-accent group flex items-center gap-2 text-sm"
+      aria-label="Home"
+    >
+      {/* Three agents, one formation — the brand mark. */}
+      <svg
+        width="28"
+        height="28"
+        viewBox="0 0 32 32"
+        fill="none"
+        class="transition-transform duration-500 group-hover:rotate-[120deg]"
+        aria-hidden="true"
+      >
+        <path
+          d="M16 8.5 L8.5 21 L23.5 21 Z"
+          stroke="currentColor"
+          stroke-width="1.1"
+          opacity="0.45"
+        ></path>
+        <g fill="currentColor">
+          <circle cx="16" cy="8.5" r="2.1"></circle>
+          <circle cx="8.5" cy="21" r="2.1"></circle>
+          <circle cx="23.5" cy="21" r="2.1"></circle>
+        </g>
+      </svg>
+      <span class="text-faint hidden lg:inline">{site.handle}</span>
+    </a>
+
+    <button
+      id="nav-toggle"
+      class="text-accent z-50 -mr-2 p-2 md:hidden"
+      aria-label="Toggle menu"
+      aria-expanded="false"
+      aria-controls="nav-menu"
+    >
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+        <path class="ham-top" d="M3 6h18" />
+        <path class="ham-mid" d="M3 12h18" />
+        <path class="ham-bot" d="M3 18h18" />
+      </svg>
+    </button>
+
+    <ol
+      id="nav-menu"
+      class="max-md:bg-bg-raised max-md:border-line fixed inset-y-0 right-0 hidden w-[min(75vw,320px)] translate-x-full flex-col items-start justify-center gap-8 border-l px-10 transition-transform duration-300 ease-out max-md:flex max-md:shadow-2xl md:static md:flex md:w-auto md:translate-x-0 md:flex-row md:items-center md:gap-8 md:border-0 md:bg-transparent md:px-0 md:shadow-none"
+    >
+      {
+        nav.map((item) => (
+          <li>
+            <a
+              href={item.href}
+              class="font-mono text-body hover:text-accent text-sm transition-colors"
+            >
+              {item.label}
+            </a>
+          </li>
+        ))
+      }
+      <li>
+        <a href={site.resume} target="_blank" rel="noopener noreferrer" class="btn !px-4 !py-2">
+          résumé
+        </a>
+      </li>
+    </ol>
+  </nav>
+</header>
+
+<style>
+  /* Hide-on-scroll-down state (class toggled by script) */
+  #site-nav.nav-hidden {
+    transform: translateY(-100%);
+  }
+  /* Mobile menu open state */
+  #nav-menu.menu-open {
+    transform: translateX(0);
+  }
+</style>
+
+<script>
+  const header = document.getElementById("site-nav")!;
+  const toggle = document.getElementById("nav-toggle");
+  const menu = document.getElementById("nav-menu");
+
+  // Hide nav when scrolling down, reveal when scrolling up.
+  let lastY = window.scrollY;
+  let ticking = false;
+  window.addEventListener("scroll", () => {
+    if (ticking) return;
+    ticking = true;
+    requestAnimationFrame(() => {
+      const y = window.scrollY;
+      const menuOpen = menu?.classList.contains("menu-open");
+      if (!menuOpen) {
+        if (y > lastY && y > 120) header.classList.add("nav-hidden");
+        else header.classList.remove("nav-hidden");
+      }
+      lastY = y;
+      ticking = false;
+    });
+  });
+
+  // Mobile menu
+  toggle?.addEventListener("click", () => {
+    const open = menu?.classList.toggle("menu-open");
+    toggle.setAttribute("aria-expanded", String(!!open));
+    document.body.style.overflow = open ? "hidden" : "";
+  });
+  menu?.querySelectorAll("a").forEach((a) =>
+    a.addEventListener("click", () => {
+      menu.classList.remove("menu-open");
+      toggle?.setAttribute("aria-expanded", "false");
+      document.body.style.overflow = "";
+    }),
+  );
+</script>

@@ -1,0 +1,55 @@
+---
+import Section from "@/components/Section.astro";
+import { about } from "@/data/site";
+
+/** Tiny markdown-link renderer for the about paragraphs. */
+function md(text: string): string {
+  return text
+    .replace(/\s+/g, " ")
+    .replace(
+      /\[([^\]]+)\]\(([^)]+)\)/g,
+      '<a href="$2" target="_blank" rel="noopener noreferrer" class="link">$1</a>',
+    );
+}
+---
+
+<Section id="about" title="Background">
+  <div class="grid gap-12 md:grid-cols-[3fr_2fr]">
+    <div class="space-y-4" data-reveal>
+      {about.paragraphs.map((p) => <p set:html={md(p)} />)}
+
+      <p class="pt-2">Here are a few technologies I've been working with recently:</p>
+      <ul class="grid grid-cols-2 gap-x-4 gap-y-2 sm:grid-cols-3">
+        {
+          about.technologies.map((t) => (
+            <li class="font-mono text-muted flex items-baseline gap-2 text-[0.8rem]">
+              <span class="text-accent" aria-hidden="true">
+                ▸
+              </span>
+              {t}
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+
+    {/* Portrait card: stylized monogram block until a photo is added */}
+    <div class="mx-auto w-full max-w-[280px]" data-reveal style="--reveal-delay: 150ms">
+      <div class="group relative">
+        <div
+          class="border-accent absolute inset-0 translate-x-4 translate-y-4 rounded border transition-transform duration-300 group-hover:translate-x-2.5 group-hover:translate-y-2.5"
+          aria-hidden="true"
+        >
+        </div>
+        <div
+          class="border-line bg-surface relative flex aspect-square items-center justify-center overflow-hidden rounded border"
+        >
+          <span class="font-display text-heading relative text-6xl font-semibold tracking-tight">
+            el
+          </span>
+        </div>
+      </div>
+      <p class="chip mt-6 text-center">// portrait pending — swarm standing in</p>
+    </div>
+  </div>
+</Section>

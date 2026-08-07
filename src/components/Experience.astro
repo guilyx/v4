@@ -1,0 +1,204 @@
+---
+import Section from "@/components/Section.astro";
+import { experience, TIMELINE_START } from "@/data/site";
+
+/**
+ * Trajectory — a timeline rather than a tab list, because three of these roles
+ * run concurrently and a tab list hides that entirely. Bars are positioned by
+ * date; selecting one swaps the detail panel below.
+ */
+const now = 2026.6;
+const span = now - TIMELINE_START;
+const pct = (year: number) => ((year - TIMELINE_START) / span) * 100;
+
+// Draw oldest-first so the eye reads left-to-right, bottom-to-top like a chart.
+const rows = [...experience].sort((a, b) => a.start - b.start).reverse();
+const ticks = [2018, 2020, 2022, 2024, 2026];
+---
+
+<Section id="experience" title="Trajectory">
+  <div data-reveal>
+    <p class="text-muted mb-8 max-w-xl text-sm">
+      Eight years, four countries, and — right now — three roles running at once.
+      Select a row for the detail.
+    </p>
+
+    <div class="scroller -mx-2 overflow-x-auto px-2 pb-2">
+      <div class="min-w-[540px]">
+        {/* Year axis, offset to sit over the track only */}
+        <div class="grid grid-cols-[104px_1fr] items-end" aria-hidden="true">
+          <span></span>
+          <div class="border-line relative h-5 border-b">
+            {
+              ticks.map((t) => (
+                <span
+                  class="font-mono text-faint absolute top-0 text-[0.65rem]"
+                  style={`left: ${pct(t)}%; transform: translateX(${t === ticks[0] ? "0" : "-50%"})`}
+                >
+                  {t}
+                </span>
+              ))
+            }
+          </div>
+        </div>
+
+        {/* Rows: label gutter + bar track */}
+        <div role="tablist" aria-label="Roles" class="mt-2 flex flex-col gap-1" id="tl">
+          {
+            rows.map((job, i) => {
+              const left = pct(job.start);
+              const right = pct(job.end ?? now);
+              return (
+                <button
+                  role="tab"
+                  id={`tl-tab-${i}`}
+                  aria-controls={`tl-panel-${i}`}
+                  aria-selected={i === 0 ? "true" : "false"}
+                  tabindex={i === 0 ? 0 : -1}
+                  class="tl-bar grid w-full grid-cols-[104px_1fr] items-center gap-3 rounded-sm py-1 text-left"
+                >
+                  <span class="tl-label font-mono truncate pl-1 text-[0.7rem]">
+                    {job.shortName}
+                  </span>
+                  <span class="relative block h-5">
+                    <span
+                      class="tl-fill absolute top-1/2 block h-2.5 -translate-y-1/2 rounded-[2px] transition-all duration-200"
+                      style={`left: ${left}%; width: ${Math.max(right - left, 1.5)}%`}
+                    />
+                    {job.end === null && (
+                      <span
+                        class="tl-live absolute top-1/2 -translate-y-1/2 text-[0.7rem] leading-none"
+                        style={`left: calc(${right}% + 5px)`}
+                      >
+                        →
+                      </span>
+                    )}
+                  </span>
+                </button>
+              );
+            })
+          }
+        </div>
+      </div>
+    </div>
+
+    {/* Detail panels */}
+    <div class="border-line mt-8 min-h-[260px] border-t pt-8">
+      {
+        rows.map((job, i) => (
+          <div
+            role="tabpanel"
+            id={`tl-panel-${i}`}
+            aria-labelledby={`tl-tab-${i}`}
+            hidden={i !== 0}
+            class="tl-panel"
+          >
+            <h3 class="text-lg font-medium sm:text-xl">
+              {job.role}{" "}
+              <span class="text-accent">
+                @{" "}
+                <a href={job.url} target="_blank" rel="noopener noreferrer" class="link">
+                  {job.company}
+                </a>
+              </span>
+            </h3>
+            <p class="font-mono text-muted mt-1 text-xs">
+              {job.period}
+              {job.location && <span class="text-faint"> · {job.location}</span>}
+            </p>
+            <ul class="mt-6 space-y-3">
+              {job.bullets.map((b) => (
+                <li class="flex gap-3 text-[0.95rem]">
+                  <span class="text-accent mt-1 shrink-0" aria-hidden="true">
+                    ▸
+                  </span>
+                  <span>{b}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))
+      }
+    </div>
+  </div>
+</Section>
+
+<style>
+  .tl-fill {
+    background: var(--color-line);
+  }
+  .tl-label {
+    color: var(--color-muted);
+  }
+  .tl-bar:hover {
+    background: color-mix(in srgb, var(--color-line) 40%, transparent);
+  }
+  .tl-bar:hover .tl-fill {
+    background: color-mix(in srgb, var(--color-accent) 55%, var(--color-line));
+  }
+  .tl-bar:hover .tl-label {
+    color: var(--color-body);
+  }
+  .tl-bar[aria-selected="true"] .tl-fill {
+    background: var(--color-accent);
+  }
+  .tl-bar[aria-selected="true"] .tl-label {
+    color: var(--color-accent);
+  }
+  .tl-live {
+    color: var(--color-faint);
+  }
+  .tl-bar[aria-selected="true"] .tl-live {
+    color: var(--color-accent);
+  }
+  .tl-panel {
+    animation: tl-in 0.3s var(--ease-swift);
+  }
+  @keyframes tl-in {
+    from {
+      opacity: 0;
+      transform: translateY(6px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .tl-panel {
+      animation: none;
+    }
+    .tl-fill {
+      transition: none;
+    }
+  }
+</style>
+
+<script>
+  const tabs = Array.from(document.querySelectorAll<HTMLButtonElement>(".tl-bar"));
+  const panels = Array.from(document.querySelectorAll<HTMLElement>(".tl-panel"));
+
+  function select(index: number) {
+    tabs.forEach((t, i) => {
+      t.setAttribute("aria-selected", String(i === index));
+      t.tabIndex = i === index ? 0 : -1;
+    });
+    panels.forEach((p, i) => {
+      p.hidden = i !== index;
+    });
+  }
+
+  tabs.forEach((tab, i) => {
+    tab.addEventListener("click", () => select(i));
+    tab.addEventListener("keydown", (e) => {
+      let next = -1;
+      if (e.key === "ArrowDown" || e.key === "ArrowRight") next = (i + 1) % tabs.length;
+      if (e.key === "ArrowUp" || e.key === "ArrowLeft") next = (i - 1 + tabs.length) % tabs.length;
+      if (next >= 0) {
+        e.preventDefault();
+        select(next);
+        tabs[next]?.focus();
+      }
+    });
+  });
+</script>

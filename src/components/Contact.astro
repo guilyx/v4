@@ -1,0 +1,20 @@
+---
+import { contact, site } from "@/data/site";
+---
+
+<section id="contact" class="mx-auto max-w-4xl scroll-mt-24 py-24 md:py-32">
+  <div class="border-line bg-bg-raised rounded border p-8 sm:p-12" data-reveal>
+    <p class="font-mono text-accent flex items-center gap-2.5 text-xs tracking-wide">
+      <span class="bg-accent inline-block h-1 w-1 rotate-45" aria-hidden="true"></span>
+      contact
+    </p>
+    <h2 class="mt-2 text-xl font-semibold sm:text-2xl">{contact.title}</h2>
+    <p class="text-body mt-4 max-w-lg text-[0.95rem]">
+      {contact.body.replace(/\s+/g, " ")}
+    </p>
+    <div class="mt-8 flex flex-wrap items-center gap-x-6 gap-y-3">
+      <a href={`mailto:${site.email}`} class="btn">Say hello</a>
+      <span class="font-mono text-faint text-xs">{site.location}</span>
+    </div>
+  </div>
+</section>

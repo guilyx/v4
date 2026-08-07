@@ -1,0 +1,44 @@
+---
+import Icon from "@/components/Icon.astro";
+import { site } from "@/data/site";
+---
+
+<footer class="border-line mt-8 border-t py-10">
+  <div class="flex flex-col items-center gap-6 sm:flex-row sm:justify-between">
+    <div class="flex gap-5">
+      {
+        site.socials.map((s) => (
+          <a
+            href={s.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label={s.label}
+            class="text-muted hover:text-accent transition-colors"
+          >
+            <Icon name={s.icon} />
+          </a>
+        ))
+      }
+    </div>
+    <p class="font-mono text-faint text-center text-xs sm:text-right">
+      <a
+        href="https://github.com/guilyx/v4"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="hover:text-accent transition-colors"
+      >
+        built by {site.name}
+      </a>
+      <span class="mx-2 opacity-50">·</span>
+      <span
+        >layout owes a debt to <a
+          href="https://v4.brittanychiang.com/"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="hover:text-accent underline underline-offset-2 transition-colors"
+          >Brittany Chiang's v4</a
+        ></span
+      >
+    </p>
+  </div>
+</footer>

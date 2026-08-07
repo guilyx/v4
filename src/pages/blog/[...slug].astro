@@ -1,0 +1,36 @@
+---
+import type { GetStaticPaths } from "astro";
+import { getCollection, render } from "astro:content";
+import Base from "@/layouts/Base.astro";
+import Icon from "@/components/Icon.astro";
+
+export const getStaticPaths = (async () => {
+  const posts = await getCollection("blog", ({ data }) => !data.draft);
+  return posts.map((post) => ({ params: { slug: post.id }, props: { post } }));
+}) satisfies GetStaticPaths;
+
+const { post } = Astro.props;
+const { Content } = await render(post);
+const fmt = new Intl.DateTimeFormat("en", { year: "numeric", month: "long", day: "numeric" });
+---
+
+<Base title={post.data.title} description={post.data.description}>
+  <article class="mx-auto max-w-3xl pt-36 pb-24">
+    <a
+      href="/blog"
+      class="font-mono text-muted hover:text-accent inline-flex items-center gap-2 text-xs transition-colors"
+    >
+      <Icon name="arrow" size={14} class="rotate-180" /> all posts
+    </a>
+    <header class="mt-8 mb-12">
+      <h1 class="text-2xl font-semibold sm:text-3xl">{post.data.title}</h1>
+      <p class="font-mono text-muted mt-4 text-xs">
+        <time datetime={post.data.date.toISOString()}>{fmt.format(post.data.date)}</time>
+        {post.data.tags.map((t) => <span class="text-faint ml-3">#{t}</span>)}
+      </p>
+    </header>
+    <div class="prose">
+      <Content />
+    </div>
+  </article>
+</Base>

@@ -1,0 +1,145 @@
+---
+import { Image } from "astro:assets";
+import Section from "@/components/Section.astro";
+import Icon from "@/components/Icon.astro";
+import { featured, projects } from "@/data/site";
+import flockingPromo from "@/assets/projects/flocking.png";
+import t212Promo from "@/assets/projects/t212.png";
+import doxmosisPromo from "@/assets/projects/doxmosis.png";
+
+/** Promo artifact per featured project, keyed by `glyph` in site data. */
+const promos = {
+  flock: flockingPromo,
+  chart: t212Promo,
+  docs: doxmosisPromo,
+} as const;
+---
+
+<Section id="projects" title="Selected Builds">
+  {/* Featured spotlight cards */}
+  <div class="space-y-8">
+    {
+      featured.map((p, i) => (
+        <article
+          class="group border-line bg-bg-raised hover:border-accent/30 relative grid overflow-hidden rounded border transition-colors duration-300 md:grid-cols-[6fr_5fr]"
+          data-reveal
+        >
+          <div class="relative z-[1] p-7 sm:p-8">
+            <p class="font-mono text-accent mb-2 text-xs">Featured · {String(i + 1).padStart(2, "0")}</p>
+            <h3 class="text-xl font-semibold sm:text-2xl">
+              {p.external || p.github ? (
+                <a
+                  href={p.external ?? p.github}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="hover:text-accent transition-colors after:absolute after:inset-0"
+                >
+                  {p.title}
+                </a>
+              ) : (
+                p.title
+              )}
+            </h3>
+            <p class="text-body mt-4 max-w-xl text-[0.95rem]">{p.blurb}</p>
+            <ul class="mt-5 flex flex-wrap gap-x-4 gap-y-1">
+              {p.tech.map((t) => (
+                <li class="chip">{t}</li>
+              ))}
+            </ul>
+            <div class="relative z-[1] mt-5 flex items-center gap-4">
+              {p.github && (
+                <a
+                  href={p.github}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={`${p.title} on GitHub`}
+                  class="text-muted hover:text-accent transition-colors"
+                >
+                  <Icon name="github" size={22} />
+                </a>
+              )}
+              {p.external && (
+                <a
+                  href={p.external}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="font-mono text-muted hover:text-accent inline-flex items-center gap-2 text-xs transition-colors"
+                >
+                  {p.externalLabel ?? "Visit"}
+                  <Icon name="external" size={14} />
+                </a>
+              )}
+            </div>
+          </div>
+          <div class="border-line relative order-first border-b md:order-none md:flex md:items-center md:border-b-0 md:border-l md:p-5">
+            <Image
+              src={promos[(p.glyph ?? "flock") as keyof typeof promos]}
+              alt={`${p.title} preview`}
+              widths={[480, 900]}
+              sizes="(min-width: 768px) 40vw, 100vw"
+              class="w-full opacity-80 saturate-[0.85] transition duration-500 group-hover:opacity-100 group-hover:saturate-100 md:rounded"
+            />
+          </div>
+        </article>
+      ))
+    }
+  </div>
+
+  {/* Noteworthy grid */}
+  <h3 class="mt-20 mb-8 text-center text-xl font-medium" data-reveal>
+    Other noteworthy projects
+  </h3>
+  <ul class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+    {
+      projects.map((p, i) => (
+        <li data-reveal style={`--reveal-delay: ${(i % 3) * 100}ms`}>
+          <article class="group border-line bg-bg-raised hover:border-accent/40 relative flex h-full flex-col rounded-lg border p-6 transition-all duration-300 hover:-translate-y-1.5">
+            <header class="mb-4 flex items-center justify-between">
+              <Icon name="folder" size={34} class="text-accent" />
+              <div class="relative z-[1] flex items-center gap-3">
+                {p.github && (
+                  <a
+                    href={p.github}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={`${p.title} on GitHub`}
+                    class="text-muted hover:text-accent transition-colors"
+                  >
+                    <Icon name="github" size={18} />
+                  </a>
+                )}
+                {p.external && (
+                  <a
+                    href={p.external}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={`${p.title} external link`}
+                    class="text-muted hover:text-accent transition-colors"
+                  >
+                    <Icon name="external" size={18} />
+                  </a>
+                )}
+              </div>
+            </header>
+            <h4 class="text-base font-medium">
+              <a
+                href={p.github ?? p.external}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="group-hover:text-accent transition-colors after:absolute after:inset-0"
+              >
+                {p.title}
+              </a>
+            </h4>
+            <p class="text-muted mt-2 grow text-sm">{p.blurb}</p>
+            <ul class="mt-5 flex flex-wrap gap-x-3 gap-y-1">
+              {p.tech.map((t) => (
+                <li class="chip">{t}</li>
+              ))}
+            </ul>
+          </article>
+        </li>
+      ))
+    }
+  </ul>
+</Section>
