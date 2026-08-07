@@ -13,7 +13,7 @@ function md(text: string): string {
 }
 ---
 
-<Section id="about" index="01" title="About Me">
+<Section id="about" title="Background">
   <div class="grid gap-12 md:grid-cols-[3fr_2fr]">
     <div class="space-y-4" data-reveal>
       {about.paragraphs.map((p) => <p set:html={md(p)} />)}

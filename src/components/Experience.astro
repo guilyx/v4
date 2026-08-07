@@ -1,44 +1,97 @@
 ---
 import Section from "@/components/Section.astro";
-import { experience } from "@/data/site";
+import { experience, TIMELINE_START } from "@/data/site";
+
+/**
+ * Trajectory — a timeline rather than a tab list, because three of these roles
+ * run concurrently and a tab list hides that entirely. Bars are positioned by
+ * date; selecting one swaps the detail panel below.
+ */
+const now = 2026.6;
+const span = now - TIMELINE_START;
+const pct = (year: number) => ((year - TIMELINE_START) / span) * 100;
+
+// Draw oldest-first so the eye reads left-to-right, bottom-to-top like a chart.
+const rows = [...experience].sort((a, b) => a.start - b.start).reverse();
+const ticks = [2018, 2020, 2022, 2024, 2026];
 ---
 
-<Section id="experience" index="02" title="Where I've Worked">
-  <div class="grid gap-8 md:grid-cols-[max-content_1fr]" data-reveal>
-    {/* Tab list — vertical on desktop, horizontal scroll on mobile */}
-    <div
-      role="tablist"
-      aria-label="Jobs"
-      class="border-line flex overflow-x-auto max-md:border-b md:flex-col md:border-b-0 md:border-l"
-      id="job-tabs"
-    >
-      {
-        experience.map((job, i) => (
-          <button
-            role="tab"
-            id={`tab-${i}`}
-            aria-selected={i === 0 ? "true" : "false"}
-            aria-controls={`panel-${i}`}
-            tabindex={i === 0 ? 0 : -1}
-            class="job-tab font-mono text-muted hover:text-accent hover:bg-accent-soft relative shrink-0 px-5 py-3 text-left text-[0.8rem] whitespace-nowrap transition-colors"
-          >
-            {job.shortName}
-          </button>
-        ))
-      }
-      <span id="tab-marker" aria-hidden="true"></span>
+<Section id="experience" title="Trajectory">
+  <div data-reveal>
+    <p class="text-muted mb-8 max-w-xl text-sm">
+      Eight years, four countries, and — right now — three roles running at once.
+      Select a row for the detail.
+    </p>
+
+    <div class="scroller -mx-2 overflow-x-auto px-2 pb-2">
+      <div class="min-w-[540px]">
+        {/* Year axis, offset to sit over the track only */}
+        <div class="grid grid-cols-[104px_1fr] items-end" aria-hidden="true">
+          <span></span>
+          <div class="border-line relative h-5 border-b">
+            {
+              ticks.map((t) => (
+                <span
+                  class="font-mono text-faint absolute top-0 text-[0.65rem]"
+                  style={`left: ${pct(t)}%; transform: translateX(${t === ticks[0] ? "0" : "-50%"})`}
+                >
+                  {t}
+                </span>
+              ))
+            }
+          </div>
+        </div>
+
+        {/* Rows: label gutter + bar track */}
+        <div role="tablist" aria-label="Roles" class="mt-2 flex flex-col gap-1" id="tl">
+          {
+            rows.map((job, i) => {
+              const left = pct(job.start);
+              const right = pct(job.end ?? now);
+              return (
+                <button
+                  role="tab"
+                  id={`tl-tab-${i}`}
+                  aria-controls={`tl-panel-${i}`}
+                  aria-selected={i === 0 ? "true" : "false"}
+                  tabindex={i === 0 ? 0 : -1}
+                  class="tl-bar grid w-full grid-cols-[104px_1fr] items-center gap-3 rounded-sm py-1 text-left"
+                >
+                  <span class="tl-label font-mono truncate pl-1 text-[0.7rem]">
+                    {job.shortName}
+                  </span>
+                  <span class="relative block h-5">
+                    <span
+                      class="tl-fill absolute top-1/2 block h-2.5 -translate-y-1/2 rounded-[2px] transition-all duration-200"
+                      style={`left: ${left}%; width: ${Math.max(right - left, 1.5)}%`}
+                    />
+                    {job.end === null && (
+                      <span
+                        class="tl-live absolute top-1/2 -translate-y-1/2 text-[0.7rem] leading-none"
+                        style={`left: calc(${right}% + 5px)`}
+                      >
+                        →
+                      </span>
+                    )}
+                  </span>
+                </button>
+              );
+            })
+          }
+        </div>
+      </div>
     </div>
 
-    {/* Panels */}
-    <div class="min-h-[320px]">
+    {/* Detail panels */}
+    <div class="border-line mt-8 min-h-[260px] border-t pt-8">
       {
-        experience.map((job, i) => (
+        rows.map((job, i) => (
           <div
             role="tabpanel"
-            id={`panel-${i}`}
-            aria-labelledby={`tab-${i}`}
+            id={`tl-panel-${i}`}
+            aria-labelledby={`tl-tab-${i}`}
             hidden={i !== 0}
-            class="job-panel"
+            class="tl-panel"
           >
             <h3 class="text-lg font-medium sm:text-xl">
               {job.role}{" "}
@@ -71,46 +124,40 @@ import { experience } from "@/data/site";
 </Section>
 
 <style>
-  /* Sliding active-tab marker */
-  #job-tabs {
-    position: relative;
+  .tl-fill {
+    background: var(--color-line);
   }
-  #tab-marker {
-    position: absolute;
+  .tl-label {
+    color: var(--color-muted);
+  }
+  .tl-bar:hover {
+    background: color-mix(in srgb, var(--color-line) 40%, transparent);
+  }
+  .tl-bar:hover .tl-fill {
+    background: color-mix(in srgb, var(--color-accent) 55%, var(--color-line));
+  }
+  .tl-bar:hover .tl-label {
+    color: var(--color-body);
+  }
+  .tl-bar[aria-selected="true"] .tl-fill {
     background: var(--color-accent);
-    transition:
-      transform 0.25s var(--ease-swift),
-      width 0.25s var(--ease-swift),
-      height 0.25s var(--ease-swift);
-    /* mobile: underline */
-    bottom: 0;
-    left: 0;
-    height: 2px;
-    width: var(--marker-size, 80px);
-    transform: translateX(var(--marker-pos, 0));
   }
-  @media (min-width: 768px) {
-    #tab-marker {
-      /* desktop: left bar */
-      bottom: auto;
-      top: 0;
-      left: -1px;
-      width: 2px;
-      height: var(--marker-size, 44px);
-      transform: translateY(var(--marker-pos, 0));
-    }
-  }
-  .job-tab[aria-selected="true"] {
+  .tl-bar[aria-selected="true"] .tl-label {
     color: var(--color-accent);
-    background: var(--color-accent-soft);
   }
-  .job-panel {
-    animation: panel-in 0.35s var(--ease-swift);
+  .tl-live {
+    color: var(--color-faint);
   }
-  @keyframes panel-in {
+  .tl-bar[aria-selected="true"] .tl-live {
+    color: var(--color-accent);
+  }
+  .tl-panel {
+    animation: tl-in 0.3s var(--ease-swift);
+  }
+  @keyframes tl-in {
     from {
       opacity: 0;
-      transform: translateY(8px);
+      transform: translateY(6px);
     }
     to {
       opacity: 1;
@@ -118,40 +165,27 @@ import { experience } from "@/data/site";
     }
   }
   @media (prefers-reduced-motion: reduce) {
-    .job-panel {
+    .tl-panel {
       animation: none;
     }
-    #tab-marker {
+    .tl-fill {
       transition: none;
     }
   }
 </style>
 
 <script>
-  const tablist = document.getElementById("job-tabs");
-  const tabs = Array.from(document.querySelectorAll<HTMLButtonElement>(".job-tab"));
-  const panels = Array.from(document.querySelectorAll<HTMLElement>(".job-panel"));
-
-  function positionMarker(tab: HTMLButtonElement) {
-    if (!tablist) return;
-    const desktop = window.matchMedia("(min-width: 768px)").matches;
-    const pos = desktop ? tab.offsetTop : tab.offsetLeft;
-    const size = desktop ? tab.offsetHeight : tab.offsetWidth;
-    tablist.style.setProperty("--marker-pos", `${pos}px`);
-    tablist.style.setProperty("--marker-size", `${size}px`);
-  }
+  const tabs = Array.from(document.querySelectorAll<HTMLButtonElement>(".tl-bar"));
+  const panels = Array.from(document.querySelectorAll<HTMLElement>(".tl-panel"));
 
   function select(index: number) {
     tabs.forEach((t, i) => {
-      const active = i === index;
-      t.setAttribute("aria-selected", String(active));
-      t.tabIndex = active ? 0 : -1;
+      t.setAttribute("aria-selected", String(i === index));
+      t.tabIndex = i === index ? 0 : -1;
     });
     panels.forEach((p, i) => {
       p.hidden = i !== index;
     });
-    const tab = tabs[index];
-    if (tab) positionMarker(tab);
   }
 
   tabs.forEach((tab, i) => {
@@ -166,12 +200,5 @@ import { experience } from "@/data/site";
         tabs[next]?.focus();
       }
     });
-  });
-
-  const first = tabs[0];
-  if (first) positionMarker(first);
-  window.addEventListener("resize", () => {
-    const active = tabs.find((t) => t.getAttribute("aria-selected") === "true");
-    if (active) positionMarker(active);
   });
 </script>

@@ -35,9 +35,9 @@ export const site = {
 } as const;
 
 export const nav = [
-  { label: "about", href: "/#about" },
-  { label: "experience", href: "/#experience" },
-  { label: "projects", href: "/#projects" },
+  { label: "background", href: "/#about" },
+  { label: "trajectory", href: "/#experience" },
+  { label: "builds", href: "/#projects" },
   { label: "contact", href: "/#contact" },
   { label: "blog", href: "/blog" },
   { label: "photos", href: "/photos" },
@@ -84,8 +84,15 @@ export interface Job {
   role: string;
   period: string;
   location?: string;
+  /** Decimal years, used to place the bar on the trajectory timeline. */
+  start: number;
+  /** `null` means still running — the bar extends to the present marker. */
+  end: number | null;
   bullets: string[];
 }
+
+/** Left edge of the trajectory axis. */
+export const TIMELINE_START = 2018;
 
 export const experience: Job[] = [
   {
@@ -95,6 +102,8 @@ export const experience: Job[] = [
     role: "Lead Robotics Engineer",
     period: "2026 — Present",
     location: "Abu Dhabi, UAE",
+    start: 2026,
+    end: null,
     bullets: [
       "Lead the autonomy team at a defense-technology startup spun off from the Technology Innovation Institute.",
       "Agentic generation of missions for surveillance, monitoring, and tail chasing.",
@@ -108,6 +117,8 @@ export const experience: Job[] = [
     role: "Lead Robotics Engineer",
     period: "2022 — Present",
     location: "Abu Dhabi, UAE",
+    start: 2022,
+    end: null,
     bullets: [
       "Lead a robotics software team of 9 engineers developing decentralized autonomy frameworks for heterogeneous drone swarms — spanning navigation, perception, orchestration, DevOps/RobotOps, and integration onto real-world platforms.",
       "Drove initiatives on modular software architecture, lifecycle management, and behavior orchestration for swarm autonomy.",
@@ -121,6 +132,8 @@ export const experience: Job[] = [
     role: "Principal Solutions Engineer",
     period: "2024 — Present",
     location: "Remote",
+    start: 2024,
+    end: null,
     bullets: [
       "Built agentic AI tools for automated documentation PRs (Doxmosis), agentic orchestration (Kymatics), contribution analysis, real-estate analysis, and UAE defense data analysis.",
       "Developed production backend services for LoopFi's blockchain data analysis on EVM chains.",
@@ -133,6 +146,8 @@ export const experience: Job[] = [
     role: "Founding Robotics Engineer",
     period: "2021 — 2022",
     location: "Odense, Denmark",
+    start: 2021,
+    end: 2022.9,
     bullets: [
       "Founding core technical team that delivered the first working in-store robot system, supporting company milestones across pre-seed and seed rounds.",
       "Led development of the navigation stack — path planning, motion control, localization — and contributed to perception (detection, filtering, tracking).",
@@ -145,6 +160,8 @@ export const experience: Job[] = [
     role: "Robotics Researcher",
     period: "2020 — 2021",
     location: "Nantes, France",
+    start: 2020.2,
+    end: 2021.2,
     bullets: [
       "Led 4 research projects: multi-agent pathfinding, AI planning (PDDL), real-time ROS control on Xenomai/XDDP, and ROS 2 latency benchmarking.",
       "Published research on real-time jitter measurements under ROS 2 and a survey of multi-agent pathfinding solutions.",
@@ -157,6 +174,8 @@ export const experience: Job[] = [
     role: "Software Engineer",
     period: "2018 — 2021",
     location: "Bordeaux, France & Remote",
+    start: 2018.7,
+    end: 2021.2,
     bullets: [
       "Built core backend services in Go with PostgreSQL and Docker for a computer-aided production engineering platform.",
       "Developed a SystemC/TLM virtual prototype of an STM32 microcontroller for SoC emulation — TIM, I2C, CAN, GPIO, USART peripherals with QEMU integration.",
@@ -169,6 +188,8 @@ export const experience: Job[] = [
     role: "Robotics Assistant",
     period: "2019",
     location: "Coimbra, Portugal",
+    start: 2019.5,
+    end: 2019.75,
     bullets: [
       "Built full autonomy stacks from scratch with ROS and embedded systems.",
       "Won both the mapped and unmapped maze-solving competitions.",
@@ -266,10 +287,19 @@ export const projects: Project[] = [
   },
 ];
 
+/**
+ * Hero spec block — the key/value register comes from Erwin's own GitHub
+ * profile README, which introduces him as a YAML document.
+ */
+export const spec = [
+  { key: "role", value: "lead robotics engineer" },
+  { key: "based", value: "abu dhabi, uae" },
+  { key: "building", value: "decentralized swarm autonomy" },
+  { key: "also", value: "agentic ai, blockchain backends" },
+] as const;
+
 export const contact = {
-  kicker: "04 / what's next",
-  title: "Get In Touch",
-  body: `I'm not actively looking, but my inbox is always open — whether it's a
-   question about swarm autonomy, an open-source idea, or just to say hi.
-   I'll do my best to get back to you.`,
+  title: "Open Channel",
+  body: `I'm not actively looking, but the inbox stays open — a question about
+   swarm autonomy, an open-source idea, or just to say hi. I'll get back to you.`,
 } as const;

@@ -1,5 +1,5 @@
 ---
-import { site } from "@/data/site";
+import { site, spec } from "@/data/site";
 ---
 
 <section class="relative flex min-h-screen flex-col justify-center">
@@ -10,47 +10,42 @@ import { site } from "@/data/site";
     aria-hidden="true"></canvas>
 
   <div class="max-w-3xl">
-    <p
-      class="font-mono text-accent mb-5 text-sm sm:text-base"
-      data-reveal
-      style="--reveal-delay: 100ms"
-    >
-      Hi, my name is
-    </p>
     <h1
       class="text-3xl font-semibold sm:text-5xl md:text-6xl"
       data-reveal
-      style="--reveal-delay: 200ms"
+      style="--reveal-delay: 100ms"
     >
-      {site.name}.
+      {site.name}
     </h1>
     <h2
-      class="text-muted mt-2 text-2xl font-semibold sm:text-4xl md:text-5xl"
+      class="text-muted mt-2 max-w-2xl text-2xl font-semibold sm:text-4xl"
       data-reveal
-      style="--reveal-delay: 300ms"
+      style="--reveal-delay: 200ms"
     >
       {site.tagline}
     </h2>
-    <p
-      class="text-body mt-6 max-w-xl text-base"
-      data-reveal
-      style="--reveal-delay: 400ms"
-    >
-      I'm a robotics software engineer specializing in <span class="text-heading"
-        >decentralized autonomy</span
-      > — drone swarms that navigate, perceive, and decide without anyone holding
-      the joystick. Currently leading autonomy at
-      <a href="https://sirb.ai/" target="_blank" rel="noopener noreferrer" class="link">SIRB.AI</a>
-      and the
-      <a href="https://www.tii.ae/" target="_blank" rel="noopener noreferrer" class="link"
-        >Technology Innovation Institute</a
-      > in Abu Dhabi.
+
+    {/* Spec block — Erwin introduces himself as a YAML doc on GitHub; the
+        site borrows that register rather than a greeting. */}
+    <dl class="mt-9 grid max-w-lg gap-y-1.5" data-reveal style="--reveal-delay: 350ms">
+      {
+        spec.map((row) => (
+          <div class="flex gap-4 font-mono text-[0.78rem] leading-relaxed">
+            <dt class="text-faint w-20 shrink-0">{row.key}</dt>
+            <dd class="text-body m-0">{row.value}</dd>
+          </div>
+        ))
+      }
+    </dl>
+
+    <p class="chip mt-8 max-w-md" data-reveal style="--reveal-delay: 500ms">
+      the drifting marks behind this text are a flocking simulation — the same
+      three rules the swarms at work run on.
     </p>
-    <p class="chip mt-4" data-reveal style="--reveal-delay: 500ms">
-      ↑ the dots up there? that's a flocking algorithm. it's kind of my thing.
-    </p>
-    <div class="mt-10" data-reveal style="--reveal-delay: 600ms">
-      <a href="/#projects" class="btn">Check out my work</a>
+
+    <div class="mt-9 flex flex-wrap items-center gap-5" data-reveal style="--reveal-delay: 600ms">
+      <a href="/#projects" class="btn">See the work</a>
+      <a href={`mailto:${site.email}`} class="link font-mono text-sm">{site.email}</a>
     </div>
   </div>
 

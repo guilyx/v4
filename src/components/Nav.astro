@@ -7,7 +7,7 @@ import { nav, site } from "@/data/site";
   class="fixed inset-x-0 top-0 z-50 transition-transform duration-300 ease-out"
 >
   <nav
-    class="border-line/60 flex h-[72px] items-center justify-between border-b bg-[rgba(10,14,20,0.82)] px-6 backdrop-blur-md sm:px-10"
+    class="border-line/60 bg-bg/85 flex h-[72px] items-center justify-between border-b px-6 backdrop-blur-md sm:px-10"
     aria-label="Primary"
   >
     <a
@@ -15,30 +15,28 @@ import { nav, site } from "@/data/site";
       class="font-mono text-accent group flex items-center gap-2 text-sm"
       aria-label="Home"
     >
+      {/* Three agents, one formation — the brand mark. */}
       <svg
-        width="30"
-        height="30"
+        width="28"
+        height="28"
         viewBox="0 0 32 32"
         fill="none"
-        class="transition-transform duration-300 group-hover:rotate-90"
+        class="transition-transform duration-500 group-hover:rotate-[120deg]"
         aria-hidden="true"
       >
-        <polygon
-          points="16,2 29,9.5 29,24.5 16,30 3,24.5 3,9.5"
+        <path
+          d="M16 8.5 L8.5 21 L23.5 21 Z"
           stroke="currentColor"
-          stroke-width="1.6"
-          fill="none"
-        ></polygon>
-        <text
-          x="16"
-          y="20.5"
-          text-anchor="middle"
-          fill="currentColor"
-          font-size="12"
-          font-family="inherit">el</text
-        >
+          stroke-width="1.1"
+          opacity="0.45"
+        ></path>
+        <g fill="currentColor">
+          <circle cx="16" cy="8.5" r="2.1"></circle>
+          <circle cx="8.5" cy="21" r="2.1"></circle>
+          <circle cx="23.5" cy="21" r="2.1"></circle>
+        </g>
       </svg>
-      <span class="text-faint hidden lg:inline">/{site.handle}</span>
+      <span class="text-faint hidden lg:inline">{site.handle}</span>
     </a>
 
     <button
@@ -60,14 +58,13 @@ import { nav, site } from "@/data/site";
       class="max-md:bg-bg-raised max-md:border-line fixed inset-y-0 right-0 hidden w-[min(75vw,320px)] translate-x-full flex-col items-start justify-center gap-8 border-l px-10 transition-transform duration-300 ease-out max-md:flex max-md:shadow-2xl md:static md:flex md:w-auto md:translate-x-0 md:flex-row md:items-center md:gap-8 md:border-0 md:bg-transparent md:px-0 md:shadow-none"
     >
       {
-        nav.map((item, i) => (
+        nav.map((item) => (
           <li>
             <a
               href={item.href}
-              class="group font-mono text-body hover:text-accent text-sm transition-colors"
+              class="font-mono text-body hover:text-accent text-sm transition-colors"
             >
-              <span class="text-accent">{String(i + 1).padStart(2, "0")}.</span>
-              <span class="ml-1">{item.label}</span>
+              {item.label}
             </a>
           </li>
         ))

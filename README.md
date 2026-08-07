@@ -4,13 +4,15 @@ The fourth iteration of my portfolio. Leaner, more designed, and topped with a
 [boids](https://en.wikipedia.org/wiki/Boids) flocking simulation — a nod to the
 drone swarms I build for a living.
 
-Design inspired by Brittany Chiang's excellent [v4](https://v4.brittanychiang.com/).
+Colour, mark and voice come from [guilyx/branding](https://github.com/guilyx/branding).
+Layout logic owes a debt to Brittany Chiang's [v4](https://v4.brittanychiang.com/) — see
+[differentiation.md](https://github.com/guilyx/branding/blob/master/research/differentiation.md).
 
 ## Stack
 
 - **[Astro 5](https://astro.build)** — static output, ships ~0 JS by default
 - **[Tailwind CSS 4](https://tailwindcss.com)** — design tokens in a single `@theme` block
-- **Vanilla TypeScript** — flocking sim, scroll reveals, and experience tabs; no framework, no animation library
+- **Vanilla TypeScript** — flocking sim, scroll reveals, and the trajectory timeline; no framework, no animation library
 
 ## Structure
 

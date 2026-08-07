@@ -1,19 +1,24 @@
 ---
-/** Numbered section wrapper with the shared heading treatment. */
+/**
+ * Section wrapper. The eyebrow is a lowercase key, not an ordinal — the
+ * sections are parallel, not a sequence, so numbering them would encode
+ * something untrue.
+ */
 interface Props {
   id: string;
-  index: string;
   title: string;
   class?: string;
 }
-const { id, index, title, class: className = "" } = Astro.props;
+const { id, title, class: className = "" } = Astro.props;
 ---
 
 <section id={id} class={`mx-auto max-w-4xl scroll-mt-24 py-24 md:py-32 ${className}`}>
-  <h2 class="mb-10 flex items-center gap-4 text-xl font-semibold sm:text-2xl" data-reveal>
-    <span class="font-mono text-accent text-base font-normal sm:text-lg">{index}.</span>
-    {title}
-    <span class="bg-line ml-2 hidden h-px grow sm:block" style="max-width: 300px"></span>
-  </h2>
+  <header class="mb-10" data-reveal>
+    <p class="font-mono text-accent flex items-center gap-2.5 text-xs tracking-wide">
+      <span class="bg-accent inline-block h-1 w-1 rotate-45" aria-hidden="true"></span>
+      {id}
+    </p>
+    <h2 class="mt-2 text-xl font-semibold sm:text-2xl">{title}</h2>
+  </header>
   <slot />
 </section>

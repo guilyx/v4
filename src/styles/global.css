@@ -1,21 +1,22 @@
 @import "tailwindcss";
 
 /* ---------------------------------------------------------------------------
-   Design tokens — sober navy/slate palette with a quiet mint accent.
+   Design tokens — "Ink & Iris": neutral-cool near-black under a periwinkle
+   accent. Defined in guilyx/branding; keep the two in sync.
 --------------------------------------------------------------------------- */
 @theme {
-  --color-bg: #0a192f;
-  --color-bg-raised: #112240;
-  --color-surface: #112240;
-  --color-line: #233554;
-  --color-heading: #ccd6f6;
-  --color-body: #a8b2d1;
-  --color-muted: #8892b0;
-  --color-faint: #495670;
-  --color-accent: #64ffda;
-  --color-accent-soft: rgba(100, 255, 218, 0.07);
+  --color-bg: #0d0e12;
+  --color-bg-raised: #15171d;
+  --color-surface: #15171d;
+  --color-line: #252833;
+  --color-heading: #e4e6ec;
+  --color-body: #a5aab8;
+  --color-muted: #7c8291;
+  --color-faint: #555b69;
+  --color-accent: #8b95f0;
+  --color-accent-soft: rgba(139, 149, 240, 0.08);
   /* colour of the hero flock; read by the canvas so palettes swap cleanly */
-  --color-agent: #8892b0;
+  --color-agent: #7c8291;
 
   --font-display: "Space Grotesk Variable", ui-sans-serif, system-ui, sans-serif;
   --font-sans: "Inter Variable", ui-sans-serif, system-ui, sans-serif;
@@ -46,7 +47,7 @@ body {
 }
 
 ::selection {
-  background-color: rgba(100, 255, 218, 0.2);
+  background-color: rgba(139, 149, 240, 0.25);
   color: var(--color-heading);
 }
 
