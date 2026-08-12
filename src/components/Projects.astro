@@ -3,14 +3,12 @@ import { Image } from "astro:assets";
 import Section from "@/components/Section.astro";
 import Icon from "@/components/Icon.astro";
 import { featured, projects, layers, buildsIntro } from "@/data/site";
-import flockingPromo from "@/assets/projects/flocking.png";
-import t212Promo from "@/assets/projects/t212.png";
+import btviewPromo from "@/assets/projects/btview.png";
 import setupPromo from "@/assets/projects/setup.png";
 
 /** Promo artifact per featured project, keyed by `glyph` in site data. */
 const promos = {
-  flock: flockingPromo,
-  chart: t212Promo,
+  btview: btviewPromo,
   provision: setupPromo,
 } as const;
 ---
@@ -76,13 +74,26 @@ const promos = {
             </div>
           </div>
           <div class="border-line relative order-first border-b md:order-none md:flex md:items-center md:border-b-0 md:border-l md:p-5">
-            <Image
-              src={promos[(p.glyph ?? "flock") as keyof typeof promos]}
-              alt={`${p.title} preview`}
-              widths={[480, 900]}
-              sizes="(min-width: 768px) 40vw, 100vw"
-              class="w-full opacity-80 saturate-[0.85] transition duration-500 group-hover:opacity-100 group-hover:saturate-100 md:rounded"
-            />
+            {p.video ? (
+              <video
+                controls
+                preload="none"
+                poster={p.videoPoster}
+                class="w-full opacity-90 transition duration-500 group-hover:opacity-100 md:rounded"
+              >
+                <source src={p.video} type="video/mp4" />
+              </video>
+            ) : (
+              p.glyph && (
+                <Image
+                  src={promos[p.glyph as keyof typeof promos]}
+                  alt={`${p.title} preview`}
+                  widths={[480, 900]}
+                  sizes="(min-width: 768px) 40vw, 100vw"
+                  class="w-full opacity-80 saturate-[0.85] transition duration-500 group-hover:opacity-100 group-hover:saturate-100 md:rounded"
+                />
+              )
+            )}
           </div>
         </article>
       ))

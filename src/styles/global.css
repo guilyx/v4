@@ -15,8 +15,9 @@
   --color-faint: #555b69;
   --color-accent: #8b95f0;
   --color-accent-soft: rgba(139, 149, 240, 0.08);
-  /* colour of the hero flock; read by the canvas so palettes swap cleanly */
-  --color-agent: #7c8291;
+  /* colour of the hero search grid's unexplored cells; read by the canvas
+     so palettes swap cleanly */
+  --color-graph: #7c8291;
 
   --font-display: "Space Grotesk Variable", ui-sans-serif, system-ui, sans-serif;
   --font-sans: "Inter Variable", ui-sans-serif, system-ui, sans-serif;

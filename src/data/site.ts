@@ -6,10 +6,10 @@
 export const site = {
   name: "Erwin Lejeune",
   handle: "guilyx",
-  role: "Lead Architect — Robotics & AI Systems",
-  tagline: "I make robot swarms think for themselves.",
+  role: "Lead Architect — Robot Autonomy",
+  tagline: "I build the layer that decides what happens next.",
   description:
-    "Erwin Lejeune — Lead Architect for robotics and AI systems in Abu Dhabi. Decentralized swarm autonomy, agentic AI, and the infrastructure underneath both. C++, Python, Go.",
+    "Erwin Lejeune — Lead Architect, Robot Autonomy, in Abu Dhabi. Multi-agent planning, behavior trees, and agentic orchestration — platform-agnostic, from in-store robots to drones. C++, Python, Go.",
   url: "https://v4.elejeune.me",
   email: "erwin.lejeune15@gmail.com",
   location: "Abu Dhabi, UAE",
@@ -45,38 +45,40 @@ export const nav = [
 
 export const about = {
   paragraphs: [
-    `Hello! I'm Erwin. I architect robotics and AI systems — which in practice
-     means I spend my time on the seams: the places where a planner meets a
-     controller, where a model meets a tool, where a fleet meets the operator
-     who is supposed to trust it. My path started in Nantes, France with
-     electronics and embedded systems, detoured through backend engineering,
-     and landed where I always wanted to be: teaching fleets of robots to make
-     decisions together.`,
-    `Today I lead autonomy teams at [SIRB.AI](https://sirb.ai/) and the
-     [Technology Innovation Institute](https://www.tii.ae/), where nine
-     engineers and I build decentralized autonomy frameworks for heterogeneous
-     drone swarms — navigation, perception, orchestration, and the
-     infrastructure that keeps it all flying. On the side, I build agentic AI
-     and blockchain tooling at [Unchained Labs](https://unchainlabs.xyz/).`,
-    `The thread through all of it is the same instinct: push the decision to
-     the edge, make the process reproducible, then get out of the way. It's why
-     my drones have no leader, why my agents get tools instead of instructions,
-     and why my laptop rebuilds itself from a text file. When I'm not shipping
-     autonomy stacks I'm playing basketball, watching films, or chasing ranked
-     ladders.`,
+    `Hello! I'm Erwin. My titles have said "robotics," but what I actually
+     build is one layer: given a goal and a set of constraints, decide what
+     happens next. A planner, a behavior tree, a search over a graph — the
+     part underneath the mission that turns intent into action. I don't
+     particularly care which body it's wired to.`,
+    `Today I lead autonomy architecture at [SIRB.AI](https://sirb.ai/) and
+     the [Technology Innovation Institute](https://www.tii.ae/) — mission
+     planning, task allocation, and behavior orchestration for drone fleets.
+     Before drones, I put the same planning stack into a robot working the
+     aisles of a supermarket in Odense, Denmark, at
+     [Coalescent Mobile Robotics](https://cm-robotics.com/) — same
+     constraints, same discipline, a chassis with wheels instead of rotors.
+     On the side, at [Unchained Labs](https://unchainlabs.xyz/), I apply the
+     same instincts to software agents: giving an LLM a toolset and a plan is
+     the same problem as giving a robot a mission.`,
+    `My actual background is planning: multi-agent pathfinding, PDDL search,
+     graph theory, real-time control. If the question is "what should this
+     system do next, given what it knows and what it can't do," that's my
+     domain — whether the actor is a drone, a warehouse robot, or an agent
+     with tool access. When I'm not shipping autonomy stacks I'm playing
+     basketball, watching films, or chasing ranked ladders.`,
   ],
   technologies: [
-    "C++ / C",
-    "Python",
-    "Go",
-    "Rust",
+    "Multi-Agent Planning",
+    "Graph Search / A*",
+    "Behavior Trees",
+    "PDDL",
+    "Task Allocation",
+    "Agentic Orchestration",
     "ROS 2",
     "PX4 / MAVLink",
-    "Motion Planning",
-    "Sensor Fusion",
-    "Agentic AI / MCP",
-    "TypeScript / React",
-    "Solidity / EVM",
+    "C++ / Python / Go",
+    "MCP / Tool Use",
+    "Motion Control",
     "Docker / CI",
   ],
 } as const;
@@ -110,8 +112,8 @@ export const experience: Job[] = [
     end: null,
     bullets: [
       "Lead the autonomy team at a defense-technology startup spun off from the Technology Innovation Institute.",
-      "Agentic generation of missions for surveillance, monitoring, and tail chasing.",
-      "Architecture and algorithm development for decentralized swarm control and multi-agent planning.",
+      "Agentic mission generation for surveillance, monitoring, and tail-chasing — the same planning problem as before, framed as tool calls for an LLM instead of waypoints for a flight controller.",
+      "Architecture for multi-agent task allocation and mission planning across heterogeneous drone fleets.",
     ],
   },
   {
@@ -119,14 +121,41 @@ export const experience: Job[] = [
     shortName: "TII",
     url: "https://www.tii.ae/",
     role: "Lead Robotics Engineer",
-    period: "2022 — Present",
+    period: "2026 — Present",
     location: "Abu Dhabi, UAE",
-    start: 2022,
+    start: 2026,
     end: null,
     bullets: [
-      "Lead a robotics software team of 9 engineers developing decentralized autonomy frameworks for heterogeneous drone swarms — spanning navigation, perception, orchestration, DevOps/RobotOps, and integration onto real-world platforms.",
-      "Drove initiatives on modular software architecture, lifecycle management, and behavior orchestration for swarm autonomy.",
-      "Promoted twice: Engineer → Senior Engineer (2023) → Lead Engineer (2026).",
+      "Lead a robotics software team of 9 engineers building the planning and orchestration layer for heterogeneous drone fleets — navigation, perception, task allocation, and mission behavior — plus the DevOps/RobotOps infrastructure that gets it onto real hardware.",
+      "Set technical direction for behavior-tree-based mission orchestration across the fleet-autonomy stack.",
+    ],
+  },
+  {
+    company: "Technology Innovation Institute",
+    shortName: "TII",
+    url: "https://www.tii.ae/",
+    role: "Senior Robotics Engineer",
+    period: "2024 — 2026",
+    location: "Abu Dhabi, UAE",
+    start: 2024,
+    end: 2026,
+    bullets: [
+      "Owned modular software architecture and lifecycle management across the fleet-autonomy stack.",
+      "Scaled task allocation and mission planning to heterogeneous fleets operating concurrently.",
+    ],
+  },
+  {
+    company: "Technology Innovation Institute",
+    shortName: "TII",
+    url: "https://www.tii.ae/",
+    role: "Robotics Engineer",
+    period: "2022 — 2024",
+    location: "Abu Dhabi, UAE",
+    start: 2022,
+    end: 2024,
+    bullets: [
+      "Built the navigation, perception, and mission-behavior stack for heterogeneous drone fleets — the planning and orchestration layer, not the airframe.",
+      "Established behavior-tree-based mission orchestration as the standard pattern for multi-drone tasking.",
     ],
   },
   {
@@ -139,7 +168,7 @@ export const experience: Job[] = [
     start: 2024,
     end: null,
     bullets: [
-      "Built agentic AI tools for automated documentation PRs (Doxmosis), agentic orchestration (Kymatics), contribution analysis, real-estate analysis, and UAE defense data analysis.",
+      "Built agentic AI tools for automated documentation PRs (Doxmosis), agentic orchestration (Kymatics), contribution analysis, real-estate analysis, and UAE defense data analysis — the planning discipline applied to software agents instead of robots.",
       "Developed production backend services for LoopFi's blockchain data analysis on EVM chains.",
     ],
   },
@@ -153,8 +182,9 @@ export const experience: Job[] = [
     start: 2021,
     end: 2022.9,
     bullets: [
-      "Founding core technical team that delivered the first working in-store robot system, supporting company milestones across pre-seed and seed rounds.",
-      "Led development of the navigation stack — path planning, motion control, localization — and contributed to perception (detection, filtering, tracking).",
+      "Founding engineer on the team that delivered the first 24/7 in-store robot at Bilka, Odense — proof the planning stack isn't drone-specific.",
+      "Led the navigation and path-planning stack — localization, motion control, collision-free routing among shoppers — the same planning problem as a drone mission, worked at walking speed instead of flight speed.",
+      "Demonstrations under this stack supported the company's pre-seed round.",
     ],
   },
   {
@@ -176,13 +206,27 @@ export const experience: Job[] = [
     shortName: "Hiventive",
     url: "https://www.hiventive.com/en/",
     role: "Software Engineer",
-    period: "2018 — 2021",
-    location: "Bordeaux, France & Remote",
-    start: 2018.7,
-    end: 2021.2,
+    period: "2020 — 2021",
+    location: "Remote",
+    start: 2020.5,
+    end: 2021.1,
     bullets: [
       "Built core backend services in Go with PostgreSQL and Docker for a computer-aided production engineering platform.",
+      "Developed an automated programming test manager for candidate evaluation.",
+    ],
+  },
+  {
+    company: "Hiventive",
+    shortName: "Hiventive",
+    url: "https://www.hiventive.com/en/",
+    role: "Embedded Software Engineer",
+    period: "2018 — 2019",
+    location: "Bordeaux, France",
+    start: 2018.7,
+    end: 2019.5,
+    bullets: [
       "Developed a SystemC/TLM virtual prototype of an STM32 microcontroller for SoC emulation — TIM, I2C, CAN, GPIO, USART peripherals with QEMU integration.",
+      "Built a virtual temperature/humidity sensor and validated firmware against real hardware.",
     ],
   },
   {
@@ -223,42 +267,60 @@ export interface Project {
   external?: string;
   externalLabel?: string;
   glyph?: string;
+  /** Local promo clip under public/media/, with a poster frame shown before playback. */
+  video?: string;
+  videoPoster?: string;
   /** Set when there's no public link — closed source or internal. */
   closed?: boolean;
 }
 
 /** The framing for the Builds section. */
-export const buildsIntro = `Three altitudes, one idea. A swarm decides without a
-  leader; an agent decides with tools instead of a human; a machine rebuilds
-  itself from a text file. Different problems — the same instinct about where
-  decisions belong.`;
+export const buildsIntro = `Three altitudes, one question: given a goal and
+  constraints, what happens next. A route through a warehouse, a mission for
+  a drone fleet, a sequence of tool calls for an agent — same discipline,
+  different actors.`;
 
 /** Big spotlight cards. */
 export const featured: Project[] = [
   {
-    title: "Bird-Inspired Flocking",
+    title: "PyMAPF",
     blurb:
-      "Decentralized, acceleration-based flocking for drone swarms, inspired by how starlings murmurate. Each agent decides from local observations only — no leader, no central brain — yet the flock moves as one. Published at IEEE/RSJ IROS 2024, and the reason the hero of this site is a boids simulation.",
-    tech: ["C++", "ROS 2", "Swarm Autonomy", "IROS 2024"],
+      "A multi-agent planning toolbox — CBS, PIBT, LaCAM and Prioritized Planning solvers, running on arbitrary graphs, not just grids. Every solver streams its search live, so you can watch conflicts get found and resolved node by node instead of taking the answer on faith. Built out of the same research that produced the MAPF survey below it.",
+    tech: ["Python", "Multi-Agent Planning", "Graph Search", "CBS / PIBT"],
     layer: "field",
-    external:
-      "https://www.researchgate.net/publication/387418977_Decentralized_Acceleration-Based_Bird-Inspired_Flocking",
-    externalLabel: "Read the paper",
-    glyph: "flock",
+    github: "https://github.com/APLA-Toolbox/pymapf",
+    external: "https://apla-toolbox.github.io/pymapf/",
+    externalLabel: "Open the playground",
+    video: "/media/pymapf-promo.mp4",
+    videoPoster: "/media/pymapf-poster.png",
   },
   {
-    title: "t212-mcp",
+    title: "jupyddl",
     blurb:
-      "A Model Context Protocol server that gives AI assistants read-only access to a Trading 212 investing account — balances, positions, dividends, pies, and the instrument catalogue. Strictly no trading: the HTTP client has no code path that issues anything but a GET, which is a design constraint rather than a policy note.",
-    tech: ["TypeScript", "Node.js", "MCP", "Finance"],
+      "A pure-Python PDDL planning framework — hand-written parser and grounder covering STRIPS through durative actions, 14 planners from BFS to weighted A* to LM-cut, and heuristics you can train on your own solved plans. No Julia, no native dependencies, just the search laid bare so you can watch it think.",
+    tech: ["Python", "PDDL", "A* / Search", "Heuristics"],
+    layer: "field",
+    github: "https://github.com/APLA-Toolbox/pythonpddl",
+    external: "https://apla-toolbox.github.io/PythonPDDL/",
+    externalLabel: "Open the workbench",
+    video: "/media/jupyddl-promo.mp4",
+    videoPoster: "/media/jupyddl-poster.png",
+  },
+  {
+    title: "BTView",
+    blurb:
+      "A visual graph editor for BehaviorTree.CPP trees, built into VS Code and Cursor. Bidirectional XML sync, tidy tree layout, a full keyboard workflow, and a validation panel that jumps straight to the offending node — because a behavior tree you can only read as XML is a behavior tree nobody reviews carefully.",
+    tech: ["TypeScript", "Behavior Trees", "VS Code Extension"],
     layer: "agent",
-    github: "https://github.com/guilyx/t212-mcp",
-    glyph: "chart",
+    github: "https://github.com/guilyx/btview-vscode-plugin",
+    external: "https://marketplace.visualstudio.com/items?itemName=rangonomics.btview",
+    externalLabel: "VS Code Marketplace",
+    glyph: "btview",
   },
   {
     title: "setup",
     blurb:
-      "One curl command turns a bare Ubuntu box into my entire working environment — shell, toolchains, containers, editors, and dotfiles via chezmoi — then hands off to the app layer. Ansible underneath for idempotency, a typed Python CLI so every generated command is auditable before it runs, and a small Flask control plane for composing a config without hand-editing YAML. It dry-runs with --check, and it is how every machine I touch comes to exist.",
+      "One curl command turns a bare Ubuntu box into my entire working environment — shell, toolchains, containers, editors, and dotfiles via chezmoi — then hands off to the app layer. Ansible underneath for idempotency, a typed Python CLI so every generated command is auditable before it runs, and a small Flask control plane for composing a config without hand-editing YAML.",
     tech: ["Ansible", "Python", "chezmoi", "Flask"],
     layer: "machine",
     github: "https://github.com/guilyx/setup",
@@ -269,20 +331,30 @@ export const featured: Project[] = [
 /** Smaller grid cards. */
 export const projects: Project[] = [
   {
-    title: "LeHarness",
+    title: "autonomous-uav-guide",
     blurb:
-      "Serves local models on whatever hardware is actually in the box — vLLM with tensor parallelism on a GPU rig, Ollama with GGUF quantization on a Jetson or a bare CPU — behind one OpenAI-compatible URL. Provisioning detects the tier and steps back; the harness owns engine choice.",
-    tech: ["vLLM", "Ollama", "Docker", "CUDA"],
-    layer: "machine",
-    closed: true,
+      "Flight algorithms from scratch: multirotor, fixed-wing and VTOL physics written out in full, 40+ runnable simulations, and a gym for teaching a drone to fly itself. The platform-agnostic argument made literal — the planning and control layer doesn't know or care what it's flying.",
+    tech: ["Python", "Flight Dynamics", "Reinforcement Learning"],
+    layer: "field",
+    github: "https://github.com/guilyx/autonomous-uav-guide",
+    external: "https://guilyx.github.io/autonomous-uav-guide/",
   },
   {
-    title: "chezmoi ecosystem",
+    title: "rostree",
     blurb:
-      "The other half of setup: the apps, ports and compose stacks, plus the dotfiles source. One boundary, strictly held — if it installs a toolchain it lives in setup, if it adds an app it lives here.",
-    tech: ["chezmoi", "Docker Compose", "Make"],
+      "A ROS 2 dependency graph is a DAG, not a tree — expanding it path by path is exponential. rostree explores it properly instead: from the command line, a TUI, or a self-contained HTML file with no CDN and no network calls, so it survives being opened on a robot with no route out.",
+    tech: ["Python", "Graph Theory", "ROS 2", "TUI"],
     layer: "machine",
-    closed: true,
+    github: "https://github.com/guilyx/rostree",
+    external: "https://guilyx.github.io/rostree",
+  },
+  {
+    title: "t212-mcp",
+    blurb:
+      "A Model Context Protocol server that gives AI assistants read-only access to a Trading 212 investing account — balances, positions, dividends, pies, and the instrument catalogue. Strictly no trading: the HTTP client has no code path that issues anything but a GET.",
+    tech: ["TypeScript", "Node.js", "MCP", "Finance"],
+    layer: "agent",
+    github: "https://github.com/guilyx/t212-mcp",
   },
   {
     title: "Doxmosis",
@@ -301,12 +373,29 @@ export const projects: Project[] = [
     external: "https://kymatics.vercel.app/",
   },
   {
+    title: "weave",
+    blurb:
+      "A live D&D session assistant — captures table audio, transcribes the narrative, maintains a rolling recap, and offers suggestions grounded in the campaign's own characters and lore. STT plus a LangGraph agent plus a memory of the campaign, which is a planning problem wearing a dice-game costume.",
+    tech: ["Python", "FastAPI", "LangGraph", "STT"],
+    layer: "agent",
+    github: "https://github.com/guilyx/weave",
+  },
+  {
     title: "epsteinexposed-mcp",
     blurb:
       "An MCP server over a public-records API, so an assistant can query the archive — persons, documents, flight logs — directly instead of being told about it.",
     tech: ["Python", "MCP", "Public Data"],
     layer: "agent",
     github: "https://github.com/guilyx/epsteinexposed-mcp",
+  },
+  {
+    title: "Bird-Inspired Flocking",
+    blurb:
+      "Published research on decentralized, acceleration-based coordination for UAVs — a third-order control law for collective motion, validated in field experiments. One contribution among several, not the whole story.",
+    tech: ["C++", "ROS 2", "Control Theory", "IROS 2024"],
+    layer: "field",
+    external:
+      "https://www.researchgate.net/publication/387418977_Decentralized_Acceleration-Based_Bird-Inspired_Flocking",
   },
   {
     title: "ROS 2 Real-Time Benchmarks",
@@ -321,19 +410,11 @@ export const projects: Project[] = [
   {
     title: "Multi-Agent Pathfinding Survey",
     blurb:
-      "A survey of the multi-agent pathfinding landscape: taxonomy, solvers, and the open problems — the reading that shaped how I think about coordinating fleets.",
+      "A survey of the multi-agent pathfinding landscape: taxonomy, solvers, and the open problems — the reading that shaped PyMAPF and how I think about coordinating fleets.",
     tech: ["Research", "Path Planning"],
     layer: "field",
     external:
       "https://www.researchgate.net/publication/348716625_Survey_of_the_Multi-Agent_Pathfinding_Solutions",
-  },
-  {
-    title: "autonomous-uav",
-    blurb:
-      "2D/3D pathfinding, a cascaded controller, and an extended Kalman filter for autonomous flying vehicles.",
-    tech: ["Python", "Control", "Estimation"],
-    layer: "field",
-    github: "https://github.com/guilyx/autonomous-uav",
   },
   {
     title: "artin-pathfinding",
@@ -343,6 +424,22 @@ export const projects: Project[] = [
     layer: "field",
     github: "https://github.com/master-coro/artin-pathfinding",
   },
+  {
+    title: "LeHarness",
+    blurb:
+      "Serves local models on whatever hardware is actually in the box — vLLM with tensor parallelism on a GPU rig, Ollama with GGUF quantization on a Jetson or a bare CPU — behind one OpenAI-compatible URL.",
+    tech: ["vLLM", "Ollama", "Docker", "CUDA"],
+    layer: "machine",
+    closed: true,
+  },
+  {
+    title: "chezmoi ecosystem",
+    blurb:
+      "The other half of setup: the apps, ports and compose stacks, plus the dotfiles source. One boundary, strictly held — if it installs a toolchain it lives in setup, if it adds an app it lives here.",
+    tech: ["chezmoi", "Docker Compose", "Make"],
+    layer: "machine",
+    closed: true,
+  },
 ];
 
 /**
@@ -350,14 +447,15 @@ export const projects: Project[] = [
  * profile README, which introduces him as a YAML document.
  */
 export const spec = [
-  { key: "role", value: "lead architect · robotics & ai systems" },
+  { key: "role", value: "lead architect · robot autonomy" },
   { key: "based", value: "abu dhabi, uae" },
-  { key: "building", value: "decentralized swarm autonomy" },
-  { key: "also", value: "agentic ai, self-hosted infrastructure" },
+  { key: "domain", value: "multi-agent planning, behavior trees" },
+  { key: "platform", value: "agnostic — in-store robots, drones" },
 ] as const;
 
 export const contact = {
   title: "Open Channel",
-  body: `I'm not actively looking, but the inbox stays open — a question about
-   swarm autonomy, an open-source idea, or just to say hi. I'll get back to you.`,
+  body: `I'm not actively looking, but the inbox stays open — a question
+   about multi-agent planning, an open-source idea, or just to say hi. I'll
+   get back to you.`,
 } as const;

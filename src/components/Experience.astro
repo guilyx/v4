@@ -14,13 +14,16 @@ const pct = (year: number) => ((year - TIMELINE_START) / span) * 100;
 // Draw oldest-first so the eye reads left-to-right, bottom-to-top like a chart.
 const rows = [...experience].sort((a, b) => a.start - b.start).reverse();
 const ticks = [2018, 2020, 2022, 2024, 2026];
+
+const faviconFor = (url: string) =>
+  `https://www.google.com/s2/favicons?domain=${new URL(url).hostname}&sz=64`;
 ---
 
 <Section id="experience" title="Trajectory">
   <div data-reveal>
     <p class="text-muted mb-8 max-w-xl text-sm">
-      Eight years, four countries, and — right now — three roles running at once.
-      Select a row for the detail.
+      Eight years, four countries, one thread running through it: what should
+      this system do next. Select a row for the detail.
     </p>
 
     <div class="scroller -mx-2 overflow-x-auto px-2 pb-2">
@@ -93,13 +96,27 @@ const ticks = [2018, 2020, 2022, 2024, 2026];
             hidden={i !== 0}
             class="tl-panel"
           >
-            <h3 class="text-lg font-medium sm:text-xl">
-              {job.role}{" "}
-              <span class="text-accent">
-                @{" "}
-                <a href={job.url} target="_blank" rel="noopener noreferrer" class="link">
-                  {job.company}
-                </a>
+            <h3 class="flex flex-wrap items-center gap-2.5 text-lg font-medium sm:text-xl">
+              <span class="tl-favicon border-line bg-bg relative inline-flex size-6 shrink-0 items-center justify-center overflow-hidden rounded border text-[0.6rem] font-mono">
+                <span aria-hidden="true">{job.company.charAt(0)}</span>
+                <img
+                  src={faviconFor(job.url)}
+                  alt=""
+                  loading="lazy"
+                  width="16"
+                  height="16"
+                  class="absolute inset-0 m-auto size-4"
+                  onerror="this.remove()"
+                />
+              </span>
+              <span>
+                {job.role}{" "}
+                <span class="text-accent">
+                  @{" "}
+                  <a href={job.url} target="_blank" rel="noopener noreferrer" class="link">
+                    {job.company}
+                  </a>
+                </span>
               </span>
             </h3>
             <p class="font-mono text-muted mt-1 text-xs">
