@@ -5,24 +5,22 @@ date: 2026-08-06
 tags: ["meta", "astro", "design"]
 ---
 
-Every few years I look at my portfolio, wince, and rebuild it. This is v4.
+Every couple of years I look at my portfolio, wince, and rebuild it. This is v4.
 
-## The goals
+## Why bother, again
 
-Three things, in order:
+Honestly, the previous one wasn't broken. But it was carrying more JavaScript than it needed to, it didn't feel like *mine* so much as "a portfolio," and I'd learned enough since the last rebuild that I wanted to try something leaner. So: [Astro](https://astro.build), one accent color, one display face, and a rule I tried to actually stick to — if a section doesn't need JS, it doesn't get any.
 
-- **Leaner.** The previous site carried more JavaScript than it needed. This one is statically generated with [Astro](https://astro.build) and ships close to zero JS — the only scripts are the hero's flocking simulation, the scroll reveals, and the trajectory timeline. All vanilla, all tiny.
-- **More designer, less template.** One accent color (a periwinkle called Ink & Iris), one display face ([Space Grotesk](https://fonts.google.com/specimen/Space+Grotesk)), mono labels, a timeline instead of a tab list.
-- **Personal.** The hero background is a [boids](https://en.wikipedia.org/wiki/Boids) simulation — separation, alignment, cohesion, nothing else. No leader, no global state, just local rules producing something that looks purposeful. It felt right that the first thing you see on my site is a small, honest piece of the same instinct: simple local rules, no one in charge, still going somewhere.
+The one indulgence is the hero background: a [boids](https://en.wikipedia.org/wiki/Boids) simulation, separation/alignment/cohesion, nothing fancier. No leader, no global state, just local rules that end up looking like something with intent. I like that it's honest about what it is if you read the source — it's not doing anything clever, it's just three rules and a few dozen triangles.
 
-## The stack
+## The stack, if you care
 
-- **Astro 5** — static output, content collections for this blog and the photos page, zero-JS islands by default.
-- **Tailwind CSS 4** — design tokens live in one `@theme` block; the whole palette is eight colors.
-- **Vanilla TypeScript** — the boids sim is ~150 lines of canvas code with no dependencies. It respects `prefers-reduced-motion` and pauses when the tab is hidden.
+- **Astro 5** for static output, with content collections for this blog and the photos page.
+- **Tailwind CSS 4** — the whole palette lives in one `@theme` block, eight colors total.
+- **Vanilla TypeScript** for the interactive bits (the boids sim, scroll reveals, the trajectory timeline). No framework, no animation library. The boids code is maybe 150 lines and respects `prefers-reduced-motion`.
 
 ## What's next
 
-Photos from Abu Dhabi and elsewhere, and probably some longer write-ups on multi-agent planning and behavior trees — that's most of what I actually spend my time on.
+More photos, probably, and some longer posts on multi-agent planning and behavior trees — that's most of what I actually spend my days on, and I keep meaning to write it down.
 
-Thanks for reading. The source is on [GitHub](https://github.com/guilyx/v4).
+Source's on [GitHub](https://github.com/guilyx/v4) if you want to poke at it.

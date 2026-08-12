@@ -206,3 +206,13 @@ html.has-js [data-reveal].is-visible {
   @apply rounded-lg my-6;
   max-width: 100%;
 }
+.prose video {
+  @apply rounded-lg my-6 border border-line;
+  max-width: 100%;
+}
+.prose figure {
+  @apply my-6;
+}
+.prose figcaption {
+  @apply font-mono text-faint mt-2 text-xs;
+}
