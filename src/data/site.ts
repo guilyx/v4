@@ -328,6 +328,8 @@ export const builds: Project[] = [
     layer: "field",
     github: "https://github.com/guilyx/autonomous-uav-guide",
     external: "https://guilyx.github.io/autonomous-uav-guide/",
+    video: "/media/autonomous-uav-guide-promo.mp4",
+    videoPoster: "/media/autonomous-uav-guide-poster.png",
   },
   {
     title: "Kymatics",

@@ -31,6 +31,9 @@
 html {
   scroll-behavior: smooth;
   color-scheme: dark;
+  /* Bumps every rem-based size (type, spacing) up together instead of
+     hand-tuning each component's scale individually. */
+  font-size: 120%;
 }
 
 @media (prefers-reduced-motion: reduce) {
