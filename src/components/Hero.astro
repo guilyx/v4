@@ -3,9 +3,9 @@ import { site, spec } from "@/data/site";
 ---
 
 <section class="relative flex min-h-screen flex-col justify-center">
-  {/* Grid search visualization — full-bleed behind the hero copy */}
+  {/* Flocking simulation — full-bleed behind the hero copy */}
   <canvas
-    id="pathgrid"
+    id="boids"
     class="pointer-events-none absolute top-0 left-1/2 -z-[1] h-full w-screen -translate-x-1/2"
     aria-hidden="true"></canvas>
 
@@ -39,8 +39,8 @@ import { site, spec } from "@/data/site";
     </dl>
 
     <p class="chip mt-8 max-w-md" data-reveal style="--reveal-delay: 500ms">
-      the grid behind this text is a live A* search — the same kind of graph
-      the rest of the site runs on, just drawn out where you can watch it think.
+      the drifting marks behind this text are a boids simulation — local
+      rules, no leader, still purposeful.
     </p>
 
     <div class="mt-9 flex flex-wrap items-center gap-5" data-reveal style="--reveal-delay: 600ms">
@@ -75,71 +75,45 @@ import { site, spec } from "@/data/site";
 
 <script>
   // ---------------------------------------------------------------------
-  // A live A* search over a random grid — separation/alignment/cohesion
-  // swapped for the thing this site is actually about: given a start, a
-  // goal, and a field of obstacles, find the route. Frontier expands node
-  // by node, a path gets traced, then the grid regenerates and it goes
-  // again.
+  // Boids — a tiny decentralized flocking simulation (Reynolds, 1987).
+  // Each agent steers by three local rules: separation, alignment,
+  // cohesion. No leader, no global state.
   // ---------------------------------------------------------------------
-  const canvas = document.getElementById("pathgrid") as HTMLCanvasElement | null;
+  const canvas = document.getElementById("boids") as HTMLCanvasElement | null;
 
   if (canvas) {
     const ctx = canvas.getContext("2d")!;
     const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-    // Texture, not decoration — colours come from CSS tokens so palettes
-    // swap cleanly in one place.
-    function tokenRGB(name: string, fallback: string): string {
-      const token = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+    // The flock is texture, not decoration — it takes its colour from the
+    // --color-agent token so the palette stays in one place.
+    const ACCENT = (() => {
+      const token = getComputedStyle(document.documentElement)
+        .getPropertyValue("--color-agent")
+        .trim();
       const hex = /^#?([\da-f]{2})([\da-f]{2})([\da-f]{2})$/i.exec(token);
       return hex
         ? `${parseInt(hex[1]!, 16)}, ${parseInt(hex[2]!, 16)}, ${parseInt(hex[3]!, 16)}`
-        : fallback;
-    }
-    const GRAPH = tokenRGB("--color-graph", "124, 130, 145");
-    const ACCENT = tokenRGB("--color-accent", "139, 149, 240");
-
-    const CELL = 26;
-    const STEPS_PER_FRAME = 5;
-    const PATH_REVEAL_PER_FRAME = 2;
-    const HOLD_FRAMES = 100;
+        : "136, 146, 176";
+    })();
+    const COUNT = window.innerWidth < 640 ? 24 : 44;
+    const PERCEPTION = 70;
+    const MAX_SPEED = 1.4;
+    const MAX_FORCE = 0.035;
 
     let w = 0;
     let h = 0;
     let dpr = 1;
-    let cols = 0;
-    let rows = 0;
 
-    let walls: Uint8Array = new Uint8Array(0);
-    let gScore: Float64Array = new Float64Array(0);
-    let fScore: Float64Array = new Float64Array(0);
-    let cameFrom: Int32Array = new Int32Array(0);
-    let state: Uint8Array = new Uint8Array(0); // 0 unseen, 1 open, 2 closed
-    let closedOrder: number[] = [];
-    let openSet: number[] = [];
-    let start = 0;
-    let goal = 0;
-    let path: number[] = [];
-    let revealed = 0;
-    let hold = 0;
-    let phase: "search" | "path" | "hold" = "search";
-
-    const idx = (x: number, y: number) => y * cols + x;
-    const cx = (i: number) => (i % cols) + 0.5;
-    const cy = (i: number) => Math.floor(i / cols) + 0.5;
-    const heuristic = (i: number, goalI: number) =>
-      Math.abs((i % cols) - (goalI % cols)) + Math.abs(Math.floor(i / cols) - Math.floor(goalI / cols));
-
-    function neighbors(i: number): number[] {
-      const x = i % cols;
-      const y = Math.floor(i / cols);
-      const out: number[] = [];
-      if (x > 0) out.push(i - 1);
-      if (x < cols - 1) out.push(i + 1);
-      if (y > 0) out.push(i - cols);
-      if (y < rows - 1) out.push(i + cols);
-      return out;
+    interface Boid {
+      x: number;
+      y: number;
+      vx: number;
+      vy: number;
     }
+
+    const boids: Boid[] = [];
+    const pointer = { x: -9999, y: -9999, active: false };
 
     function resize() {
       dpr = Math.min(window.devicePixelRatio || 1, 2);
@@ -148,177 +122,167 @@ import { site, spec } from "@/data/site";
       canvas!.width = Math.floor(w * dpr);
       canvas!.height = Math.floor(h * dpr);
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      cols = Math.max(4, Math.ceil(w / CELL));
-      rows = Math.max(4, Math.ceil(h / CELL));
-      regenerate();
     }
 
-    function regenerate() {
-      const n = cols * rows;
-      walls = new Uint8Array(n);
-      gScore = new Float64Array(n);
-      fScore = new Float64Array(n);
-      cameFrom = new Int32Array(n).fill(-1);
-      state = new Uint8Array(n);
-
-      for (let i = 0; i < n; i++) walls[i] = Math.random() < 0.22 ? 1 : 0;
-
-      const midRow = () => 1 + Math.floor(Math.random() * (rows - 2));
-      start = idx(0, midRow());
-      goal = idx(cols - 1, midRow());
-      walls[start] = 0;
-      walls[goal] = 0;
-
-      closedOrder = [];
-      openSet = [start];
-      gScore[start] = 0;
-      fScore[start] = heuristic(start, goal);
-      state[start] = 1;
-      path = [];
-      revealed = 0;
-      hold = 0;
-      phase = "search";
+    function spawn() {
+      boids.length = 0;
+      for (let i = 0; i < COUNT; i++) {
+        const a = Math.random() * Math.PI * 2;
+        boids.push({
+          x: Math.random() * w,
+          y: Math.random() * h,
+          vx: Math.cos(a) * MAX_SPEED * 0.7,
+          vy: Math.sin(a) * MAX_SPEED * 0.7,
+        });
+      }
     }
 
-    function searchStep() {
-      if (openSet.length === 0) {
-        // no route through this maze — hold briefly, then try a new one
-        phase = "hold";
-        hold = HOLD_FRAMES;
-        return;
-      }
-      let bestI = 0;
-      for (let i = 1; i < openSet.length; i++) {
-        if (fScore[openSet[i]!]! < fScore[openSet[bestI]!]!) bestI = i;
-      }
-      const current = openSet.splice(bestI, 1)[0]!;
-      state[current] = 2;
-      closedOrder.push(current);
+    function limit(vx: number, vy: number, max: number): [number, number] {
+      const m = Math.hypot(vx, vy);
+      if (m > max && m > 0) return [(vx / m) * max, (vy / m) * max];
+      return [vx, vy];
+    }
 
-      if (current === goal) {
-        let n = current;
-        while (n !== -1) {
-          path.push(n);
-          n = cameFrom[n]!;
-        }
-        path.reverse();
-        phase = "path";
-        return;
-      }
+    function step() {
+      for (const b of boids) {
+        let sepX = 0, sepY = 0;
+        let aliX = 0, aliY = 0;
+        let cohX = 0, cohY = 0;
+        let n = 0;
 
-      for (const nb of neighbors(current)) {
-        if (walls[nb] || state[nb] === 2) continue;
-        const tentative = gScore[current]! + 1;
-        if (state[nb] !== 1 || tentative < gScore[nb]!) {
-          cameFrom[nb] = current;
-          gScore[nb] = tentative;
-          fScore[nb] = tentative + heuristic(nb, goal);
-          if (state[nb] !== 1) {
-            state[nb] = 1;
-            openSet.push(nb);
+        for (const o of boids) {
+          if (o === b) continue;
+          const dx = o.x - b.x;
+          const dy = o.y - b.y;
+          const d = Math.hypot(dx, dy);
+          if (d > 0 && d < PERCEPTION) {
+            n++;
+            // separation: steer away, weighted by closeness
+            sepX -= dx / (d * d);
+            sepY -= dy / (d * d);
+            // alignment: average heading
+            aliX += o.vx;
+            aliY += o.vy;
+            // cohesion: average position
+            cohX += o.x;
+            cohY += o.y;
           }
         }
+
+        let ax = 0, ay = 0;
+        if (n > 0) {
+          [sepX, sepY] = limit(sepX * 18, sepY * 18, MAX_FORCE * 1.5);
+          [aliX, aliY] = limit(aliX / n - b.vx, aliY / n - b.vy, MAX_FORCE);
+          [cohX, cohY] = limit((cohX / n - b.x) * 0.01, (cohY / n - b.y) * 0.01, MAX_FORCE * 0.8);
+          ax = sepX + aliX + cohX;
+          ay = sepY + aliY + cohY;
+        }
+
+        // gentle avoidance of the pointer, so the flock parts around it
+        if (pointer.active) {
+          const dx = b.x - pointer.x;
+          const dy = b.y - pointer.y;
+          const d = Math.hypot(dx, dy);
+          if (d > 0 && d < 110) {
+            ax += (dx / d) * 0.12 * (1 - d / 110);
+            ay += (dy / d) * 0.12 * (1 - d / 110);
+          }
+        }
+
+        b.vx += ax;
+        b.vy += ay;
+        [b.vx, b.vy] = limit(b.vx, b.vy, MAX_SPEED);
+        // keep a minimum cruise speed so nobody stalls
+        const sp = Math.hypot(b.vx, b.vy);
+        if (sp < 0.4 && sp > 0) {
+          b.vx = (b.vx / sp) * 0.4;
+          b.vy = (b.vy / sp) * 0.4;
+        }
+        b.x += b.vx;
+        b.y += b.vy;
+
+        // toroidal wrap
+        if (b.x < -10) b.x = w + 10;
+        if (b.x > w + 10) b.x = -10;
+        if (b.y < -10) b.y = h + 10;
+        if (b.y > h + 10) b.y = -10;
       }
     }
 
     function draw() {
       ctx.clearRect(0, 0, w, h);
 
-      // walls: faint outline squares, just enough to read as a maze
-      ctx.strokeStyle = `rgba(${GRAPH}, 0.1)`;
+      // faint connection lines between close neighbours
       ctx.lineWidth = 1;
-      for (let i = 0; i < walls.length; i++) {
-        if (!walls[i]) continue;
-        ctx.strokeRect(cx(i) * CELL - 8, cy(i) * CELL - 8, 16, 16);
-      }
-
-      // visited cells: small closed-frontier dots
-      ctx.fillStyle = `rgba(${GRAPH}, 0.35)`;
-      for (const i of closedOrder) {
-        ctx.beginPath();
-        ctx.arc(cx(i) * CELL, cy(i) * CELL, 1.6, 0, Math.PI * 2);
-        ctx.fill();
-      }
-
-      // open frontier: slightly brighter
-      ctx.fillStyle = `rgba(${ACCENT}, 0.3)`;
-      for (const i of openSet) {
-        ctx.beginPath();
-        ctx.arc(cx(i) * CELL, cy(i) * CELL, 1.8, 0, Math.PI * 2);
-        ctx.fill();
-      }
-
-      // path so far: connected route in the accent colour
-      const shown = path.slice(0, revealed);
-      if (shown.length > 1) {
-        ctx.strokeStyle = `rgba(${ACCENT}, 0.55)`;
-        ctx.lineWidth = 1.6;
-        ctx.beginPath();
-        ctx.moveTo(cx(shown[0]!) * CELL, cy(shown[0]!) * CELL);
-        for (const i of shown.slice(1)) ctx.lineTo(cx(i) * CELL, cy(i) * CELL);
-        ctx.stroke();
-      }
-
-      // start / goal markers
-      for (const [node, filled] of [[start, false] as const, [goal, true] as const]) {
-        ctx.beginPath();
-        ctx.arc(cx(node) * CELL, cy(node) * CELL, 3.2, 0, Math.PI * 2);
-        if (filled) {
-          ctx.fillStyle = `rgba(${ACCENT}, 0.7)`;
-          ctx.fill();
-        } else {
-          ctx.strokeStyle = `rgba(${ACCENT}, 0.7)`;
-          ctx.lineWidth = 1.4;
-          ctx.stroke();
+      for (let i = 0; i < boids.length; i++) {
+        for (let j = i + 1; j < boids.length; j++) {
+          const a = boids[i]!;
+          const o = boids[j]!;
+          const d = Math.hypot(a.x - o.x, a.y - o.y);
+          if (d < 55) {
+            ctx.strokeStyle = `rgba(${ACCENT}, ${0.06 * (1 - d / 55)})`;
+            ctx.beginPath();
+            ctx.moveTo(a.x, a.y);
+            ctx.lineTo(o.x, o.y);
+            ctx.stroke();
+          }
         }
       }
-    }
 
-    function tick() {
-      if (phase === "search") {
-        for (let s = 0; s < STEPS_PER_FRAME && phase === "search"; s++) searchStep();
-      } else if (phase === "path") {
-        revealed += PATH_REVEAL_PER_FRAME;
-        if (revealed >= path.length) {
-          revealed = path.length;
-          phase = "hold";
-          hold = HOLD_FRAMES;
-        }
-      } else {
-        hold--;
-        if (hold <= 0) regenerate();
+      // agents: small triangles oriented along velocity
+      for (const b of boids) {
+        const ang = Math.atan2(b.vy, b.vx);
+        ctx.save();
+        ctx.translate(b.x, b.y);
+        ctx.rotate(ang);
+        ctx.fillStyle = `rgba(${ACCENT}, 0.3)`;
+        ctx.beginPath();
+        ctx.moveTo(5, 0);
+        ctx.lineTo(-4, 3);
+        ctx.lineTo(-4, -3);
+        ctx.closePath();
+        ctx.fill();
+        ctx.restore();
       }
-      draw();
     }
 
     let raf = 0;
     function loop() {
-      tick();
+      step();
+      draw();
       raf = requestAnimationFrame(loop);
     }
 
     resize();
+    spawn();
 
     if (reduceMotion) {
-      // run one full search synchronously and draw the static result
-      while (phase === "search") searchStep();
-      revealed = path.length;
+      // static formation for reduced-motion users
+      step();
       draw();
     } else {
       loop();
+      // pause when tab is hidden
       document.addEventListener("visibilitychange", () => {
-        if (document.hidden) cancelAnimationFrame(raf);
-        else raf = requestAnimationFrame(loop);
+        if (document.hidden) {
+          cancelAnimationFrame(raf);
+        } else {
+          raf = requestAnimationFrame(loop);
+        }
       });
     }
 
     window.addEventListener("resize", () => {
       resize();
-      if (reduceMotion) {
-        while (phase === "search") searchStep();
-        revealed = path.length;
-        draw();
-      }
+    });
+    window.addEventListener("pointermove", (e) => {
+      const rect = canvas.getBoundingClientRect();
+      pointer.x = e.clientX - rect.left;
+      pointer.y = e.clientY - rect.top;
+      pointer.active = pointer.y >= 0 && pointer.y <= h;
+    });
+    window.addEventListener("pointerleave", () => {
+      pointer.active = false;
     });
   }
 </script>

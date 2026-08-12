@@ -278,14 +278,17 @@ export interface Project {
 export const buildsIntro = `Three altitudes, one question: given a goal and
   constraints, what happens next. A route through a warehouse, a mission for
   a drone fleet, a sequence of tool calls for an agent — same discipline,
-  different actors.`;
+  different actors. Eight of the most interesting; the rest are on GitHub.`;
 
-/** Big spotlight cards. */
-export const featured: Project[] = [
+/**
+ * The Builds grid — eight cards, not an exhaustive list. Order is the
+ * display order (reads left-to-right, top-to-bottom in a 4-column grid).
+ */
+export const builds: Project[] = [
   {
     title: "PyMAPF",
     blurb:
-      "A multi-agent planning toolbox — CBS, PIBT, LaCAM and Prioritized Planning solvers, running on arbitrary graphs, not just grids. Every solver streams its search live, so you can watch conflicts get found and resolved node by node instead of taking the answer on faith. Built out of the same research that produced the MAPF survey below it.",
+      "A multi-agent planning toolbox — CBS, PIBT, LaCAM and Prioritized Planning solvers, running on arbitrary graphs, not just grids. Every solver streams its search live, so you can watch conflicts get found and resolved node by node instead of taking the answer on faith.",
     tech: ["Python", "Multi-Agent Planning", "Graph Search", "CBS / PIBT"],
     layer: "field",
     github: "https://github.com/APLA-Toolbox/pymapf",
@@ -297,7 +300,7 @@ export const featured: Project[] = [
   {
     title: "jupyddl",
     blurb:
-      "A pure-Python PDDL planning framework — hand-written parser and grounder covering STRIPS through durative actions, 14 planners from BFS to weighted A* to LM-cut, and heuristics you can train on your own solved plans. No Julia, no native dependencies, just the search laid bare so you can watch it think.",
+      "A pure-Python PDDL planning framework — hand-written parser and grounder covering STRIPS through durative actions, 14 planners from BFS to weighted A* to LM-cut, and heuristics you can train on your own solved plans.",
     tech: ["Python", "PDDL", "A* / Search", "Heuristics"],
     layer: "field",
     github: "https://github.com/APLA-Toolbox/pythonpddl",
@@ -307,29 +310,16 @@ export const featured: Project[] = [
     videoPoster: "/media/jupyddl-poster.png",
   },
   {
-    title: "BTView",
+    title: "rostree",
     blurb:
-      "A visual graph editor for BehaviorTree.CPP trees, built into VS Code and Cursor. Bidirectional XML sync, tidy tree layout, a full keyboard workflow, and a validation panel that jumps straight to the offending node — because a behavior tree you can only read as XML is a behavior tree nobody reviews carefully.",
-    tech: ["TypeScript", "Behavior Trees", "VS Code Extension"],
-    layer: "agent",
-    github: "https://github.com/guilyx/btview-vscode-plugin",
-    external: "https://marketplace.visualstudio.com/items?itemName=rangonomics.btview",
-    externalLabel: "VS Code Marketplace",
-    glyph: "btview",
-  },
-  {
-    title: "setup",
-    blurb:
-      "One curl command turns a bare Ubuntu box into my entire working environment — shell, toolchains, containers, editors, and dotfiles via chezmoi — then hands off to the app layer. Ansible underneath for idempotency, a typed Python CLI so every generated command is auditable before it runs, and a small Flask control plane for composing a config without hand-editing YAML.",
-    tech: ["Ansible", "Python", "chezmoi", "Flask"],
+      "A ROS 2 dependency graph is a DAG, not a tree — expanding it path by path is exponential. rostree explores it properly instead: from the command line, a TUI, or a self-contained HTML file with no CDN and no network calls, so it survives being opened on a robot with no route out.",
+    tech: ["Python", "Graph Theory", "ROS 2", "TUI"],
     layer: "machine",
-    github: "https://github.com/guilyx/setup",
-    glyph: "provision",
+    github: "https://github.com/guilyx/rostree",
+    external: "https://guilyx.github.io/rostree",
+    video: "/media/rostree-promo.mp4",
+    videoPoster: "/media/rostree-poster.png",
   },
-];
-
-/** Smaller grid cards. */
-export const projects: Project[] = [
   {
     title: "autonomous-uav-guide",
     blurb:
@@ -340,31 +330,6 @@ export const projects: Project[] = [
     external: "https://guilyx.github.io/autonomous-uav-guide/",
   },
   {
-    title: "rostree",
-    blurb:
-      "A ROS 2 dependency graph is a DAG, not a tree — expanding it path by path is exponential. rostree explores it properly instead: from the command line, a TUI, or a self-contained HTML file with no CDN and no network calls, so it survives being opened on a robot with no route out.",
-    tech: ["Python", "Graph Theory", "ROS 2", "TUI"],
-    layer: "machine",
-    github: "https://github.com/guilyx/rostree",
-    external: "https://guilyx.github.io/rostree",
-  },
-  {
-    title: "t212-mcp",
-    blurb:
-      "A Model Context Protocol server that gives AI assistants read-only access to a Trading 212 investing account — balances, positions, dividends, pies, and the instrument catalogue. Strictly no trading: the HTTP client has no code path that issues anything but a GET.",
-    tech: ["TypeScript", "Node.js", "MCP", "Finance"],
-    layer: "agent",
-    github: "https://github.com/guilyx/t212-mcp",
-  },
-  {
-    title: "Doxmosis",
-    blurb:
-      "Agentic tooling that keeps documentation alive: watches a codebase, detects drift, and opens documentation pull requests on its own.",
-    tech: ["Agentic AI", "LLMs", "GitHub Apps"],
-    layer: "agent",
-    external: "https://doxmosis.vercel.app/",
-  },
-  {
     title: "Kymatics",
     blurb:
       "Agentic orchestration platform — coordinate fleets of AI agents the way you'd orchestrate services.",
@@ -373,72 +338,29 @@ export const projects: Project[] = [
     external: "https://kymatics.vercel.app/",
   },
   {
+    title: "setup",
+    blurb:
+      "One curl command turns a bare Ubuntu box into my entire working environment — shell, toolchains, containers, editors, and dotfiles via chezmoi. Ansible underneath for idempotency, a typed Python CLI so every generated command is auditable before it runs.",
+    tech: ["Ansible", "Python", "chezmoi", "Flask"],
+    layer: "machine",
+    github: "https://github.com/guilyx/setup",
+    glyph: "provision",
+  },
+  {
     title: "weave",
     blurb:
-      "A live D&D session assistant — captures table audio, transcribes the narrative, maintains a rolling recap, and offers suggestions grounded in the campaign's own characters and lore. STT plus a LangGraph agent plus a memory of the campaign, which is a planning problem wearing a dice-game costume.",
+      "A live D&D session assistant — captures table audio, transcribes the narrative, maintains a rolling recap, and offers suggestions grounded in the campaign's own characters and lore. STT plus a LangGraph agent plus a memory of the campaign — a planning problem wearing a dice-game costume.",
     tech: ["Python", "FastAPI", "LangGraph", "STT"],
     layer: "agent",
     github: "https://github.com/guilyx/weave",
   },
   {
-    title: "epsteinexposed-mcp",
+    title: "t212-mcp",
     blurb:
-      "An MCP server over a public-records API, so an assistant can query the archive — persons, documents, flight logs — directly instead of being told about it.",
-    tech: ["Python", "MCP", "Public Data"],
+      "A Model Context Protocol server that gives AI assistants read-only access to a Trading 212 investing account — balances, positions, dividends, pies, and the instrument catalogue. No code path issues anything but a GET.",
+    tech: ["TypeScript", "Node.js", "MCP", "Finance"],
     layer: "agent",
-    github: "https://github.com/guilyx/epsteinexposed-mcp",
-  },
-  {
-    title: "Bird-Inspired Flocking",
-    blurb:
-      "Published research on decentralized, acceleration-based coordination for UAVs — a third-order control law for collective motion, validated in field experiments. One contribution among several, not the whole story.",
-    tech: ["C++", "ROS 2", "Control Theory", "IROS 2024"],
-    layer: "field",
-    external:
-      "https://www.researchgate.net/publication/387418977_Decentralized_Acceleration-Based_Bird-Inspired_Flocking",
-  },
-  {
-    title: "ROS 2 Real-Time Benchmarks",
-    blurb:
-      "Real-time jitter measurements under ROS 2 on the inverted pendulum case — tooling and a published preprint. Xenomai/XDDP underneath, because soft real-time isn't real-time.",
-    tech: ["ROS 2", "Xenomai", "C++"],
-    layer: "field",
-    github: "https://github.com/mastererts/ros2_realtime_statistics",
-    external:
-      "https://www.researchgate.net/publication/350353690_Real-time_Jitter_Measurements_under_ROS2_the_Inverted_Pendulum_case",
-  },
-  {
-    title: "Multi-Agent Pathfinding Survey",
-    blurb:
-      "A survey of the multi-agent pathfinding landscape: taxonomy, solvers, and the open problems — the reading that shaped PyMAPF and how I think about coordinating fleets.",
-    tech: ["Research", "Path Planning"],
-    layer: "field",
-    external:
-      "https://www.researchgate.net/publication/348716625_Survey_of_the_Multi-Agent_Pathfinding_Solutions",
-  },
-  {
-    title: "artin-pathfinding",
-    blurb:
-      "A C++17 pathfinding library — A*, Dijkstra, DFS/BFS and friends — with a clean interface for grid worlds.",
-    tech: ["C++17", "Algorithms"],
-    layer: "field",
-    github: "https://github.com/master-coro/artin-pathfinding",
-  },
-  {
-    title: "LeHarness",
-    blurb:
-      "Serves local models on whatever hardware is actually in the box — vLLM with tensor parallelism on a GPU rig, Ollama with GGUF quantization on a Jetson or a bare CPU — behind one OpenAI-compatible URL.",
-    tech: ["vLLM", "Ollama", "Docker", "CUDA"],
-    layer: "machine",
-    closed: true,
-  },
-  {
-    title: "chezmoi ecosystem",
-    blurb:
-      "The other half of setup: the apps, ports and compose stacks, plus the dotfiles source. One boundary, strictly held — if it installs a toolchain it lives in setup, if it adds an app it lives here.",
-    tech: ["chezmoi", "Docker Compose", "Make"],
-    layer: "machine",
-    closed: true,
+    github: "https://github.com/guilyx/t212-mcp",
   },
 ];
 
