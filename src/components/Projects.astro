@@ -1,14 +1,7 @@
 ---
-import { Image } from "astro:assets";
 import Section from "@/components/Section.astro";
 import Icon from "@/components/Icon.astro";
 import { builds, layers, buildsIntro, site } from "@/data/site";
-import setupPromo from "@/assets/projects/setup.png";
-
-/** Promo artifact per build, keyed by `glyph` in site data. */
-const promos = {
-  provision: setupPromo,
-} as const;
 
 const githubUrl = site.socials.find((s) => s.icon === "github")?.url ?? `https://github.com/${site.handle}`;
 ---
@@ -18,12 +11,12 @@ const githubUrl = site.socials.find((s) => s.icon === "github")?.url ?? `https:/
     {buildsIntro.replace(/\s+/g, " ")}
   </p>
 
-  <ul class="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+  <ul class="grid gap-5 sm:grid-cols-2">
     {
       builds.map((p, i) => (
-        <li data-reveal style={`--reveal-delay: ${(i % 4) * 80}ms`}>
+        <li data-reveal style={`--reveal-delay: ${(i % 2) * 80}ms`}>
           <article class="group border-line bg-bg-raised hover:border-accent/40 relative flex h-full flex-col overflow-hidden rounded-lg border transition-all duration-300 hover:-translate-y-1.5">
-            {p.video ? (
+            {p.video && (
               <div class="border-line aspect-video overflow-hidden border-b">
                 <video
                   controls
@@ -34,18 +27,6 @@ const githubUrl = site.socials.find((s) => s.icon === "github")?.url ?? `https:/
                   <source src={p.video} type="video/mp4" />
                 </video>
               </div>
-            ) : (
-              p.glyph && (
-                <div class="border-line aspect-video overflow-hidden border-b">
-                  <Image
-                    src={promos[p.glyph as keyof typeof promos]}
-                    alt={`${p.title} preview`}
-                    widths={[320, 640]}
-                    sizes="(min-width: 1024px) 25vw, 50vw"
-                    class="h-full w-full object-cover opacity-85 saturate-[0.85] transition duration-500 group-hover:opacity-100 group-hover:saturate-100"
-                  />
-                </div>
-              )
             )}
             <div class="flex grow flex-col p-6">
               <header class="mb-4 flex items-center justify-between">

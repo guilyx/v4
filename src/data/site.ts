@@ -278,11 +278,11 @@ export interface Project {
 export const buildsIntro = `Three altitudes, one question: given a goal and
   constraints, what happens next. A route through a warehouse, a mission for
   a drone fleet, a sequence of tool calls for an agent — same discipline,
-  different actors. Eight of the most interesting; the rest are on GitHub.`;
+  different actors. The most interesting ones; the rest are on GitHub.`;
 
 /**
- * The Builds grid — eight cards, not an exhaustive list. Order is the
- * display order (reads left-to-right, top-to-bottom in a 4-column grid).
+ * The Builds grid — six cards, not an exhaustive list. Order is the
+ * display order (reads left-to-right, top-to-bottom in a 2-column grid).
  */
 export const builds: Project[] = [
   {
@@ -338,29 +338,12 @@ export const builds: Project[] = [
     external: "https://kymatics.vercel.app/",
   },
   {
-    title: "setup",
-    blurb:
-      "One curl command turns a bare Ubuntu box into my entire working environment — shell, toolchains, containers, editors, and dotfiles via chezmoi. Ansible underneath for idempotency, a typed Python CLI so every generated command is auditable before it runs.",
-    tech: ["Ansible", "Python", "chezmoi", "Flask"],
-    layer: "machine",
-    github: "https://github.com/guilyx/setup",
-    glyph: "provision",
-  },
-  {
     title: "weave",
     blurb:
       "A live D&D session assistant — captures table audio, transcribes the narrative, maintains a rolling recap, and offers suggestions grounded in the campaign's own characters and lore. STT plus a LangGraph agent plus a memory of the campaign — a planning problem wearing a dice-game costume.",
     tech: ["Python", "FastAPI", "LangGraph", "STT"],
     layer: "agent",
     github: "https://github.com/guilyx/weave",
-  },
-  {
-    title: "t212-mcp",
-    blurb:
-      "A Model Context Protocol server that gives AI assistants read-only access to a Trading 212 investing account — balances, positions, dividends, pies, and the instrument catalogue. No code path issues anything but a GET.",
-    tech: ["TypeScript", "Node.js", "MCP", "Finance"],
-    layer: "agent",
-    github: "https://github.com/guilyx/t212-mcp",
   },
 ];
 
