@@ -3,7 +3,7 @@ import Section from "@/components/Section.astro";
 import { experience, TIMELINE_START } from "@/data/site";
 
 /**
- * Trajectory — a timeline rather than a tab list, because roles run
+ * Experiences — a timeline rather than a tab list, because roles run
  * concurrently and a tab list hides that entirely. One row per company;
  * each row can carry multiple selectable bars, one per stint, so a set of
  * promotions at the same company reads as distinct segments on one line
@@ -41,7 +41,7 @@ const groupsIndexed = groups.map((g) => ({
 const flat = groupsIndexed.flatMap((g) => g.jobs);
 ---
 
-<Section id="experience" title="Trajectory">
+<Section id="experience" title="Experiences">
   <div data-reveal>
     <p class="text-muted mb-8 max-w-xl text-sm">
       Eight years, four countries, one thread running through it: what should
@@ -49,9 +49,9 @@ const flat = groupsIndexed.flatMap((g) => g.jobs);
     </p>
 
     <div class="scroller -mx-2 overflow-x-auto px-2 pb-2">
-      <div class="min-w-[540px]">
+      <div class="min-w-[260px]">
         {/* Year axis, offset to sit over the track only */}
-        <div class="grid grid-cols-[104px_1fr] items-end" aria-hidden="true">
+        <div class="grid grid-cols-[76px_1fr] items-end" aria-hidden="true">
           <span></span>
           <div class="border-line relative h-5 border-b">
             {
@@ -71,10 +71,10 @@ const flat = groupsIndexed.flatMap((g) => g.jobs);
         <div role="tablist" aria-label="Roles" class="mt-2 flex flex-col gap-1" id="tl">
           {
             groupsIndexed.map((group) => (
-              <div class="grid w-full grid-cols-[104px_1fr] items-center gap-3 py-1">
-                <span class="tl-label font-mono flex items-center gap-1.5 truncate pl-1 text-[0.7rem]">
+              <div class="grid w-full grid-cols-[76px_1fr] items-center gap-2 py-1">
+                <span class="tl-label font-mono flex items-center gap-1 truncate pl-1 text-[0.65rem]">
                   <span
-                    class="tl-icon border-line bg-bg inline-flex size-[18px] shrink-0 items-center justify-center rounded-[3px] border text-[0.55rem] leading-none"
+                    class="tl-icon border-line bg-bg inline-flex size-4 shrink-0 items-center justify-center rounded-[3px] border text-[0.5rem] leading-none"
                     aria-hidden="true"
                   >
                     {group.company.charAt(0)}
@@ -165,6 +165,23 @@ const flat = groupsIndexed.flatMap((g) => g.jobs);
 </Section>
 
 <style>
+  .scroller {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-line) transparent;
+  }
+  .scroller::-webkit-scrollbar {
+    height: 6px;
+  }
+  .scroller::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .scroller::-webkit-scrollbar-thumb {
+    background: var(--color-line);
+    border-radius: 3px;
+  }
+  .scroller::-webkit-scrollbar-thumb:hover {
+    background: var(--color-accent);
+  }
   .tl-fill {
     background: var(--color-line);
   }
