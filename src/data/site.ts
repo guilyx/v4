@@ -7,7 +7,7 @@ export const site = {
   name: "Erwin Lejeune",
   handle: "guilyx",
   role: "Lead Architect — Robot Autonomy",
-  tagline: "I build the layer that decides what happens next.",
+  tagline: "Building the layer that decides what happens next.",
   description:
     "Erwin Lejeune — Lead Architect, Robot Autonomy, in Abu Dhabi. Multi-agent planning, behavior trees, and agentic orchestration — platform-agnostic, from in-store robots to drones. C++, Python, Go.",
   url: "https://v4.elejeune.me",
@@ -353,7 +353,7 @@ export const featured: Project[] = [
     github: "https://github.com/Unchained-Labs/kymatics",
     external: "https://kymatics.vercel.app/",
     video: "/media/kymatics-promo.mp4",
-    videoPoster: "/media/kymatics-poster.jpg",
+    videoPoster: "/media/kymatics-poster.png",
   },
   {
     title: "weave",
