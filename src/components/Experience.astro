@@ -64,7 +64,10 @@ const flat = groupsIndexed.flatMap((g) => g.jobs);
     </p>
 
     <div class="scroller -mx-2 overflow-x-auto px-2 pb-2">
-      <div class="min-w-[260px]">
+      {/* pr-5 reserves room for the "still running" arrow, which sits just
+          past the right edge of a bar that runs to the present marker and
+          was otherwise clipped by the scroller. */}
+      <div class="min-w-[260px] pr-5">
         {/* Year axis, offset to sit over the track only */}
         <div class="grid grid-cols-[76px_1fr] items-end" aria-hidden="true">
           <span></span>

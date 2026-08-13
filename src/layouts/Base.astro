@@ -6,14 +6,17 @@ import "@fontsource/jetbrains-mono/500.css";
 import "@/styles/global.css";
 import Nav from "@/components/Nav.astro";
 import Footer from "@/components/Footer.astro";
+import Loader from "@/components/Loader.astro";
 import { site } from "@/data/site";
 
 interface Props {
   title?: string;
   description?: string;
+  /** Intro animation — home page only, and only once per session. */
+  loader?: boolean;
 }
 
-const { title, description = site.description } = Astro.props;
+const { title, description = site.description, loader = false } = Astro.props;
 const pageTitle = title ? `${title} — ${site.name}` : `${site.name} — ${site.role}`;
 const canonical = new URL(Astro.url.pathname, Astro.site);
 const ogImage = new URL("/og.png", Astro.site);
@@ -30,7 +33,7 @@ const ogImage = new URL("/og.png", Astro.site);
     <link rel="canonical" href={canonical} />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="sitemap" href="/sitemap-index.xml" />
-    <meta name="theme-color" content="#0d0e12" />
+    <meta name="theme-color" content="#12141b" />
     <meta property="og:type" content="website" />
     <meta property="og:title" content={pageTitle} />
     <meta property="og:description" content={description} />
@@ -48,6 +51,8 @@ const ogImage = new URL("/og.png", Astro.site);
     </script>
   </head>
   <body>
+    {loader && <Loader />}
+
     <a
       href="#main"
       class="font-mono text-sm bg-accent fixed top-4 left-4 z-[100] -translate-y-24 rounded px-4 py-2 text-black transition-transform focus:translate-y-0"
