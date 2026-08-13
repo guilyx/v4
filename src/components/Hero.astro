@@ -1,5 +1,5 @@
 ---
-import { site, spec } from "@/data/site";
+import { site, spec, heroSummary } from "@/data/site";
 ---
 
 <section class="relative flex min-h-screen flex-col justify-center">
@@ -38,9 +38,12 @@ import { site, spec } from "@/data/site";
       }
     </dl>
 
-    <p class="chip mt-8 max-w-md" data-reveal style="--reveal-delay: 500ms">
-      the drifting marks behind this text are a boids simulation — local
-      rules, no leader, still purposeful.
+    <p
+      class="text-body mt-8 max-w-xl text-[0.95rem] leading-relaxed"
+      data-reveal
+      style="--reveal-delay: 500ms"
+    >
+      {heroSummary.replace(/\s+/g, " ")}
     </p>
 
     <div class="mt-9 flex flex-wrap items-center gap-5" data-reveal style="--reveal-delay: 600ms">

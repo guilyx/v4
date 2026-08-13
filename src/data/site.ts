@@ -599,6 +599,17 @@ export const archive: ArchiveEntry[] = [
  * Hero spec block — the key/value register comes from Erwin's own GitHub
  * profile README, which introduces him as a YAML document.
  */
+/**
+ * The hero's one-paragraph answer to "who is this and what do they do."
+ * Deliberately does not restate the tagline above it or the spec block
+ * beside it — this is the part that carries the story.
+ */
+export const heroSummary = `Leading teams that ship mission planning, task
+  allocation and behavior orchestration for drone fleets — today at SIRB.AI and
+  the Technology Innovation Institute. Before drones, the same planning stack
+  drove a robot through the aisles of a supermarket in Denmark. Eight years,
+  four countries, one layer of the problem.`;
+
 export const spec = [
   { key: "role", value: "lead architect · robot autonomy" },
   { key: "based", value: "abu dhabi, uae" },

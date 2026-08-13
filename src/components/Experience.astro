@@ -14,6 +14,21 @@ const span = now - TIMELINE_START;
 const pct = (year: number) => ((year - TIMELINE_START) / span) * 100;
 const ticks = [2018, 2020, 2022, 2024, 2026];
 
+/**
+ * Company favicons from the same source resume.elejeune.me uses: Google's
+ * faviconV2 on gstatic, given the *full* page URL rather than a bare domain.
+ * Domain-only lookups downgrade to http:// and miss modern sites (sirb.ai
+ * among them), and the older www.google.com/s2/favicons host sits on common
+ * tracker blocklists, so it silently fails for anyone running a blocker.
+ *
+ * `size` is the requested pixel size — ask for 2x the rendered box. If it
+ * fails anyway, `onerror` drops the image and the monogram behind shows.
+ */
+const faviconFor = (url: string, size: number) =>
+  `https://t0.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=${encodeURIComponent(
+    url,
+  )}&size=${size}`;
+
 // Group stints by company, preserving one row per company.
 const byCompany = new Map<string, typeof experience>();
 for (const job of experience) {
@@ -74,10 +89,21 @@ const flat = groupsIndexed.flatMap((g) => g.jobs);
               <div class="grid w-full grid-cols-[76px_1fr] items-center gap-2 py-1">
                 <span class="tl-label font-mono flex items-center gap-1 truncate pl-1 text-[0.65rem]">
                   <span
-                    class="tl-icon border-line bg-bg inline-flex size-4 shrink-0 items-center justify-center rounded-[3px] border text-[0.5rem] leading-none"
+                    class="tl-icon border-line bg-bg relative inline-flex size-4 shrink-0 items-center justify-center overflow-hidden rounded-[3px] border text-[0.5rem] leading-none"
                     aria-hidden="true"
                   >
                     {group.company.charAt(0)}
+                    <img
+                      src={faviconFor(group.jobs[0]!.job.url, 32)}
+                      alt=""
+                      aria-hidden="true"
+                      width="12"
+                      height="12"
+                      loading="lazy"
+                      decoding="async"
+                      class="absolute inset-0 m-auto size-3"
+                      onerror="this.remove()"
+                    />
                   </span>
                   <span class="truncate">{group.jobs[0]!.job.shortName}</span>
                 </span>
@@ -128,10 +154,21 @@ const flat = groupsIndexed.flatMap((g) => g.jobs);
           >
             <h3 class="flex flex-wrap items-center gap-2.5 text-lg font-medium sm:text-xl">
               <span
-                class="border-line bg-bg inline-flex size-6 shrink-0 items-center justify-center rounded border text-[0.6rem] font-mono"
+                class="border-line bg-bg relative inline-flex size-6 shrink-0 items-center justify-center overflow-hidden rounded border text-[0.6rem] font-mono"
                 aria-hidden="true"
               >
                 {job.company.charAt(0)}
+                <img
+                  src={faviconFor(job.url, 48)}
+                  alt=""
+                  aria-hidden="true"
+                  width="18"
+                  height="18"
+                  loading="lazy"
+                  decoding="async"
+                  class="absolute inset-0 m-auto size-[18px]"
+                  onerror="this.remove()"
+                />
               </span>
               <span>
                 {job.role}{" "}
