@@ -13,7 +13,7 @@ export const site = {
   url: "https://v4.elejeune.me",
   email: "erwin.lejeune15@gmail.com",
   location: "Abu Dhabi, UAE",
-  resume: "https://github.com/guilyx/resume",
+  resume: "https://resume.elejeune.me",
   socials: [
     { label: "GitHub", url: "https://github.com/guilyx", icon: "github" },
     {
