@@ -1,22 +1,26 @@
 @import "tailwindcss";
 
 /* ---------------------------------------------------------------------------
-   Design tokens — "Ink & Iris": neutral-cool near-black under a periwinkle
-   accent. Defined in guilyx/branding; keep the two in sync.
+   Design tokens — "Ink & Iris": neutral-cool ink under a periwinkle accent.
+   Defined in guilyx/branding; keep the two in sync.
+
+   The grounds were lifted a step in 2026-08 — the original #0d0e12 read as
+   flat black on OLED phones, where the raised surfaces and hairlines
+   disappeared into the background entirely. Same hue family, more air.
 --------------------------------------------------------------------------- */
 @theme {
-  --color-bg: #0d0e12;
-  --color-bg-raised: #15171d;
-  --color-surface: #15171d;
-  --color-line: #252833;
-  --color-heading: #e4e6ec;
-  --color-body: #a5aab8;
-  --color-muted: #7c8291;
-  --color-faint: #555b69;
+  --color-bg: #12141b;
+  --color-bg-raised: #1a1d26;
+  --color-surface: #1a1d26;
+  --color-line: #2c3040;
+  --color-heading: #e8eaf0;
+  --color-body: #aeb3c2;
+  --color-muted: #858b9c;
+  --color-faint: #616779;
   --color-accent: #8b95f0;
   --color-accent-soft: rgba(139, 149, 240, 0.08);
   /* colour of the hero flock; read by the canvas so palettes swap cleanly */
-  --color-agent: #7c8291;
+  --color-agent: #858b9c;
 
   --font-display: "Space Grotesk Variable", ui-sans-serif, system-ui, sans-serif;
   --font-sans: "Inter Variable", ui-sans-serif, system-ui, sans-serif;
@@ -31,9 +35,23 @@
 html {
   scroll-behavior: smooth;
   color-scheme: dark;
-  /* Bumps every rem-based size (type, spacing) up together instead of
-     hand-tuning each component's scale individually. */
-  font-size: 120%;
+  /* Every size on the site is rem-based, so the root size is the one dial
+     that scales type and spacing together. It has to be responsive: a flat
+     120% is comfortable on a laptop and enormous on a phone, where it cost
+     roughly a fifth of the usable line length. */
+  font-size: 100%;
+}
+
+@media (min-width: 640px) {
+  html {
+    font-size: 110%;
+  }
+}
+
+@media (min-width: 1024px) {
+  html {
+    font-size: 120%;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

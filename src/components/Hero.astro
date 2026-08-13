@@ -2,7 +2,15 @@
 import { site, spec, heroSummary } from "@/data/site";
 ---
 
-<section class="relative flex min-h-screen flex-col justify-center">
+{/*
+  `min-h-svh` rather than `min-h-screen`: on mobile, `100vh` is the height with
+  browser chrome *hidden*, so a centred hero taller than the visible area had
+  its top — the name — pushed up under the nav. `svh` measures the smallest
+  visible viewport, and the top padding clears the fixed header outright.
+*/}
+<section
+  class="relative flex min-h-svh flex-col justify-center pt-28 pb-16 sm:pt-24 md:py-0"
+>
   {/* Flocking simulation — full-bleed behind the hero copy */}
   <canvas
     id="boids"
@@ -27,11 +35,11 @@ import { site, spec, heroSummary } from "@/data/site";
 
     {/* Spec block — Erwin introduces himself as a YAML doc on GitHub; the
         site borrows that register rather than a greeting. */}
-    <dl class="mt-9 grid max-w-lg gap-y-1.5" data-reveal style="--reveal-delay: 350ms">
+    <dl class="mt-8 grid max-w-lg gap-y-2 sm:mt-9 sm:gap-y-1.5" data-reveal style="--reveal-delay: 350ms">
       {
         spec.map((row) => (
-          <div class="flex gap-4 font-mono text-[0.78rem] leading-relaxed">
-            <dt class="text-faint w-20 shrink-0">{row.key}</dt>
+          <div class="font-mono text-[0.78rem] leading-relaxed sm:flex sm:gap-4">
+            <dt class="text-faint sm:w-20 sm:shrink-0">{row.key}</dt>
             <dd class="text-body m-0">{row.value}</dd>
           </div>
         ))

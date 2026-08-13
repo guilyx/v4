@@ -1,0 +1,111 @@
+---
+/**
+ * Intro loader — the mark draws itself, the waypoints land, then the whole
+ * thing scales away. Same beat as Brittany Chiang's v4 loader, done with CSS
+ * keyframes instead of anime.js so it costs no dependency and ~20 lines of JS.
+ *
+ * Shown once per session on the home page. Skipped entirely for reduced-motion
+ * users and when JS is off — in both cases the markup below is never painted,
+ * because the overlay only becomes visible once the script opts in.
+ */
+---
+
+<div id="loader" class="loader" aria-hidden="true" data-loader>
+  <svg width="84" height="84" viewBox="0 0 32 32" fill="none" class="loader-mark">
+    <path
+      class="loader-route"
+      d="M16 8.5 L8.5 21 L23.5 21"
+      stroke="currentColor"
+      stroke-width="1.1"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    ></path>
+    <g class="loader-nodes" fill="currentColor">
+      <circle cx="16" cy="8.5" r="2.1"></circle>
+      <circle cx="8.5" cy="21" r="2.1"></circle>
+      <circle cx="23.5" cy="21" r="2.1"></circle>
+    </g>
+  </svg>
+</div>
+
+<style>
+  .loader {
+    position: fixed;
+    inset: 0;
+    z-index: 99;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    background: var(--color-bg);
+    color: var(--color-accent);
+  }
+  /* Only ever shown by the script, so no-JS and reduced-motion never see it. */
+  .loader.is-running {
+    display: flex;
+  }
+
+  .loader-route {
+    /* Path length is ~29 units in this viewBox; 40 covers it with room. */
+    stroke-dasharray: 40;
+    stroke-dashoffset: 40;
+    animation: draw 900ms var(--ease-swift) 120ms forwards;
+  }
+  .loader-nodes {
+    opacity: 0;
+    animation: fade-in 420ms var(--ease-swift) 820ms forwards;
+  }
+  .loader.is-leaving .loader-mark {
+    animation: pop-out 320ms var(--ease-swift) forwards;
+  }
+  .loader.is-leaving {
+    animation: veil 320ms var(--ease-swift) 120ms forwards;
+  }
+
+  @keyframes draw {
+    to {
+      stroke-dashoffset: 0;
+    }
+  }
+  @keyframes fade-in {
+    to {
+      opacity: 1;
+    }
+  }
+  @keyframes pop-out {
+    to {
+      opacity: 0;
+      transform: scale(0.2);
+    }
+  }
+  @keyframes veil {
+    to {
+      opacity: 0;
+      visibility: hidden;
+    }
+  }
+</style>
+
+<script>
+  const loader = document.querySelector<HTMLElement>("[data-loader]");
+
+  const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const seen = sessionStorage.getItem("seen-loader") === "1";
+
+  if (loader && !reduced && !seen) {
+    document.body.style.overflow = "hidden";
+    loader.classList.add("is-running");
+
+    // Draw (900ms + 120ms delay) then nodes (420ms) ≈ 1.35s, then leave.
+    window.setTimeout(() => {
+      loader.classList.add("is-leaving");
+      window.setTimeout(() => {
+        loader.remove();
+        document.body.style.overflow = "";
+      }, 460);
+    }, 1450);
+
+    sessionStorage.setItem("seen-loader", "1");
+  } else {
+    loader?.remove();
+  }
+</script>
