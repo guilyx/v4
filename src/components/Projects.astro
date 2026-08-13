@@ -1,56 +1,82 @@
 ---
-import { Image } from "astro:assets";
 import Section from "@/components/Section.astro";
 import Icon from "@/components/Icon.astro";
 import { featured, projects, layers, buildsIntro } from "@/data/site";
-import flockingPromo from "@/assets/projects/flocking.png";
-import t212Promo from "@/assets/projects/t212.png";
-import setupPromo from "@/assets/projects/setup.png";
 
-/** Promo artifact per featured project, keyed by `glyph` in site data. */
-const promos = {
-  flock: flockingPromo,
-  chart: t212Promo,
-  provision: setupPromo,
-} as const;
+/**
+ * Builds — big alternating spotlights over a grid of smaller cards, the
+ * shape Brittany Chiang's v4 established for this genre.
+ *
+ * The spotlights deliberately do NOT use a full-card overlay link: every
+ * one of them carries a promo clip, and an overlay would sit on top of the
+ * video and swallow the play button. Links here are explicit instead.
+ */
+const GRID_LIMIT = 6;
+const firstSix = projects.slice(0, GRID_LIMIT);
+const rest = projects.slice(GRID_LIMIT);
 ---
 
 <Section id="projects" title="Selected Builds">
-  <p class="text-muted mb-10 max-w-xl text-sm" data-reveal>
+  <p class="text-muted mb-14 max-w-xl text-sm" data-reveal>
     {buildsIntro.replace(/\s+/g, " ")}
   </p>
 
-  {/* Featured spotlight cards */}
-  <div class="space-y-8">
+  {/* Featured spotlights — media one side, copy the other, alternating */}
+  <ul class="space-y-16 md:space-y-28">
     {
-      featured.map((p) => (
-        <article
-          class="group border-line bg-bg-raised hover:border-accent/30 relative grid overflow-hidden rounded border transition-colors duration-300 md:grid-cols-[6fr_5fr]"
+      featured.map((p, i) => (
+        <li
+          class="group relative grid items-center gap-x-10 gap-y-5 md:grid-cols-2"
           data-reveal
         >
-          <div class="relative z-[1] p-7 sm:p-8">
+          {/* Media — deliberately never covered by the copy, so the controls stay clickable */}
+          <div class={`relative ${i % 2 === 0 ? "md:order-2" : "md:order-1"}`}>
+            <div class="border-line bg-bg-raised overflow-hidden rounded-lg border">
+              <video
+                controls
+                playsinline
+                preload="none"
+                poster={p.videoPoster}
+                aria-label={`${p.title} demo`}
+                class="block w-full"
+              >
+                <source src={p.video} type={p.videoType ?? "video/mp4"} />
+              </video>
+            </div>
+          </div>
+
+          {/* Copy */}
+          <div
+            class={`relative ${
+              i % 2 === 0 ? "md:order-1 md:text-left" : "md:order-2 md:text-right"
+            }`}
+          >
             <p class="font-mono text-accent mb-2 text-xs">{layers[p.layer]}</p>
             <h3 class="text-xl font-semibold sm:text-2xl">
-              {p.external || p.github ? (
-                <a
-                  href={p.external ?? p.github}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  class="hover:text-accent transition-colors after:absolute after:inset-0"
-                >
-                  {p.title}
-                </a>
-              ) : (
-                p.title
-              )}
+              <a
+                href={p.external ?? p.github}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="hover:text-accent transition-colors"
+              >
+                {p.title}
+              </a>
             </h3>
-            <p class="text-body mt-4 max-w-xl text-[0.95rem]">{p.blurb}</p>
-            <ul class="mt-5 flex flex-wrap gap-x-4 gap-y-1">
+            <div class="border-line bg-bg-raised mt-4 rounded-lg border p-5">
+              <p class="text-body text-[0.95rem]">{p.blurb}</p>
+            </div>
+            <ul
+              class={`mt-5 flex flex-wrap gap-x-4 gap-y-1 ${
+                i % 2 === 0 ? "" : "md:justify-end"
+              }`}
+            >
               {p.tech.map((t) => (
                 <li class="chip">{t}</li>
               ))}
             </ul>
-            <div class="relative z-[1] mt-5 flex items-center gap-4">
+            <div
+              class={`mt-5 flex items-center gap-4 ${i % 2 === 0 ? "" : "md:justify-end"}`}
+            >
               {p.github && (
                 <a
                   href={p.github}
@@ -59,7 +85,7 @@ const promos = {
                   aria-label={`${p.title} on GitHub`}
                   class="text-muted hover:text-accent transition-colors"
                 >
-                  <Icon name="github" size={22} />
+                  <Icon name="github" size={20} />
                 </a>
               )}
               {p.external && (
@@ -75,28 +101,25 @@ const promos = {
               )}
             </div>
           </div>
-          <div class="border-line relative order-first border-b md:order-none md:flex md:items-center md:border-b-0 md:border-l md:p-5">
-            <Image
-              src={promos[(p.glyph ?? "flock") as keyof typeof promos]}
-              alt={`${p.title} preview`}
-              widths={[480, 900]}
-              sizes="(min-width: 768px) 40vw, 100vw"
-              class="w-full opacity-80 saturate-[0.85] transition duration-500 group-hover:opacity-100 group-hover:saturate-100 md:rounded"
-            />
-          </div>
-        </article>
+        </li>
       ))
     }
-  </div>
+  </ul>
 
-  {/* Noteworthy grid */}
-  <h3 class="mt-20 mb-8 text-center text-xl font-medium" data-reveal>
-    Other noteworthy projects
-  </h3>
-  <ul class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+  {/* Other noteworthy projects */}
+  <h3 class="mt-24 text-center text-xl font-medium" data-reveal>Other noteworthy projects</h3>
+  <p class="mt-3 text-center" data-reveal>
+    <a href="/archive" class="link font-mono text-sm">view the archive</a>
+  </p>
+
+  <ul class="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3" id="noteworthy">
     {
-      projects.map((p, i) => (
-        <li data-reveal style={`--reveal-delay: ${(i % 3) * 100}ms`}>
+      [...firstSix, ...rest].map((p, i) => (
+        <li
+          data-reveal={i < GRID_LIMIT ? true : undefined}
+          class={i >= GRID_LIMIT ? "more-project hidden" : undefined}
+          style={i < GRID_LIMIT ? `--reveal-delay: ${(i % 3) * 100}ms` : undefined}
+        >
           <article class="group border-line bg-bg-raised hover:border-accent/40 relative flex h-full flex-col rounded-lg border p-6 transition-all duration-300 hover:-translate-y-1.5">
             <header class="mb-4 flex items-center justify-between">
               <span class="font-mono text-accent text-[0.7rem]">{layers[p.layer]}</span>
@@ -155,4 +178,26 @@ const promos = {
       ))
     }
   </ul>
+
+  {
+    rest.length > 0 && (
+      <div class="mt-10 flex justify-center" data-reveal>
+        <button type="button" class="btn" id="more-toggle" aria-expanded="false">
+          Show More
+        </button>
+      </div>
+    )
+  }
 </Section>
+
+<script>
+  const toggle = document.getElementById("more-toggle");
+  const hidden = Array.from(document.querySelectorAll<HTMLElement>(".more-project"));
+
+  toggle?.addEventListener("click", () => {
+    const open = toggle.getAttribute("aria-expanded") === "true";
+    hidden.forEach((el) => el.classList.toggle("hidden", open));
+    toggle.setAttribute("aria-expanded", String(!open));
+    toggle.textContent = open ? "Show More" : "Show Less";
+  });
+</script>

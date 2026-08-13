@@ -3,30 +3,70 @@ import Section from "@/components/Section.astro";
 import { experience, TIMELINE_START } from "@/data/site";
 
 /**
- * Trajectory — a timeline rather than a tab list, because three of these roles
- * run concurrently and a tab list hides that entirely. Bars are positioned by
- * date; selecting one swaps the detail panel below.
+ * Experiences — a timeline rather than a tab list, because roles run
+ * concurrently and a tab list hides that entirely. One row per company;
+ * each row can carry multiple selectable bars, one per stint, so a set of
+ * promotions at the same company reads as distinct segments on one line
+ * instead of duplicate rows.
  */
 const now = 2026.6;
 const span = now - TIMELINE_START;
 const pct = (year: number) => ((year - TIMELINE_START) / span) * 100;
-
-// Draw oldest-first so the eye reads left-to-right, bottom-to-top like a chart.
-const rows = [...experience].sort((a, b) => a.start - b.start).reverse();
 const ticks = [2018, 2020, 2022, 2024, 2026];
+
+/**
+ * Company favicons from the same source resume.elejeune.me uses: Google's
+ * faviconV2 on gstatic, given the *full* page URL rather than a bare domain.
+ * Domain-only lookups downgrade to http:// and miss modern sites (sirb.ai
+ * among them), and the older www.google.com/s2/favicons host sits on common
+ * tracker blocklists, so it silently fails for anyone running a blocker.
+ *
+ * `size` is the requested pixel size — ask for 2x the rendered box. If it
+ * fails anyway, `onerror` drops the image and the monogram behind shows.
+ */
+const faviconFor = (url: string, size: number) =>
+  `https://t0.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=${encodeURIComponent(
+    url,
+  )}&size=${size}`;
+
+// Group stints by company, preserving one row per company.
+const byCompany = new Map<string, typeof experience>();
+for (const job of experience) {
+  const list = byCompany.get(job.company) ?? [];
+  list.push(job);
+  byCompany.set(job.company, list);
+}
+
+// Order rows by the most recent activity in that company, most recent first.
+const groups = [...byCompany.entries()]
+  .map(([company, jobs]) => ({
+    company,
+    jobs: [...jobs].sort((a, b) => a.start - b.start),
+    latest: Math.max(...jobs.map((j) => j.end ?? now)),
+  }))
+  .sort((a, b) => b.latest - a.latest);
+
+// Flat, globally-ordered index shared by the bars above and the panels below,
+// so the two lists stay in lockstep for tab/panel wiring and keyboard nav.
+let cursor = 0;
+const groupsIndexed = groups.map((g) => ({
+  ...g,
+  jobs: g.jobs.map((job) => ({ job, index: cursor++ })),
+}));
+const flat = groupsIndexed.flatMap((g) => g.jobs);
 ---
 
-<Section id="experience" title="Trajectory">
+<Section id="experience" title="Experiences">
   <div data-reveal>
     <p class="text-muted mb-8 max-w-xl text-sm">
-      Eight years, four countries, and — right now — three roles running at once.
-      Select a row for the detail.
+      Eight years, four countries, one thread running through it: what should
+      this system do next. Select a bar for the detail.
     </p>
 
     <div class="scroller -mx-2 overflow-x-auto px-2 pb-2">
-      <div class="min-w-[540px]">
+      <div class="min-w-[260px]">
         {/* Year axis, offset to sit over the track only */}
-        <div class="grid grid-cols-[104px_1fr] items-end" aria-hidden="true">
+        <div class="grid grid-cols-[76px_1fr] items-end" aria-hidden="true">
           <span></span>
           <div class="border-line relative h-5 border-b">
             {
@@ -42,41 +82,60 @@ const ticks = [2018, 2020, 2022, 2024, 2026];
           </div>
         </div>
 
-        {/* Rows: label gutter + bar track */}
+        {/* Rows: one per company, each with one bar per stint */}
         <div role="tablist" aria-label="Roles" class="mt-2 flex flex-col gap-1" id="tl">
           {
-            rows.map((job, i) => {
-              const left = pct(job.start);
-              const right = pct(job.end ?? now);
-              return (
-                <button
-                  role="tab"
-                  id={`tl-tab-${i}`}
-                  aria-controls={`tl-panel-${i}`}
-                  aria-selected={i === 0 ? "true" : "false"}
-                  tabindex={i === 0 ? 0 : -1}
-                  class="tl-bar grid w-full grid-cols-[104px_1fr] items-center gap-3 rounded-sm py-1 text-left"
-                >
-                  <span class="tl-label font-mono truncate pl-1 text-[0.7rem]">
-                    {job.shortName}
-                  </span>
-                  <span class="relative block h-5">
-                    <span
-                      class="tl-fill absolute top-1/2 block h-2.5 -translate-y-1/2 rounded-[2px] transition-all duration-200"
-                      style={`left: ${left}%; width: ${Math.max(right - left, 1.5)}%`}
+            groupsIndexed.map((group) => (
+              <div class="grid w-full grid-cols-[76px_1fr] items-center gap-2 py-1">
+                <span class="tl-label font-mono flex items-center gap-1 truncate pl-1 text-[0.65rem]">
+                  <span
+                    class="tl-icon border-line bg-bg relative inline-flex size-4 shrink-0 items-center justify-center overflow-hidden rounded-[3px] border text-[0.5rem] leading-none"
+                    aria-hidden="true"
+                  >
+                    {group.company.charAt(0)}
+                    <img
+                      src={faviconFor(group.jobs[0]!.job.url, 32)}
+                      alt=""
+                      aria-hidden="true"
+                      width="12"
+                      height="12"
+                      loading="lazy"
+                      decoding="async"
+                      class="absolute inset-0 m-auto size-3"
+                      onerror="this.remove()"
                     />
-                    {job.end === null && (
-                      <span
-                        class="tl-live absolute top-1/2 -translate-y-1/2 text-[0.7rem] leading-none"
-                        style={`left: calc(${right}% + 5px)`}
-                      >
-                        →
-                      </span>
-                    )}
                   </span>
-                </button>
-              );
-            })
+                  <span class="truncate">{group.jobs[0]!.job.shortName}</span>
+                </span>
+                <span class="relative block h-5">
+                  {
+                    group.jobs.map(({ job, index }) => {
+                      const left = pct(job.start);
+                      const right = pct(job.end ?? now);
+                      return (
+                        <button
+                          role="tab"
+                          id={`tl-tab-${index}`}
+                          aria-controls={`tl-panel-${index}`}
+                          aria-selected={index === 0 ? "true" : "false"}
+                          tabindex={index === 0 ? 0 : -1}
+                          aria-label={`${job.role} at ${job.company}, ${job.period}`}
+                          class="tl-bar absolute top-1/2 -translate-y-1/2 rounded-[2px]"
+                          style={`left: ${left}%; width: ${Math.max(right - left, 1.5)}%`}
+                        >
+                          <span class="tl-fill block h-2.5 rounded-[2px] transition-colors duration-200" />
+                          {job.end === null && (
+                            <span class="tl-live absolute top-1/2 -translate-y-1/2 text-[0.7rem] leading-none" style="left: calc(100% + 5px)">
+                              →
+                            </span>
+                          )}
+                        </button>
+                      );
+                    })
+                  }
+                </span>
+              </div>
+            ))
           }
         </div>
       </div>
@@ -85,21 +144,40 @@ const ticks = [2018, 2020, 2022, 2024, 2026];
     {/* Detail panels */}
     <div class="border-line mt-8 min-h-[260px] border-t pt-8">
       {
-        rows.map((job, i) => (
+        flat.map(({ job, index }) => (
           <div
             role="tabpanel"
-            id={`tl-panel-${i}`}
-            aria-labelledby={`tl-tab-${i}`}
-            hidden={i !== 0}
+            id={`tl-panel-${index}`}
+            aria-labelledby={`tl-tab-${index}`}
+            hidden={index !== 0}
             class="tl-panel"
           >
-            <h3 class="text-lg font-medium sm:text-xl">
-              {job.role}{" "}
-              <span class="text-accent">
-                @{" "}
-                <a href={job.url} target="_blank" rel="noopener noreferrer" class="link">
-                  {job.company}
-                </a>
+            <h3 class="flex flex-wrap items-center gap-2.5 text-lg font-medium sm:text-xl">
+              <span
+                class="border-line bg-bg relative inline-flex size-6 shrink-0 items-center justify-center overflow-hidden rounded border text-[0.6rem] font-mono"
+                aria-hidden="true"
+              >
+                {job.company.charAt(0)}
+                <img
+                  src={faviconFor(job.url, 48)}
+                  alt=""
+                  aria-hidden="true"
+                  width="18"
+                  height="18"
+                  loading="lazy"
+                  decoding="async"
+                  class="absolute inset-0 m-auto size-[18px]"
+                  onerror="this.remove()"
+                />
+              </span>
+              <span>
+                {job.role}{" "}
+                <span class="text-accent">
+                  @{" "}
+                  <a href={job.url} target="_blank" rel="noopener noreferrer" class="link">
+                    {job.company}
+                  </a>
+                </span>
               </span>
             </h3>
             <p class="font-mono text-muted mt-1 text-xs">
@@ -124,26 +202,34 @@ const ticks = [2018, 2020, 2022, 2024, 2026];
 </Section>
 
 <style>
+  .scroller {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-line) transparent;
+  }
+  .scroller::-webkit-scrollbar {
+    height: 6px;
+  }
+  .scroller::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .scroller::-webkit-scrollbar-thumb {
+    background: var(--color-line);
+    border-radius: 3px;
+  }
+  .scroller::-webkit-scrollbar-thumb:hover {
+    background: var(--color-accent);
+  }
   .tl-fill {
     background: var(--color-line);
   }
   .tl-label {
     color: var(--color-muted);
   }
-  .tl-bar:hover {
-    background: color-mix(in srgb, var(--color-line) 40%, transparent);
-  }
   .tl-bar:hover .tl-fill {
     background: color-mix(in srgb, var(--color-accent) 55%, var(--color-line));
   }
-  .tl-bar:hover .tl-label {
-    color: var(--color-body);
-  }
   .tl-bar[aria-selected="true"] .tl-fill {
     background: var(--color-accent);
-  }
-  .tl-bar[aria-selected="true"] .tl-label {
-    color: var(--color-accent);
   }
   .tl-live {
     color: var(--color-faint);

@@ -31,6 +31,9 @@
 html {
   scroll-behavior: smooth;
   color-scheme: dark;
+  /* Bumps every rem-based size (type, spacing) up together instead of
+     hand-tuning each component's scale individually. */
+  font-size: 120%;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -202,4 +205,14 @@ html.has-js [data-reveal].is-visible {
 .prose img {
   @apply rounded-lg my-6;
   max-width: 100%;
+}
+.prose video {
+  @apply rounded-lg my-6 border border-line;
+  max-width: 100%;
+}
+.prose figure {
+  @apply my-6;
+}
+.prose figcaption {
+  @apply font-mono text-faint mt-2 text-xs;
 }

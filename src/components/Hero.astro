@@ -1,5 +1,5 @@
 ---
-import { site, spec } from "@/data/site";
+import { site, spec, heroSummary } from "@/data/site";
 ---
 
 <section class="relative flex min-h-screen flex-col justify-center">
@@ -38,9 +38,12 @@ import { site, spec } from "@/data/site";
       }
     </dl>
 
-    <p class="chip mt-8 max-w-md" data-reveal style="--reveal-delay: 500ms">
-      the drifting marks behind this text are a flocking simulation — the same
-      three rules the swarms at work run on.
+    <p
+      class="text-body mt-8 max-w-xl text-[0.95rem] leading-relaxed"
+      data-reveal
+      style="--reveal-delay: 500ms"
+    >
+      {heroSummary.replace(/\s+/g, " ")}
     </p>
 
     <div class="mt-9 flex flex-wrap items-center gap-5" data-reveal style="--reveal-delay: 600ms">
@@ -77,8 +80,7 @@ import { site, spec } from "@/data/site";
   // ---------------------------------------------------------------------
   // Boids — a tiny decentralized flocking simulation (Reynolds, 1987).
   // Each agent steers by three local rules: separation, alignment,
-  // cohesion. No leader, no global state — same principle as the drone
-  // swarms I work on, at 1/1000th of the stakes.
+  // cohesion. No leader, no global state.
   // ---------------------------------------------------------------------
   const canvas = document.getElementById("boids") as HTMLCanvasElement | null;
 
