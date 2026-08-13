@@ -270,21 +270,34 @@ export interface Project {
   /** Local promo clip under public/media/, with a poster frame shown before playback. */
   video?: string;
   videoPoster?: string;
+  /** Defaults to video/mp4; weave's clip is VP8 WebM. */
+  videoType?: string;
   /** Set when there's no public link — closed source or internal. */
   closed?: boolean;
+}
+
+/** A row in the /archive table — everything, not just the highlights. */
+export interface ArchiveEntry {
+  year: number;
+  title: string;
+  /** Company or org it was built under; omitted means personal. */
+  madeAt?: string;
+  tech: string[];
+  github?: string;
+  external?: string;
 }
 
 /** The framing for the Builds section. */
 export const buildsIntro = `Three altitudes, one question: given a goal and
   constraints, what happens next. A route through a warehouse, a mission for
   a drone fleet, a sequence of tool calls for an agent — same discipline,
-  different actors. The most interesting ones; the rest are on GitHub.`;
+  different actors. Six with something to show; the rest are in the archive.`;
 
 /**
- * The Builds grid — six cards, not an exhaustive list. Order is the
- * display order (reads left-to-right, top-to-bottom in a 2-column grid).
+ * Featured builds — the six that earn a full spotlight, every one of them
+ * with a real promo clip recorded from the thing actually running.
  */
-export const builds: Project[] = [
+export const featured: Project[] = [
   {
     title: "PyMAPF",
     blurb:
@@ -334,10 +347,13 @@ export const builds: Project[] = [
   {
     title: "Kymatics",
     blurb:
-      "Agentic orchestration platform — coordinate fleets of AI agents the way you'd orchestrate services.",
-    tech: ["Agentic AI", "TypeScript"],
+      "Speak an intent and watch it become a queue of build jobs. Voice goes in through a Python speech service, a Rust orchestrator plans and schedules the work, and a React board tracks every job through todo → running → done. The queue plans itself — the same scheduling problem as a robot fleet, with a microphone as the input device.",
+    tech: ["Rust", "Python", "React", "Voice / STT"],
     layer: "agent",
+    github: "https://github.com/Unchained-Labs/kymatics",
     external: "https://kymatics.vercel.app/",
+    video: "/media/kymatics-promo.mp4",
+    videoPoster: "/media/kymatics-poster.jpg",
   },
   {
     title: "weave",
@@ -346,6 +362,236 @@ export const builds: Project[] = [
     tech: ["Python", "FastAPI", "LangGraph", "STT"],
     layer: "agent",
     github: "https://github.com/guilyx/weave",
+    video: "/media/weave-promo.webm",
+    videoPoster: "/media/weave-poster.png",
+    videoType: "video/webm",
+  },
+];
+
+/**
+ * Other noteworthy projects — the small grid under the spotlights. Six show
+ * by default; the rest of the record lives in /archive.
+ */
+export const projects: Project[] = [
+  {
+    title: "BTView",
+    blurb:
+      "A visual graph editor for BehaviorTree.CPP trees, built into VS Code and Cursor. Bidirectional XML sync, tidy layout, and a validation panel that jumps straight to the offending node.",
+    tech: ["TypeScript", "Behavior Trees", "VS Code"],
+    layer: "agent",
+    github: "https://github.com/guilyx/btview-vscode-plugin",
+    external: "https://marketplace.visualstudio.com/items?itemName=rangonomics.btview",
+  },
+  {
+    title: "setup",
+    blurb:
+      "One curl command turns a bare Ubuntu box into my entire working environment — shell, toolchains, containers, dotfiles via chezmoi. Ansible underneath for idempotency, a typed Python CLI so every generated command is auditable before it runs.",
+    tech: ["Ansible", "Python", "chezmoi"],
+    layer: "machine",
+    github: "https://github.com/guilyx/setup",
+  },
+  {
+    title: "t212-mcp",
+    blurb:
+      "An MCP server giving AI assistants read-only access to a Trading 212 account — balances, positions, dividends, pies. No code path issues anything but a GET.",
+    tech: ["TypeScript", "Node.js", "MCP"],
+    layer: "agent",
+    github: "https://github.com/guilyx/t212-mcp",
+  },
+  {
+    title: "Doxmosis",
+    blurb:
+      "Agentic tooling that keeps documentation alive: watches a codebase, detects drift, and opens documentation pull requests on its own.",
+    tech: ["Go", "Agentic AI", "GitHub Apps"],
+    layer: "agent",
+    external: "https://doxmosis.vercel.app/",
+  },
+  {
+    title: "Bird-Inspired Flocking",
+    blurb:
+      "Published research on decentralized, acceleration-based coordination for UAVs — a third-order control law for collective motion, validated in field experiments.",
+    tech: ["C++", "ROS 2", "Control Theory", "IROS 2024"],
+    layer: "field",
+    external:
+      "https://www.researchgate.net/publication/387418977_Decentralized_Acceleration-Based_Bird-Inspired_Flocking",
+  },
+  {
+    title: "zucman",
+    blurb:
+      "A campaign kit for one statistic: sourced research, regenerable charts, decks in two languages, and a zero-dependency dataviz site — all rebuilt from the underlying data by script, never by hand.",
+    tech: ["Python", "Matplotlib", "Data Viz"],
+    layer: "agent",
+    github: "https://github.com/guilyx/zucman",
+    external: "https://guilyx.github.io/zucman/",
+  },
+  {
+    title: "epsteinexposed-mcp",
+    blurb:
+      "An MCP server over a public-records API, so an assistant can query the archive — persons, documents, flight logs — directly instead of being told about it.",
+    tech: ["Python", "MCP", "Public Data"],
+    layer: "agent",
+    github: "https://github.com/guilyx/epsteinexposed-mcp",
+  },
+  {
+    title: "artin-pathfinding",
+    blurb:
+      "A C++17 pathfinding library — A*, Dijkstra, DFS/BFS and friends — with a clean interface for grid worlds.",
+    tech: ["C++17", "Algorithms"],
+    layer: "field",
+    github: "https://github.com/master-coro/artin-pathfinding",
+  },
+  {
+    title: "LeHarness",
+    blurb:
+      "Serves local models on whatever hardware is actually in the box — vLLM with tensor parallelism on a GPU rig, Ollama with GGUF quantization on a Jetson or a bare CPU — behind one OpenAI-compatible URL.",
+    tech: ["vLLM", "Ollama", "Docker", "CUDA"],
+    layer: "machine",
+    closed: true,
+  },
+];
+
+/**
+ * The full record, newest first. Years are repo creation dates (or publication
+ * year for the papers), not the last time something was touched.
+ */
+export const archive: ArchiveEntry[] = [
+  {
+    year: 2026,
+    title: "weave",
+    tech: ["Python", "FastAPI", "LangGraph", "STT"],
+    github: "https://github.com/guilyx/weave",
+  },
+  {
+    year: 2026,
+    title: "Kymatics",
+    madeAt: "Unchained Labs",
+    tech: ["Rust", "Python", "React", "Voice"],
+    github: "https://github.com/Unchained-Labs/kymatics",
+    external: "https://kymatics.vercel.app/",
+  },
+  {
+    year: 2026,
+    title: "t212-mcp",
+    tech: ["TypeScript", "Node.js", "MCP"],
+    github: "https://github.com/guilyx/t212-mcp",
+  },
+  {
+    year: 2026,
+    title: "BTView",
+    tech: ["TypeScript", "Behavior Trees", "VS Code"],
+    github: "https://github.com/guilyx/btview-vscode-plugin",
+    external: "https://marketplace.visualstudio.com/items?itemName=rangonomics.btview",
+  },
+  {
+    year: 2026,
+    title: "zucman",
+    tech: ["Python", "Matplotlib", "Data Viz"],
+    github: "https://github.com/guilyx/zucman",
+    external: "https://guilyx.github.io/zucman/",
+  },
+  {
+    year: 2026,
+    title: "autonomous-uav-guide",
+    tech: ["Python", "Flight Dynamics", "Reinforcement Learning"],
+    github: "https://github.com/guilyx/autonomous-uav-guide",
+    external: "https://guilyx.github.io/autonomous-uav-guide/",
+  },
+  {
+    year: 2026,
+    title: "Doxmosis",
+    madeAt: "Unchained Labs",
+    tech: ["Go", "Agentic AI", "GitHub Apps"],
+    external: "https://doxmosis.vercel.app/",
+  },
+  {
+    year: 2026,
+    title: "rostree",
+    tech: ["Python", "Graph Theory", "ROS 2", "TUI"],
+    github: "https://github.com/guilyx/rostree",
+    external: "https://guilyx.github.io/rostree",
+  },
+  {
+    year: 2026,
+    title: "epsteinexposed-mcp",
+    tech: ["Python", "MCP"],
+    github: "https://github.com/guilyx/epsteinexposed-mcp",
+  },
+  {
+    year: 2026,
+    title: "setup",
+    tech: ["Ansible", "Python", "chezmoi", "Flask"],
+    github: "https://github.com/guilyx/setup",
+  },
+  {
+    year: 2026,
+    title: "LeHarness",
+    tech: ["vLLM", "Ollama", "Docker", "CUDA"],
+  },
+  {
+    year: 2025,
+    title: "v3 — portfolio",
+    tech: ["React", "Vite", "Tailwind", "d3"],
+    github: "https://github.com/guilyx/v3",
+  },
+  {
+    year: 2024,
+    title: "Decentralized Acceleration-Based Bird-Inspired Flocking",
+    madeAt: "Technology Innovation Institute",
+    tech: ["C++", "ROS 2", "Control Theory", "IROS 2024"],
+    external:
+      "https://www.researchgate.net/publication/387418977_Decentralized_Acceleration-Based_Bird-Inspired_Flocking",
+  },
+  {
+    year: 2022,
+    title: "v2 — portfolio",
+    tech: ["HTML", "CSS", "Vanilla JS"],
+    github: "https://github.com/guilyx/v2",
+  },
+  {
+    year: 2021,
+    title: "PyMAPF",
+    madeAt: "APLA-Toolbox",
+    tech: ["Python", "Multi-Agent Planning", "Graph Search"],
+    github: "https://github.com/APLA-Toolbox/pymapf",
+    external: "https://apla-toolbox.github.io/pymapf/",
+  },
+  {
+    year: 2021,
+    title: "Real-time Jitter Measurements under ROS 2",
+    madeAt: "Ecole Centrale de Nantes",
+    tech: ["ROS 2", "Xenomai", "C++"],
+    github: "https://github.com/mastererts/ros2_realtime_statistics",
+    external:
+      "https://www.researchgate.net/publication/350353690_Real-time_Jitter_Measurements_under_ROS2_the_Inverted_Pendulum_case",
+  },
+  {
+    year: 2021,
+    title: "Survey of the Multi-Agent Pathfinding Solutions",
+    madeAt: "Ecole Centrale de Nantes",
+    tech: ["Research", "Path Planning"],
+    external:
+      "https://www.researchgate.net/publication/348716625_Survey_of_the_Multi-Agent_Pathfinding_Solutions",
+  },
+  {
+    year: 2020,
+    title: "jupyddl",
+    madeAt: "APLA-Toolbox",
+    tech: ["Python", "PDDL", "A* / Search", "Heuristics"],
+    github: "https://github.com/APLA-Toolbox/pythonpddl",
+    external: "https://apla-toolbox.github.io/PythonPDDL/",
+  },
+  {
+    year: 2020,
+    title: "artin-pathfinding",
+    madeAt: "Ecole Centrale de Nantes",
+    tech: ["C++17", "Algorithms"],
+    github: "https://github.com/master-coro/artin-pathfinding",
+  },
+  {
+    year: 2020,
+    title: "v1 — portfolio",
+    tech: ["Bootstrap", "jQuery"],
+    github: "https://github.com/guilyx/v1",
   },
 ];
 

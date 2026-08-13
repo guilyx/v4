@@ -1,0 +1,117 @@
+---
+import Base from "@/layouts/Base.astro";
+import Icon from "@/components/Icon.astro";
+import { archive } from "@/data/site";
+
+const rows = [...archive].sort((a, b) => b.year - a.year);
+---
+
+<Base
+  title="Archive"
+  description="A big list of things Erwin Lejeune has built — planning tools, robotics software, agents, and papers."
+>
+  <div class="mx-auto max-w-4xl pt-36 pb-24">
+    <a
+      href="/#projects"
+      class="font-mono text-muted hover:text-accent inline-flex items-center gap-2 text-xs transition-colors"
+    >
+      <Icon name="arrow" size={14} class="rotate-180" /> all builds
+    </a>
+
+    <header class="mt-8 mb-12" data-reveal>
+      <h1 class="text-3xl font-semibold sm:text-4xl">Archive</h1>
+      <p class="text-muted mt-4 max-w-xl text-sm">
+        A big list of things I've built — tools, robots, agents, and a few papers.
+      </p>
+    </header>
+
+    <div class="scroller -mx-4 overflow-x-auto px-4">
+      <table class="w-full min-w-[560px] border-collapse text-left">
+        <thead>
+          <tr class="border-line border-b">
+            <th class="font-mono text-faint py-3 pr-4 text-xs font-normal">Year</th>
+            <th class="font-mono text-faint py-3 pr-4 text-xs font-normal">Title</th>
+            <th class="font-mono text-faint hidden py-3 pr-4 text-xs font-normal sm:table-cell">
+              Made at
+            </th>
+            <th class="font-mono text-faint hidden py-3 pr-4 text-xs font-normal md:table-cell">
+              Built with
+            </th>
+            <th class="font-mono text-faint py-3 text-xs font-normal">Link</th>
+          </tr>
+        </thead>
+        <tbody>
+          {
+            rows.map((row) => (
+              <tr class="border-line hover:bg-bg-raised border-b transition-colors">
+                <td class="font-mono text-faint py-4 pr-4 align-top text-xs whitespace-nowrap">
+                  {row.year}
+                </td>
+                <td class="text-heading py-4 pr-4 align-top text-sm font-medium">{row.title}</td>
+                <td class="text-muted hidden py-4 pr-4 align-top text-sm sm:table-cell">
+                  {row.madeAt ?? <span class="text-faint">—</span>}
+                </td>
+                <td class="hidden py-4 pr-4 align-top md:table-cell">
+                  <span class="font-mono text-muted text-xs">
+                    {row.tech.join(" · ")}
+                  </span>
+                </td>
+                <td class="py-4 align-top">
+                  <div class="flex items-center gap-3">
+                    {row.external && (
+                      <a
+                        href={row.external}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        aria-label={`${row.title} external link`}
+                        class="text-muted hover:text-accent transition-colors"
+                      >
+                        <Icon name="external" size={18} />
+                      </a>
+                    )}
+                    {row.github && (
+                      <a
+                        href={row.github}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        aria-label={`${row.title} on GitHub`}
+                        class="text-muted hover:text-accent transition-colors"
+                      >
+                        <Icon name="github" size={18} />
+                      </a>
+                    )}
+                    {!row.external && !row.github && (
+                      <span class="font-mono text-faint text-[0.68rem]" title="Closed source">
+                        closed
+                      </span>
+                    )}
+                  </div>
+                </td>
+              </tr>
+            ))
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+</Base>
+
+<style>
+  .scroller {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-line) transparent;
+  }
+  .scroller::-webkit-scrollbar {
+    height: 6px;
+  }
+  .scroller::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .scroller::-webkit-scrollbar-thumb {
+    background: var(--color-line);
+    border-radius: 3px;
+  }
+  .scroller::-webkit-scrollbar-thumb:hover {
+    background: var(--color-accent);
+  }
+</style>
