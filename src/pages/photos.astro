@@ -25,7 +25,7 @@ const fmt = new Intl.DateTimeFormat("en", { year: "numeric", month: "short" });
               <figure class="group border-line bg-bg-raised relative overflow-hidden rounded-lg border">
                 <Image
                   src={photo.data.cover}
-                  alt={photo.data.title}
+                  alt={photo.data.description ?? photo.data.title}
                   widths={[400, 800]}
                   sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
                   class="w-full transition-transform duration-500 group-hover:scale-[1.03]"
