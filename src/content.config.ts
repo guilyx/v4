@@ -20,6 +20,8 @@ const photos = defineCollection({
       location: z.string().optional(),
       date: z.coerce.date(),
       cover: image(),
+      /** Used as the alt text; the title is the fallback. */
+      description: z.string().optional(),
     }),
 });
 
