@@ -2,10 +2,10 @@
 import { Image } from "astro:assets";
 import Section from "@/components/Section.astro";
 import { about, site } from "@/data/site";
-// portrait.png is derived from portrait-source.png: cropped to the avatar's
-// disc (centre 511.5,514 r 362 in the 1024² original, taken 3px inside the rim
-// so its anti-aliased edge doesn't fringe dark) and masked to a circle. The
-// crop also drops the generator watermark that sat in the source's corner.
+// portrait.png is derived from portrait-source.png by keying the illustration's
+// white ground out to transparency and cropping to the figure — see
+// scripts/key-portrait.py. The figure therefore sits directly on the page
+// background, so this frame carries no fill and no ring of its own.
 import portrait from "@/assets/portrait.png";
 
 /** Tiny markdown-link renderer for the about paragraphs. */
@@ -39,9 +39,9 @@ function md(text: string): string {
       </ul>
     </div>
 
-    {/* Portrait. The source is a circular avatar keyed to transparency, so the
-        frame is round too — a square frame around a disc leaves four dark
-        corners and reads as a mistake. */}
+    {/* Portrait. The figure is keyed to transparency and floats on the page
+        ground; the offset accent circle is the only frame, so nothing boxes the
+        silhouette in or fills a disc behind it. */}
     <div class="mx-auto w-full max-w-[260px]" data-reveal style="--reveal-delay: 150ms">
       <div class="group relative">
         <div
@@ -54,7 +54,7 @@ function md(text: string): string {
           alt={site.name}
           widths={[260, 520]}
           sizes="(min-width: 768px) 260px, 60vw"
-          class="border-line bg-surface relative aspect-square w-full rounded-full border"
+          class="relative aspect-square w-full"
         />
       </div>
     </div>
