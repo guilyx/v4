@@ -294,15 +294,15 @@ export const systems: System[] = [
   },
   {
     id: "swarm",
-    tab: "Swarm navigation",
-    headline: "Sense, plan, track: one pipeline shape for the whole flock.",
+    tab: "Swarm navigation & coverage",
+    headline: "Plan, fly in formation, cover the zone, find the target.",
     points: [
-      "**A world built from whatever describes it.** Declared zones today, pointclouds or radar tomorrow; every source is another costmap layer.",
-      "**A plan before anything moves,** routed around what the fleet must not touch.",
-      "**The flock tracks the plan at a fixed horizon,** with a safety barrier underneath that holds every vehicle clear, whatever it was asked to do.",
+      "**Plan around what the fleet must not touch.** Zones and every other source of the world are costmap layers; a global plan is routed through them before anything moves.",
+      "**Fly in formation, links in view.** The flock holds its slots behind a virtual leader, a safety barrier underneath keeps every vehicle clear of the boundary, and link strength across the mesh is part of the picture.",
+      "**Cover, then localize.** In the task zone the formation breaks into a Voronoi partition and each vehicle sweeps its own cell. When one gets a contact, the others take bearings and triangulate it.",
     ],
     note: "Change the vehicle, change a plugin: every motion algorithm became a tracker behind the same contract.",
-    caption: "costmap → global plan → flocking tracker → safety barrier",
+    caption: "plan → formation transit → Voronoi coverage → triangulation",
   },
 ];
 
