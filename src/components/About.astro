@@ -2,11 +2,9 @@
 import { Image } from "astro:assets";
 import Section from "@/components/Section.astro";
 import { about, site } from "@/data/site";
-// portrait.png is derived from portrait-source.png by keying the illustration's
-// white ground out to transparency and cropping to the figure — see
-// scripts/key-portrait.py. The figure therefore sits directly on the page
-// background, so this frame carries no fill and no ring of its own.
-import portrait from "@/assets/portrait.png";
+// The GitHub avatar (github.com/guilyx.png), committed so the build doesn't
+// depend on GitHub being reachable. Re-download it there if it changes.
+import avatar from "@/assets/avatar.jpg";
 
 /** Tiny markdown-link renderer for the about paragraphs. */
 function md(text: string): string {
@@ -39,9 +37,8 @@ function md(text: string): string {
       </ul>
     </div>
 
-    {/* Portrait. The figure is keyed to transparency and floats on the page
-        ground; the offset accent circle is the only frame, so nothing boxes the
-        silhouette in or fills a disc behind it. */}
+    {/* Portrait: the photo cropped to a circle, with the offset accent ring
+        behind it as the only frame. */}
     <div class="mx-auto w-full max-w-[260px]" data-reveal style="--reveal-delay: 150ms">
       <div class="group relative">
         <div
@@ -50,11 +47,11 @@ function md(text: string): string {
         >
         </div>
         <Image
-          src={portrait}
+          src={avatar}
           alt={site.name}
-          widths={[260, 520]}
+          widths={[260, 460]}
           sizes="(min-width: 768px) 260px, 60vw"
-          class="relative aspect-square w-full"
+          class="relative aspect-square w-full rounded-full object-cover"
         />
       </div>
     </div>
