@@ -1,31 +1,155 @@
 ---
 /**
- * Intro loader — the mark draws itself, the waypoints land, then the whole
- * thing scales away. Same beat as Brittany Chiang's v4 loader, done with CSS
- * keyframes instead of anime.js so it costs no dependency and ~20 lines of JS.
+ * Intro loader — a graph grows out from a centre node, a pulse traverses one
+ * route through it, and that route is the site's mark. The rest of the graph
+ * breathes once and fades, leaving the mark, which then scales away.
+ *
+ * Pure SVG + CSS keyframes: the graph and every delay are computed here at
+ * build time, so the client only toggles classes (~30 lines of JS).
  *
  * Shown once per session on the home page. Skipped entirely for reduced-motion
  * users and when JS is off — in both cases the markup below is never painted,
- * because the overlay only becomes visible once the script opts in.
+ * because the overlay only becomes visible once the script opts in. A click or
+ * any key skips it.
  */
+
+type P = [number, number];
+
+// The mark's three waypoints, from its 32-unit favicon box re-centred on the
+// triangle's centroid — the centre node sits where the mark's centre will be.
+const nodes: Record<string, P> = {
+  c: [0, 0],
+  a: [0, -8.33],
+  b: [-7.5, 4.17],
+  d: [7.5, 4.17],
+  e: [13, -7.5],
+  f: [0, 15],
+  g: [-13, -7.5],
+  l1: [20, -19],
+  l2: [26, -4.5],
+  l3: [8, 25],
+  l4: [-10, 24],
+  l5: [-26, -3.5],
+  l6: [-16.5, -20],
+  l7: [-1.5, -25.5],
+  l8: [20.5, 12],
+  l9: [-20.5, 13],
+};
+const route = ["a", "b", "d"];
+
+// Spanning tree in BFS order: each edge grows from a node that already exists.
+const tree: [string, string][] = [
+  ["c", "a"], ["c", "b"], ["c", "d"],
+  ["d", "e"], ["b", "f"], ["a", "g"], ["a", "l7"], ["d", "l8"], ["b", "l9"],
+  ["e", "l1"], ["e", "l2"], ["f", "l3"], ["f", "l4"], ["g", "l5"], ["g", "l6"],
+];
+// Links that close cycles — drawn once both ends have landed.
+const cross: [string, string][] = [
+  ["a", "b"], ["b", "d"], ["d", "a"],
+  ["e", "a"], ["f", "d"], ["g", "b"],
+  ["l6", "l7"], ["l7", "l1"], ["l2", "l8"], ["l4", "l9"],
+];
+
+const dist = (u: string, v: string) =>
+  Math.hypot(nodes[u][0] - nodes[v][0], nodes[u][1] - nodes[v][1]);
+const r2 = (n: number) => Math.round(n * 100) / 100;
+
+const MS_PER_UNIT = 13;
+const ROOT_AT = 60;
+
+// When each node lands, and the draw timing of each edge.
+const landed: Record<string, number> = { c: ROOT_AT };
+type Edge = { from: string; to: string; len: number; at: number; dur: number };
+const edges: Edge[] = [];
+tree.forEach(([u, v], i) => {
+  const len = dist(u, v);
+  const at = landed[u] + 60 + (i % 3) * 20; // small stagger so siblings don't fire in lockstep
+  const dur = len * MS_PER_UNIT;
+  edges.push({ from: u, to: v, len, at, dur });
+  landed[v] = at + dur;
+});
+cross.forEach(([u, v]) => {
+  const [from, to] = landed[u] <= landed[v] ? [u, v] : [v, u];
+  const len = dist(from, to);
+  const at = landed[to] + 30;
+  edges.push({ from, to, len, at, dur: len * MS_PER_UNIT });
+});
+const grown = Math.max(...edges.map((e) => e.at + e.dur));
+
+// Traverse: a pulse runs the route at constant speed, lighting each waypoint.
+const TRAVERSE_AT = grown + 80;
+const TRAVERSE_MS = 620;
+const legs = route.slice(1).map((v, i) => dist(route[i], v));
+const routeLen = legs.reduce((s, l) => s + l, 0);
+const visitAt: Record<string, number> = {};
+let walked = 0;
+route.forEach((id, i) => {
+  if (i > 0) walked += legs[i - 1];
+  visitAt[id] = TRAVERSE_AT + (walked / routeLen) * TRAVERSE_MS;
+});
+const routeD = "M" + route.map((id) => nodes[id].map(r2).join(" ")).join(" L");
+
+// Breathe: one inhale/exhale with a ripple outward from the centre, while
+// everything but the route fades.
+const BREATHE_AT = TRAVERSE_AT + TRAVERSE_MS + 60;
+const BREATHE_MS = 820;
+const HOLD = Math.round(BREATHE_AT + BREATHE_MS);
+
+const ms = (n: number) => `${Math.round(n)}ms`;
+const timing = [
+  `--traverse-at:${ms(TRAVERSE_AT)}`,
+  `--traverse-ms:${ms(TRAVERSE_MS)}`,
+  `--breathe-at:${ms(BREATHE_AT)}`,
+  `--breathe-ms:${ms(BREATHE_MS)}`,
+  `--route-len:${r2(routeLen)}`,
+].join(";");
+
+const nodeStyle = (id: string) => {
+  const parts = [`--d:${ms(Math.max(0, landed[id] - 70))}`, `--rip:${ms(BREATHE_AT + dist("c", id) * 11)}`];
+  if (id in visitAt) parts.push(`--v:${ms(visitAt[id])}`);
+  return parts.join(";");
+};
+const webNodes = Object.keys(nodes).filter((id) => !route.includes(id));
 ---
 
-<div id="loader" class="loader" aria-hidden="true" data-loader>
-  <svg width="84" height="84" viewBox="0 0 32 32" fill="none" class="loader-mark">
-    <path
-      class="loader-route"
-      d="M16 8.5 L8.5 21 L23.5 21"
-      stroke="currentColor"
-      stroke-width="1.1"
-      stroke-linecap="round"
-      stroke-linejoin="round"
-    ></path>
-    <g class="loader-nodes" fill="currentColor">
-      <circle cx="16" cy="8.5" r="2.1"></circle>
-      <circle cx="8.5" cy="21" r="2.1"></circle>
-      <circle cx="23.5" cy="21" r="2.1"></circle>
-    </g>
-  </svg>
+<div id="loader" class="loader" aria-hidden="true" data-loader data-hold={HOLD}>
+  <div class="loader-mark">
+    <svg class="loader-graph" viewBox="-30 -30 60 60" fill="none" style={timing}>
+      <g class="web">
+        {
+          edges.map((e) => (
+            <path
+              class="edge"
+              d={`M${nodes[e.from].map(r2).join(" ")} L${nodes[e.to].map(r2).join(" ")}`}
+              style={`--len:${r2(e.len)};--d:${ms(e.at)};--dur:${ms(e.dur)}`}
+            />
+          ))
+        }
+        {
+          webNodes.map((id) => (
+            <g class="node" style={nodeStyle(id)}>
+              <circle class="dot" cx={nodes[id][0]} cy={nodes[id][1]} r={id === "c" ? 1.8 : id.startsWith("l") ? 1.2 : 1.5} />
+            </g>
+          ))
+        }
+      </g>
+
+      <path class="route" d={routeD} />
+
+      {
+        route.map((id) => (
+          <g class="node" style={nodeStyle(id)}>
+            <circle class="dot is-waypoint" cx={nodes[id][0]} cy={nodes[id][1]} r="2.1" />
+          </g>
+        ))
+      }
+
+      {/* The pulse is a zero-length dash with a round cap, slid along the route
+          by its dash offset — a moving dot with no JS and no motion-path API. */}
+      <path class="pulse pulse-halo" d={routeD} />
+      <path class="pulse pulse-core" d={routeD} />
+    </svg>
+  </div>
 </div>
 
 <style>
@@ -38,22 +162,88 @@
     justify-content: center;
     background: var(--color-bg);
     color: var(--color-accent);
+    cursor: pointer;
   }
   /* Only ever shown by the script, so no-JS and reduced-motion never see it. */
   .loader.is-running {
     display: flex;
   }
 
-  .loader-route {
-    /* Path length is ~29 units in this viewBox; 40 covers it with room. */
-    stroke-dasharray: 40;
-    stroke-dashoffset: 40;
-    animation: draw 900ms var(--ease-swift) 120ms forwards;
+  .loader-graph {
+    --ease-out: cubic-bezier(0.33, 1, 0.68, 1);
+    --ease-breath: cubic-bezier(0.37, 0, 0.63, 1);
+    display: block;
+    width: min(240px, 64vw);
+    height: auto;
+    overflow: visible;
+    animation: breathe var(--breathe-ms) var(--ease-breath) var(--breathe-at);
   }
-  .loader-nodes {
+
+  /* --- grow ------------------------------------------------------------ */
+  /* Butt caps: a round cap would paint a dot at each edge's start before it
+     draws. */
+  .edge {
+    stroke: currentColor;
+    stroke-width: 0.45;
+    opacity: 0.32;
+    stroke-dasharray: var(--len);
+    stroke-dashoffset: var(--len);
+    animation: draw var(--dur) var(--ease-out) var(--d) forwards;
+  }
+  .node {
+    transform-box: fill-box;
+    transform-origin: center;
+    transform: scale(0);
+    animation: pop 340ms var(--ease-out) var(--d) forwards;
+  }
+  .dot {
+    fill: currentColor;
+    opacity: 0.55;
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: ripple 460ms var(--ease-breath) var(--rip);
+  }
+
+  /* --- traverse -------------------------------------------------------- */
+  .route {
+    stroke: currentColor;
+    stroke-width: 1.1;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-dasharray: var(--route-len);
+    stroke-dashoffset: var(--route-len);
+    animation: draw var(--traverse-ms) linear var(--traverse-at) forwards;
+  }
+  .dot.is-waypoint {
+    animation:
+      light 260ms ease-out var(--v) forwards,
+      visit 420ms var(--ease-out) var(--v),
+      ripple 460ms var(--ease-breath) var(--rip);
+  }
+  .pulse {
+    stroke-linecap: round;
+    stroke-dasharray: 0.001 999;
     opacity: 0;
-    animation: fade-in 420ms var(--ease-swift) 820ms forwards;
+    animation:
+      slide var(--traverse-ms) linear var(--traverse-at) forwards,
+      blink var(--traverse-ms) linear var(--traverse-at);
   }
+  .pulse-core {
+    stroke: var(--color-heading);
+    stroke-width: 2.2;
+  }
+  .pulse-halo {
+    stroke: currentColor;
+    stroke-width: 5.5;
+    stroke-opacity: 0.3;
+  }
+
+  /* --- breathe --------------------------------------------------------- */
+  .web {
+    animation: fade 520ms ease-in calc(var(--breathe-at) + var(--breathe-ms) * 0.3) forwards;
+  }
+
+  /* --- leave ----------------------------------------------------------- */
   .loader.is-leaving .loader-mark {
     animation: pop-out 320ms var(--ease-swift) forwards;
   }
@@ -66,9 +256,57 @@
       stroke-dashoffset: 0;
     }
   }
-  @keyframes fade-in {
+  @keyframes pop {
+    0% {
+      transform: scale(0);
+    }
+    65% {
+      transform: scale(1.25);
+    }
+    100% {
+      transform: scale(1);
+    }
+  }
+  @keyframes light {
     to {
       opacity: 1;
+    }
+  }
+  @keyframes visit {
+    40% {
+      transform: scale(1.5);
+    }
+  }
+  @keyframes slide {
+    from {
+      stroke-dashoffset: 0;
+    }
+    to {
+      stroke-dashoffset: calc(var(--route-len) * -1);
+    }
+  }
+  @keyframes blink {
+    0%,
+    88% {
+      opacity: 1;
+    }
+    100% {
+      opacity: 0;
+    }
+  }
+  @keyframes ripple {
+    50% {
+      transform: scale(1.35);
+    }
+  }
+  @keyframes breathe {
+    50% {
+      transform: scale(1.07);
+    }
+  }
+  @keyframes fade {
+    to {
+      opacity: 0;
     }
   }
   @keyframes pop-out {
@@ -95,14 +333,22 @@
     document.body.style.overflow = "hidden";
     loader.classList.add("is-running");
 
-    // Draw (900ms + 120ms delay) then nodes (420ms) ≈ 1.35s, then leave.
-    window.setTimeout(() => {
+    let leaving = false;
+    const leave = () => {
+      if (leaving) return;
+      leaving = true;
+      window.removeEventListener("keydown", leave);
       loader.classList.add("is-leaving");
       window.setTimeout(() => {
         loader.remove();
         document.body.style.overflow = "";
       }, 460);
-    }, 1450);
+    };
+
+    // Grow, traverse, breathe — the whole sequence is timed at build time.
+    window.setTimeout(leave, Number(loader.dataset.hold) || 2400);
+    loader.addEventListener("click", leave);
+    window.addEventListener("keydown", leave);
 
     sessionStorage.setItem("seen-loader", "1");
   } else {

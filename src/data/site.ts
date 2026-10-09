@@ -6,10 +6,10 @@
 export const site = {
   name: "Erwin Lejeune",
   handle: "guilyx",
-  role: "Lead Architect — Robot Autonomy",
+  role: "Team Lead — Robotics Software",
   tagline: "Building the layer that decides what happens next.",
   description:
-    "Erwin Lejeune — Lead Architect, Robot Autonomy, in Abu Dhabi. Multi-agent planning, behavior trees, and agentic orchestration — platform-agnostic, from in-store robots to drones. C++, Python, Go.",
+    "Erwin Lejeune — Team Lead, Robotics Software, in Abu Dhabi. Hands-on ROS 2 developer: behavior, task and path planning, sensor fusion, multi-agent planning and agentic AI orchestration. C++, Python, Go.",
   url: "https://v4.elejeune.me",
   email: "erwin.lejeune15@gmail.com",
   location: "Abu Dhabi, UAE",
@@ -37,7 +37,8 @@ export const site = {
 export const nav = [
   { label: "background", href: "/#about" },
   { label: "experiences", href: "/#experience" },
-  { label: "builds", href: "/#projects" },
+  { label: "systems", href: "/#systems" },
+  { label: "projects", href: "/#projects" },
   { label: "contact", href: "/#contact" },
   { label: "blog", href: "/blog" },
   { label: "photos", href: "/photos" },
@@ -45,41 +46,39 @@ export const nav = [
 
 export const about = {
   paragraphs: [
-    `Hello! I'm Erwin. My titles have said "robotics," but what I actually
-     build is one layer: given a goal and a set of constraints, decide what
-     happens next. A planner, a behavior tree, a search over a graph — the
-     part underneath the mission that turns intent into action. I don't
-     particularly care which body it's wired to.`,
-    `Today I lead autonomy architecture at [SIRB.AI](https://sirb.ai/) and
-     the [Technology Innovation Institute](https://www.tii.ae/) — mission
-     planning, task allocation, and behavior orchestration for drone fleets.
-     Before drones, I put the same planning stack into a robot working the
-     aisles of a supermarket in Odense, Denmark, at
-     [Coalescent Mobile Robotics](https://cm-robotics.com/) — same
-     constraints, same discipline, a chassis with wheels instead of rotors.
-     On the side, at [Unchained Labs](https://unchainedlabs.dev/), I apply the
-     same instincts to software agents: giving an LLM a toolset and a plan is
-     the same problem as giving a robot a mission.`,
-    `My actual background is planning: multi-agent pathfinding, PDDL search,
-     graph theory, real-time control. If the question is "what should this
-     system do next, given what it knows and what it can't do," that's my
-     domain — whether the actor is a drone, a warehouse robot, or an agent
-     with tool access. When I'm not shipping autonomy stacks I'm playing
-     basketball, watching films, or chasing ranked ladders.`,
+    `Hello! I'm Erwin — a robotics software team lead who still writes the
+     code. I've spent 8+ years taking autonomy from research to real-world
+     deployment: behavior, task and path planning, sensor fusion, motion
+     control, and the system design that keeps robots reliable outside the
+     lab. ROS 2 is home.`,
+    `Today I'm Head of Robotics Software at [SIRB.AI](https://sirb.ai/) and
+     lead a team of 9 robotics engineers at the
+     [Technology Innovation Institute](https://www.tii.ae/) — autonomy,
+     infrastructure and platform integration for drone fleets. I've been
+     leading teams for 2+ years, from product roadmaps through PI planning to
+     sprints, while staying hands-on in the stack. Before drones, I built the
+     navigation stack of a robot working the aisles of a supermarket in
+     Odense, Denmark, at [Coalescent Mobile Robotics](https://cm-robotics.com/).`,
+    `On the side I run [Unchained Labs](https://unchainedlabs.dev/), building
+     local-first agentic systems — and I bring that back to robotics: agentic
+     tooling that turns robot data into diagnostics, and self-healing autonomy
+     that detects and recovers from failures in the field. When I'm not
+     shipping autonomy stacks I'm playing basketball, watching films, or
+     chasing ranked ladders.`,
   ],
   technologies: [
-    "Multi-Agent Planning",
-    "Graph Search / A*",
-    "Behavior Trees",
-    "PDDL",
-    "Task Allocation",
-    "Agentic Orchestration",
     "ROS 2",
-    "PX4 / MAVLink",
     "C++ / Python / Go",
-    "MCP / Tool Use",
+    "Behavior Trees",
+    "Task & Path Planning",
+    "Multi-Agent Planning",
+    "PDDL",
+    "Sensor Fusion",
     "Motion Control",
+    "Agent Orchestration",
+    "MCP / RAG",
     "Docker / CI",
+    "Scrum / PI Planning",
   ],
 } as const;
 
@@ -105,71 +104,76 @@ export const experience: Job[] = [
     company: "SIRB.AI",
     shortName: "SIRB.AI",
     url: "https://sirb.ai/",
-    role: "Lead Robotics Engineer",
+    role: "Head of Robotics Software",
     period: "2026 — Present",
     location: "Abu Dhabi, UAE",
     start: 2026,
     end: null,
     bullets: [
-      "Lead the autonomy team at a defense-technology startup spun off from the Technology Innovation Institute.",
-      "Agentic mission generation for surveillance, monitoring, and tail-chasing — the same planning problem as before, framed as tool calls for an LLM instead of waypoints for a flight controller.",
-      "Architecture for multi-agent task allocation and mission planning across heterogeneous drone fleets.",
+      "Head the robotics software team at a defense-technology startup spun off from the Technology Innovation Institute.",
+      "Agentic mission generation for surveillance, monitoring and tail-chasing — missions framed as tool calls for an LLM instead of waypoints for a flight controller.",
+      "Own the robotics software roadmap: multi-agent task allocation and mission planning across heterogeneous drone fleets.",
     ],
   },
   {
     company: "Technology Innovation Institute",
     shortName: "TII",
     url: "https://www.tii.ae/",
-    role: "Lead Robotics Engineer",
+    role: "Lead Engineer",
     period: "2026 — Present",
     location: "Abu Dhabi, UAE",
     start: 2026,
     end: null,
     bullets: [
-      "Lead a robotics software team of 9 engineers building the planning and orchestration layer for heterogeneous drone fleets — navigation, perception, task allocation, and mission behavior — plus the DevOps/RobotOps infrastructure that gets it onto real hardware.",
-      "Set technical direction for behavior-tree-based mission orchestration across the fleet-autonomy stack.",
+      "Grew and lead a Robotics Software team of 9 engineers across autonomy (navigation, perception, orchestration), infrastructure (DevOps, RobotOps) and platform integration.",
+      "Run delivery end to end — product roadmap, PI planning, sprints — while staying hands-on in the ROS 2 stack.",
+      "Overhauled the swarm autonomy architecture, cutting onboard CPU usage by 74% and network bandwidth by 52%.",
+      "Led autonomy demos to companies in Europe and the UAE, resulting in USD 10M+ in contracts.",
+      "Started building AI tooling for the team to raise engineering efficiency and productivity.",
     ],
   },
   {
     company: "Technology Innovation Institute",
     shortName: "TII",
     url: "https://www.tii.ae/",
-    role: "Senior Robotics Engineer",
+    role: "Senior Robotics Software Engineer",
     period: "2024 — 2026",
     location: "Abu Dhabi, UAE",
     start: 2024,
     end: 2026,
     bullets: [
-      "Owned modular software architecture and lifecycle management across the fleet-autonomy stack.",
-      "Scaled task allocation and mission planning to heterogeneous fleets operating concurrently.",
+      "Scaled the multi-drone framework (modular architecture, lifecycle management, behavior orchestration) and built tooling around it to make missions more reliable and repeatable.",
+      "Expanded the team's scope to own path planning and path tracking, integrated into the framework.",
+      "Joint program with Caltech on their multi-modal robot M4 and their humanoid: worked on outdoor planning and tracking for M4's flying and rolling modalities.",
+      "Designed new swarm behaviors, including decentralized bird-inspired flocking published at IEEE/RSJ IROS 2024.",
     ],
   },
   {
     company: "Technology Innovation Institute",
     shortName: "TII",
     url: "https://www.tii.ae/",
-    role: "Robotics Engineer",
+    role: "Robotics Software Engineer",
     period: "2022 — 2024",
     location: "Abu Dhabi, UAE",
     start: 2022,
     end: 2024,
     bullets: [
-      "Built the navigation, perception, and mission-behavior stack for heterogeneous drone fleets — the planning and orchestration layer, not the airframe.",
-      "Established behavior-tree-based mission orchestration as the standard pattern for multi-drone tasking.",
+      "Led the software design and implementation of the decentralized framework used to develop and run multi-drone missions, built on behavior trees and task orchestration so each drone runs and switches between multiple behaviors.",
+      "Ran the live demos to partners; the project led to USD 3M in contracts with other companies in the UAE ecosystem.",
     ],
   },
   {
     company: "Unchained Labs",
     shortName: "Unchained",
     url: "https://unchainedlabs.dev/",
-    role: "Principal Solutions Engineer",
+    role: "Founder",
     period: "2024 — Present",
     location: "Remote",
     start: 2024,
     end: null,
     bullets: [
-      "Built agentic AI tools for automated documentation PRs (Doxmosis), agentic orchestration (Kymatics), contribution analysis, real-estate analysis, and UAE defense data analysis — the planning discipline applied to software agents instead of robots.",
-      "Developed production backend services for LoopFi's blockchain data analysis on EVM chains.",
+      "Build AI brains for companies: local-first agentic systems that run on their own models, data and infrastructure.",
+      "Design graph-based agent orchestration (Kymatics) and open-source the tooling to run it reliably.",
     ],
   },
   {
@@ -182,8 +186,8 @@ export const experience: Job[] = [
     start: 2021,
     end: 2022.9,
     bullets: [
-      "Founding engineer on the team that delivered the first 24/7 in-store robot at Bilka, Odense — proof the planning stack isn't drone-specific.",
-      "Led the navigation and path-planning stack — localization, motion control, collision-free routing among shoppers — the same planning problem as a drone mission, worked at walking speed instead of flight speed.",
+      "Founding engineer on the team that delivered the first 24/7 in-store robot at Bilka, Odense.",
+      "Led the navigation and path-planning stack — localization, motion control, collision-free routing among shoppers.",
       "Demonstrations under this stack supported the company's pre-seed round.",
     ],
   },
@@ -246,7 +250,63 @@ export const experience: Job[] = [
 ];
 
 /**
- * Every build sits at one of three altitudes. The layer is real information —
+ * "Built for Companies" — systems from the day job, shown as conceptual
+ * animations rather than code. Each `scene` names a canvas scene in
+ * src/scripts/systems/. `**bold**` in points renders as <b>.
+ */
+export interface System {
+  id: "bt" | "fmr" | "swarm";
+  tab: string;
+  headline: string;
+  points: string[];
+  note: string;
+  caption: string;
+}
+
+export const systemsIntro = `Solutions I've engineered for companies, sketched
+  conceptually: how each one works, not the code or the client behind it.`;
+
+export const systems: System[] = [
+  {
+    id: "bt",
+    tab: "Behavior tree densification & scoring",
+    headline: "Mission trees anyone can read, scored before they fly.",
+    points: [
+      "**Densify.** Control nodes become arrows, conditions become guards on those arrows, subtrees inline. A 16-node tree reads as six actions, and \"what happens if GoToZone fails?\" takes one arrow to answer.",
+      "**Find the gaps.** Actions with no failure path, branches that can never run, loops with no exit — flagged before anyone flies the tree.",
+      "**Score.** Every node logs every run. Point that history at a tree being authored and you get the weakest branch and a concrete fix, not one percentage for the whole flight.",
+    ],
+    note: "Operators get a plain-language view of the mission: what the robot is doing now, and what comes next. Engineers get the guards, the gap report and a graph diff on every change.",
+    caption: "behavior tree → action graph → risk per branch",
+  },
+  {
+    id: "fmr",
+    tab: "Agentic fault management & recovery",
+    headline: "One timeline for every fault, and an agent that proposes the repair.",
+    points: [
+      "**Components report; they don't recover themselves.** Lifecycle errors, failed transitions, tree outcomes and silent process deaths all land in one ordered event table.",
+      "**One place decides.** Policies match patterns and actuate. Restarts go through the dependency graph, so dependents come back in the right order.",
+      "**The agent reads windows, not events.** It tells a link flap from a dying node, suppresses the noise and proposes the repair. It never owns the actuator: the deterministic rules stay underneath.",
+    ],
+    note: "This is most of the distance between a demo and a product: autonomy that doesn't need a person on the link.",
+    caption: "report → one timeline → read the window → repair",
+  },
+  {
+    id: "swarm",
+    tab: "Swarm navigation & coverage",
+    headline: "Plan, fly in formation, cover the zone, find the target.",
+    points: [
+      "**Plan around what the fleet must not touch.** Zones and every other source of the world are costmap layers; a global plan is routed through them before anything moves.",
+      "**Fly in formation, links in view.** The flock holds its slots behind a virtual leader, a safety barrier underneath keeps every vehicle clear of the boundary, and link strength across the mesh is part of the picture.",
+      "**Cover, then localize.** In the task zone the formation breaks into a Voronoi partition and each vehicle sweeps its own cell. When one gets a contact, the others take bearings and triangulate it.",
+    ],
+    note: "Change the vehicle, change a plugin: every motion algorithm became a tracker behind the same contract.",
+    caption: "plan → formation transit → Voronoi coverage → triangulation",
+  },
+];
+
+/**
+ * Every project sits at one of three altitudes. The layer is real information —
  * it says how far from the metal the thing runs — so it's rendered, not just
  * used for sorting.
  */
@@ -287,15 +347,16 @@ export interface ArchiveEntry {
   external?: string;
 }
 
-/** The framing for the Builds section. */
-export const buildsIntro = `Three altitudes, one question: given a goal and
-  constraints, what happens next. A route through a warehouse, a mission for
-  a drone fleet, a sequence of tool calls for an agent — same discipline,
-  different actors. Six with something to show; the rest are in the archive.`;
+/** The framing for the Featured Projects section: side projects only. */
+export const projectsIntro = `Side projects, built on my own time and in the
+  open. Same question as the day job — given a goal and constraints, what
+  happens next — asked on the metal, in the loop and in the field. Six have a
+  demo worth watching; the rest are in the archive.`;
 
 /**
- * Featured builds — the six that earn a full spotlight, every one of them
- * with a real promo clip recorded from the thing actually running.
+ * Featured projects — the six side projects that earn a full spotlight, every
+ * one of them with a real promo clip recorded from the thing actually running.
+ * Work done for an employer belongs in Built for Companies, not here.
  */
 export const featured: Project[] = [
   {
@@ -334,13 +395,13 @@ export const featured: Project[] = [
     videoPoster: "/media/rostree-poster.png",
   },
   {
-    title: "autonomous-uav-guide",
+    title: "flybots",
     blurb:
       "Flight algorithms from scratch: multirotor, fixed-wing and VTOL physics written out in full, 40+ runnable simulations, and a gym for teaching a drone to fly itself. The platform-agnostic argument made literal — the planning and control layer doesn't know or care what it's flying.",
     tech: ["Python", "Flight Dynamics", "Reinforcement Learning"],
     layer: "field",
-    github: "https://github.com/guilyx/autonomous-uav-guide",
-    external: "https://guilyx.github.io/autonomous-uav-guide/",
+    github: "https://github.com/guilyx/flybots",
+    external: "https://guilyx.github.io/flybots/",
     video: "/media/autonomous-uav-guide-promo.mp4",
     videoPoster: "/media/autonomous-uav-guide-poster.png",
   },
@@ -374,6 +435,15 @@ export const featured: Project[] = [
  */
 export const projects: Project[] = [
   {
+    title: "grip",
+    blurb:
+      "A git hook that quizzes you on your own diff before you commit or push, with an LLM-graded score and a pass mark.",
+    tech: ["Git Hooks", "LLM", "CLI"],
+    layer: "agent",
+    github: "https://github.com/guilyx/grip",
+    external: "https://guilyx.github.io/grip/",
+  },
+  {
     title: "BTView",
     blurb:
       "A visual graph editor for BehaviorTree.CPP trees, built into VS Code and Cursor. Bidirectional XML sync, tidy layout, and a validation panel that jumps straight to the offending node.",
@@ -405,15 +475,6 @@ export const projects: Project[] = [
     tech: ["Go", "Agentic AI", "GitHub Apps"],
     layer: "agent",
     external: "https://doxmosis.vercel.app/",
-  },
-  {
-    title: "Bird-Inspired Flocking",
-    blurb:
-      "Published research on decentralized, acceleration-based coordination for UAVs — a third-order control law for collective motion, validated in field experiments.",
-    tech: ["C++", "ROS 2", "Control Theory", "IROS 2024"],
-    layer: "field",
-    external:
-      "https://www.researchgate.net/publication/387418977_Decentralized_Acceleration-Based_Bird-Inspired_Flocking",
   },
   {
     title: "zucman",
@@ -491,10 +552,10 @@ export const archive: ArchiveEntry[] = [
   },
   {
     year: 2026,
-    title: "autonomous-uav-guide",
+    title: "flybots",
     tech: ["Python", "Flight Dynamics", "Reinforcement Learning"],
-    github: "https://github.com/guilyx/autonomous-uav-guide",
-    external: "https://guilyx.github.io/autonomous-uav-guide/",
+    github: "https://github.com/guilyx/flybots",
+    external: "https://guilyx.github.io/flybots/",
   },
   {
     year: 2026,
@@ -604,17 +665,17 @@ export const archive: ArchiveEntry[] = [
  * Deliberately does not restate the tagline above it or the spec block
  * beside it — this is the part that carries the story.
  */
-export const heroSummary = `Leading teams that ship mission planning, task
-  allocation and behavior orchestration for drone fleets — today at SIRB.AI and
-  the Technology Innovation Institute. Before drones, the same planning stack
-  drove a robot through the aisles of a supermarket in Denmark. Eight years,
-  four countries, one layer of the problem.`;
+export const heroSummary = `Leading robotics software teams at SIRB.AI and the
+  Technology Innovation Institute while staying hands-on in the code. Two-plus
+  years running teams from product roadmaps through PI planning to sprints;
+  eight years taking autonomy from research to real-world deployment — from a
+  supermarket robot in Denmark to drone fleets in the UAE.`;
 
 export const spec = [
-  { key: "role", value: "lead architect · robot autonomy" },
+  { key: "role", value: "team lead · robotics software" },
   { key: "based", value: "abu dhabi, uae" },
-  { key: "domain", value: "multi-agent planning, behavior trees" },
-  { key: "platform", value: "agnostic — in-store robots, drones" },
+  { key: "domain", value: "behavior, task & path planning, sensor fusion" },
+  { key: "hands-on", value: "ros 2 · c++ · python" },
 ] as const;
 
 export const contact = {
