@@ -263,9 +263,8 @@ export interface System {
   caption: string;
 }
 
-export const systemsIntro = `The work that doesn't fit in a repo link: systems
-  I've designed and built for the Technology Innovation Institute and SIRB.AI.
-  Conceptual sketches — the shape of each one, not its code.`;
+export const systemsIntro = `Solutions I've engineered for companies, sketched
+  conceptually: how each one works, not the code or the client behind it.`;
 
 export const systems: System[] = [
   {
