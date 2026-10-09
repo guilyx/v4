@@ -1,0 +1,221 @@
+---
+import Section from "@/components/Section.astro";
+import { systems, systemsIntro } from "@/data/site";
+
+/**
+ * Built for Companies — the day-job systems, one tab each. Every tab pairs a
+ * live canvas sketch of how the system works with the three ideas behind it.
+ * The canvases are decorative (aria-hidden): the copy carries the content.
+ *
+ * Only the active tab's scene runs, only while the section is on screen.
+ * Reduced-motion users get one representative still frame per scene.
+ */
+const bold = (s: string) => s.replace(/\*\*([^*]+)\*\*/g, '<b class="text-heading font-medium">$1</b>');
+---
+
+<Section id="systems" title="Built for Companies">
+  <p class="text-muted mb-10 max-w-xl text-sm" data-reveal>
+    {systemsIntro.replace(/\s+/g, " ")}
+  </p>
+
+  <div data-systems data-reveal>
+    <div role="tablist" aria-label="Systems" class="grid gap-2 sm:grid-cols-3">
+      {
+        systems.map((s, i) => (
+          <button
+            type="button"
+            role="tab"
+            id={`sys-tab-${s.id}`}
+            aria-controls={`sys-panel-${s.id}`}
+            aria-selected={i === 0 ? "true" : "false"}
+            tabindex={i === 0 ? 0 : -1}
+            class="sys-tab border-line hover:text-heading text-muted flex items-baseline gap-3 rounded-md border px-4 py-3 text-left text-sm transition-colors"
+          >
+            <span class="font-mono text-accent text-[0.7rem]">{String(i + 1).padStart(2, "0")}</span>
+            <span>{s.tab}</span>
+          </button>
+        ))
+      }
+    </div>
+
+    {
+      systems.map((s, i) => (
+        <div
+          role="tabpanel"
+          id={`sys-panel-${s.id}`}
+          aria-labelledby={`sys-tab-${s.id}`}
+          hidden={i !== 0}
+          class="mt-6"
+        >
+          <div class="border-line bg-bg-raised relative aspect-[3/4] overflow-hidden rounded-lg border sm:aspect-[16/9]">
+            <canvas data-scene={s.id} aria-hidden="true" class="absolute inset-0 h-full w-full" />
+          </div>
+          <p class="font-mono text-faint mt-2 text-right text-[0.68rem]">{s.caption}</p>
+
+          <div class="mt-8 grid gap-8 md:grid-cols-[2fr_3fr]">
+            <div>
+              <h3 class="text-heading text-lg font-semibold">{s.headline}</h3>
+              <p class="border-accent text-body mt-4 border-l-2 pl-4 text-sm">{s.note}</p>
+            </div>
+            <ul class="space-y-3">
+              {s.points.map((p) => (
+                <li class="flex gap-3 text-[0.95rem]">
+                  <span class="text-accent mt-1 shrink-0" aria-hidden="true">
+                    ▸
+                  </span>
+                  <span set:html={bold(p)} />
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      ))
+    }
+  </div>
+</Section>
+
+<style>
+  .sys-tab[aria-selected="true"] {
+    border-color: color-mix(in srgb, var(--color-accent) 55%, transparent);
+    background: var(--color-accent-soft);
+    color: var(--color-heading);
+  }
+  .sys-tab:focus-visible {
+    outline: 2px dashed var(--color-accent);
+    outline-offset: 2px;
+  }
+</style>
+
+<script>
+  import { readPalette, type Scene, type SceneFactory } from "@/scripts/systems/kit";
+  import bt from "@/scripts/systems/bt";
+  import fmr from "@/scripts/systems/fmr";
+  import swarm from "@/scripts/systems/swarm";
+
+  const FACTORIES: Record<string, SceneFactory> = { bt, fmr, swarm };
+
+  interface Live {
+    scene: Scene;
+    canvas: HTMLCanvasElement;
+    ctx: CanvasRenderingContext2D;
+    w: number;
+    h: number;
+  }
+
+  const root = document.querySelector<HTMLElement>("[data-systems]");
+  if (root) {
+    const tabs = Array.from(root.querySelectorAll<HTMLButtonElement>('[role="tab"]'));
+    const panels = Array.from(root.querySelectorAll<HTMLElement>('[role="tabpanel"]'));
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const pal = readPalette();
+    const live = new Map<HTMLCanvasElement, Live>();
+    let active = 0;
+    let onScreen = false;
+    let raf = 0;
+    let last = 0;
+
+    /** Size the backing store to the element and (re)build the scene's layout. */
+    const fit = (l: Live) => {
+      const r = l.canvas.getBoundingClientRect();
+      if (!r.width || !r.height) return;
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      l.w = r.width;
+      l.h = r.height;
+      l.canvas.width = Math.round(r.width * dpr);
+      l.canvas.height = Math.round(r.height * dpr);
+      l.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      if (reduced) {
+        // A fresh scene, run forward to its representative moment.
+        l.scene = FACTORIES[l.canvas.dataset.scene!](l.ctx, pal);
+        l.scene.resize(r.width, r.height);
+        for (let t = 0; t < l.scene.poster; t += 1 / 30) l.scene.frame(1 / 30);
+      } else {
+        l.scene.resize(r.width, r.height);
+        l.scene.frame(0);
+      }
+    };
+
+    const resizer = new ResizeObserver((entries) => {
+      for (const e of entries) {
+        const l = live.get(e.target as HTMLCanvasElement);
+        if (l && (Math.abs(l.w - e.contentRect.width) > 0.5 || Math.abs(l.h - e.contentRect.height) > 0.5)) fit(l);
+      }
+    });
+
+    const sceneFor = (i: number) => {
+      const canvas = panels[i].querySelector("canvas")!;
+      let l = live.get(canvas);
+      if (!l) {
+        const ctx = canvas.getContext("2d")!;
+        l = { scene: FACTORIES[canvas.dataset.scene!](ctx, pal), canvas, ctx, w: 0, h: 0 };
+        live.set(canvas, l);
+        fit(l);
+        resizer.observe(canvas);
+      }
+      return l;
+    };
+
+    const loop = (now: number) => {
+      const dt = last ? Math.min((now - last) / 1000, 0.1) : 0;
+      last = now;
+      sceneFor(active).scene.frame(dt);
+      raf = requestAnimationFrame(loop);
+    };
+    const start = () => {
+      if (reduced || raf || !onScreen || document.hidden) return;
+      last = 0;
+      raf = requestAnimationFrame(loop);
+    };
+    const stop = () => {
+      cancelAnimationFrame(raf);
+      raf = 0;
+    };
+
+    const select = (i: number, focus = false) => {
+      active = i;
+      tabs.forEach((t, j) => {
+        t.setAttribute("aria-selected", String(j === i));
+        t.tabIndex = j === i ? 0 : -1;
+      });
+      panels.forEach((p, j) => (p.hidden = j !== i));
+      if (focus) tabs[i].focus();
+      if (onScreen || reduced) sceneFor(i);
+    };
+
+    tabs.forEach((t, i) => t.addEventListener("click", () => select(i)));
+    root.querySelector('[role="tablist"]')!.addEventListener("keydown", (e) => {
+      const k = (e as KeyboardEvent).key;
+      const n = tabs.length;
+      const next =
+        k === "ArrowRight" || k === "ArrowDown"
+          ? (active + 1) % n
+          : k === "ArrowLeft" || k === "ArrowUp"
+            ? (active - 1 + n) % n
+            : k === "Home"
+              ? 0
+              : k === "End"
+                ? n - 1
+                : -1;
+      if (next < 0) return;
+      e.preventDefault();
+      select(next, true);
+    });
+
+    new IntersectionObserver(
+      ([entry]) => {
+        onScreen = entry.isIntersecting;
+        if (onScreen) {
+          sceneFor(active);
+          start();
+        } else stop();
+      },
+      { rootMargin: "100px" },
+    ).observe(root);
+
+    document.addEventListener("visibilitychange", () => (document.hidden ? stop() : start()));
+
+    // Canvas text is measured for layout, so lay out again once the mono
+    // webfont is in.
+    document.fonts?.ready.then(() => live.forEach(fit));
+  }
+</script>

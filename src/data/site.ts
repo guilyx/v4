@@ -37,6 +37,7 @@ export const site = {
 export const nav = [
   { label: "background", href: "/#about" },
   { label: "experiences", href: "/#experience" },
+  { label: "systems", href: "/#systems" },
   { label: "builds", href: "/#projects" },
   { label: "contact", href: "/#contact" },
   { label: "blog", href: "/blog" },
@@ -245,6 +246,63 @@ export const experience: Job[] = [
       "Built full autonomy stacks from scratch with ROS and embedded systems.",
       "Won both the mapped and unmapped maze-solving competitions.",
     ],
+  },
+];
+
+/**
+ * "Built for Companies" — systems from the day job, shown as conceptual
+ * animations rather than code. Each `scene` names a canvas scene in
+ * src/scripts/systems/. `**bold**` in points renders as <b>.
+ */
+export interface System {
+  id: "bt" | "fmr" | "swarm";
+  tab: string;
+  headline: string;
+  points: string[];
+  note: string;
+  caption: string;
+}
+
+export const systemsIntro = `The work that doesn't fit in a repo link: systems
+  I've designed and built for the Technology Innovation Institute and SIRB.AI.
+  Conceptual sketches — the shape of each one, not its code.`;
+
+export const systems: System[] = [
+  {
+    id: "bt",
+    tab: "Behavior tree densification & scoring",
+    headline: "Mission trees anyone can read, scored before they fly.",
+    points: [
+      "**Densify.** Control nodes become arrows, conditions become guards on those arrows, subtrees inline. A 16-node tree reads as six actions, and \"what happens if GoToZone fails?\" takes one arrow to answer.",
+      "**Find the gaps.** Actions with no failure path, branches that can never run, loops with no exit — flagged before anyone flies the tree.",
+      "**Score.** Every node logs every run. Point that history at a tree being authored and you get the weakest branch and a concrete fix, not one percentage for the whole flight.",
+    ],
+    note: "Operators get a plain-language view of the mission: what the robot is doing now, and what comes next. Engineers get the guards, the gap report and a graph diff on every change.",
+    caption: "behavior tree → action graph → risk per branch",
+  },
+  {
+    id: "fmr",
+    tab: "Agentic fault management & recovery",
+    headline: "One timeline for every fault, and an agent that proposes the repair.",
+    points: [
+      "**Components report; they don't recover themselves.** Lifecycle errors, failed transitions, tree outcomes and silent process deaths all land in one ordered event table.",
+      "**One place decides.** Policies match patterns and actuate. Restarts go through the dependency graph, so dependents come back in the right order.",
+      "**The agent reads windows, not events.** It tells a link flap from a dying node, suppresses the noise and proposes the repair. It never owns the actuator: the deterministic rules stay underneath.",
+    ],
+    note: "This is most of the distance between a demo and a product: autonomy that doesn't need a person on the link.",
+    caption: "report → one timeline → read the window → repair",
+  },
+  {
+    id: "swarm",
+    tab: "Swarm navigation",
+    headline: "Sense, plan, track: one pipeline shape for the whole flock.",
+    points: [
+      "**A world built from whatever describes it.** Declared zones today, pointclouds or radar tomorrow; every source is another costmap layer.",
+      "**A plan before anything moves,** routed around what the fleet must not touch.",
+      "**The flock tracks the plan at a fixed horizon,** with a safety barrier underneath that holds every vehicle clear, whatever it was asked to do.",
+    ],
+    note: "Change the vehicle, change a plugin: every motion algorithm became a tracker behind the same contract.",
+    caption: "costmap → global plan → flocking tracker → safety barrier",
   },
 ];
 
