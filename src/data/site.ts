@@ -57,7 +57,7 @@ export const about = {
      aisles of a supermarket in Odense, Denmark, at
      [Coalescent Mobile Robotics](https://cm-robotics.com/) — same
      constraints, same discipline, a chassis with wheels instead of rotors.
-     On the side, at [Unchained Labs](https://unchainlabs.xyz/), I apply the
+     On the side, at [Unchained Labs](https://unchainedlabs.dev/), I apply the
      same instincts to software agents: giving an LLM a toolset and a plan is
      the same problem as giving a robot a mission.`,
     `My actual background is planning: multi-agent pathfinding, PDDL search,
@@ -161,7 +161,7 @@ export const experience: Job[] = [
   {
     company: "Unchained Labs",
     shortName: "Unchained",
-    url: "https://unchainlabs.xyz/",
+    url: "https://unchainedlabs.dev/",
     role: "Principal Solutions Engineer",
     period: "2024 — Present",
     location: "Remote",
