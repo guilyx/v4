@@ -2,11 +2,12 @@
 import Section from "@/components/Section.astro";
 import Icon from "@/components/Icon.astro";
 import GhStats from "@/components/GhStats.astro";
-import { featured, projects, layers, buildsIntro } from "@/data/site";
+import { featured, projects, layers, projectsIntro } from "@/data/site";
 
 /**
- * Builds — big alternating spotlights over a grid of smaller cards, the
- * shape Brittany Chiang's v4 established for this genre.
+ * Featured Projects — side projects only, as big alternating spotlights over
+ * a grid of smaller cards, the shape Brittany Chiang's v4 established for
+ * this genre.
  *
  * The spotlights deliberately do NOT use a full-card overlay link: every
  * one of them carries a promo clip, and an overlay would sit on top of the
@@ -17,9 +18,9 @@ const firstSix = projects.slice(0, GRID_LIMIT);
 const rest = projects.slice(GRID_LIMIT);
 ---
 
-<Section id="projects" title="Selected Builds">
+<Section id="projects" title="Featured Projects">
   <p class="text-muted mb-14 max-w-xl text-sm" data-reveal>
-    {buildsIntro.replace(/\s+/g, " ")}
+    {projectsIntro.replace(/\s+/g, " ")}
   </p>
 
   {/* Featured spotlights — media one side, copy the other, alternating */}

@@ -38,7 +38,7 @@ export const nav = [
   { label: "background", href: "/#about" },
   { label: "experiences", href: "/#experience" },
   { label: "systems", href: "/#systems" },
-  { label: "builds", href: "/#projects" },
+  { label: "projects", href: "/#projects" },
   { label: "contact", href: "/#contact" },
   { label: "blog", href: "/blog" },
   { label: "photos", href: "/photos" },
@@ -307,7 +307,7 @@ export const systems: System[] = [
 ];
 
 /**
- * Every build sits at one of three altitudes. The layer is real information —
+ * Every project sits at one of three altitudes. The layer is real information —
  * it says how far from the metal the thing runs — so it's rendered, not just
  * used for sorting.
  */
@@ -348,15 +348,16 @@ export interface ArchiveEntry {
   external?: string;
 }
 
-/** The framing for the Builds section. */
-export const buildsIntro = `Three altitudes, one question: given a goal and
-  constraints, what happens next. A route through a warehouse, a mission for
-  a drone fleet, a sequence of tool calls for an agent — same discipline,
-  different actors. Six with something to show; the rest are in the archive.`;
+/** The framing for the Featured Projects section: side projects only. */
+export const projectsIntro = `Side projects, built on my own time and in the
+  open. Same question as the day job — given a goal and constraints, what
+  happens next — asked on the metal, in the loop and in the field. Six have a
+  demo worth watching; the rest are in the archive.`;
 
 /**
- * Featured builds — the six that earn a full spotlight, every one of them
- * with a real promo clip recorded from the thing actually running.
+ * Featured projects — the six side projects that earn a full spotlight, every
+ * one of them with a real promo clip recorded from the thing actually running.
+ * Work done for an employer belongs in Built for Companies, not here.
  */
 export const featured: Project[] = [
   {
@@ -475,15 +476,6 @@ export const projects: Project[] = [
     tech: ["Go", "Agentic AI", "GitHub Apps"],
     layer: "agent",
     external: "https://doxmosis.vercel.app/",
-  },
-  {
-    title: "Bird-Inspired Flocking",
-    blurb:
-      "Published research on decentralized, acceleration-based coordination for UAVs — a third-order control law for collective motion, validated in field experiments.",
-    tech: ["C++", "ROS 2", "Control Theory", "IROS 2024"],
-    layer: "field",
-    external:
-      "https://www.researchgate.net/publication/387418977_Decentralized_Acceleration-Based_Bird-Inspired_Flocking",
   },
   {
     title: "zucman",
