@@ -1,0 +1,136 @@
+---
+/**
+ * Live GitHub stars and forks for a repo, fetched by the visitor's browser
+ * from the unauthenticated REST API — no key, no build-time snapshot that
+ * goes stale. The API allows 60 requests an hour per IP, so results are
+ * cached in localStorage for a few hours and shared by every instance on
+ * every page. If the API is unreachable or rate-limited the element simply
+ * stays hidden.
+ */
+import Icon from "@/components/Icon.astro";
+
+interface Props {
+  /** The repo's github.com URL. */
+  url: string;
+  /** Also show when the repo was last pushed to. */
+  pushed?: boolean;
+  class?: string;
+}
+const { url, pushed = false, class: className = "" } = Astro.props;
+const slug = new URL(url).pathname.replace(/^\/|\/$/g, "");
+---
+
+<span
+  class={`gh-stats font-mono text-muted inline-flex items-center gap-3 text-[0.7rem] ${className}`}
+  data-gh={slug}
+  hidden
+>
+  <span class="inline-flex items-center gap-1" title="GitHub stars" hidden>
+    <Icon name="star" size={13} />
+    <span data-gh-stars></span>
+  </span>
+  <span class="inline-flex items-center gap-1" title="GitHub forks" hidden>
+    <Icon name="fork" size={13} />
+    <span data-gh-forks></span>
+  </span>
+  {pushed && <span class="text-faint" data-gh-pushed></span>}
+</span>
+
+<script>
+  type Stats = { stars: number; forks: number; pushed: string };
+  type Cache = { at: number; repos: Record<string, Stats> };
+
+  const KEY = "gh-stats:v1";
+  const TTL = 6 * 60 * 60 * 1000;
+
+  const read = (): Cache => {
+    try {
+      const raw = localStorage.getItem(KEY);
+      if (raw) return JSON.parse(raw) as Cache;
+    } catch {
+      // private mode or blocked storage: run uncached
+    }
+    return { at: 0, repos: {} };
+  };
+  const write = (cache: Cache) => {
+    try {
+      localStorage.setItem(KEY, JSON.stringify(cache));
+    } catch {
+      // ignore
+    }
+  };
+
+  const compact = (n: number) =>
+    n < 1000 ? String(n) : `${(n / 1000).toFixed(n < 10000 ? 1 : 0).replace(/\.0$/, "")}k`;
+
+  const ago = (iso: string) => {
+    const days = Math.floor((Date.now() - Date.parse(iso)) / 86_400_000);
+    if (days < 1) return "pushed today";
+    if (days < 30) return `pushed ${days}d ago`;
+    if (days < 365) return `pushed ${Math.floor(days / 30)}mo ago`;
+    return `pushed ${Math.floor(days / 365)}y ago`;
+  };
+
+  // Zero counts are left out rather than shown as "0".
+  const paint = (el: HTMLElement, s: Stats) => {
+    let shown = false;
+    for (const [sel, n] of [
+      ["[data-gh-stars]", s.stars],
+      ["[data-gh-forks]", s.forks],
+    ] as const) {
+      const value = el.querySelector<HTMLElement>(sel)!;
+      value.textContent = compact(n);
+      value.parentElement!.hidden = n === 0;
+      shown ||= n > 0;
+    }
+    const pushed = el.querySelector("[data-gh-pushed]");
+    if (pushed && s.pushed) {
+      pushed.textContent = ago(s.pushed);
+      shown = true;
+    }
+    el.hidden = !shown;
+  };
+
+  async function run() {
+    const els = Array.from(document.querySelectorAll<HTMLElement>("[data-gh]"));
+    if (!els.length) return;
+
+    const cache = read();
+    const fresh = Date.now() - cache.at < TTL;
+    const wanted = [...new Set(els.map((el) => el.dataset.gh!))];
+    const missing = fresh ? wanted.filter((r) => !cache.repos[r]) : wanted;
+
+    if (missing.length) {
+      const results = await Promise.allSettled(
+        missing.map(async (repo) => {
+          const res = await fetch(`https://api.github.com/repos/${repo}`, {
+            headers: { Accept: "application/vnd.github+json" },
+          });
+          if (!res.ok) throw new Error(String(res.status));
+          const j = await res.json();
+          return [repo, { stars: j.stargazers_count, forks: j.forks_count, pushed: j.pushed_at }] as const;
+        }),
+      );
+      let gotAny = false;
+      for (const r of results) {
+        if (r.status === "fulfilled") {
+          cache.repos[r.value[0]] = r.value[1];
+          gotAny = true;
+        }
+      }
+      // Only restart the clock on a successful round, so a rate-limited
+      // visit falls back to the last good numbers and retries next time.
+      if (gotAny) {
+        if (!fresh) cache.at = Date.now();
+        write(cache);
+      }
+    }
+
+    for (const el of els) {
+      const s = cache.repos[el.dataset.gh!];
+      if (s) paint(el, s);
+    }
+  }
+
+  run();
+</script>

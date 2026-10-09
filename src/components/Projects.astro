@@ -1,6 +1,7 @@
 ---
 import Section from "@/components/Section.astro";
 import Icon from "@/components/Icon.astro";
+import GhStats from "@/components/GhStats.astro";
 import { featured, projects, layers, buildsIntro } from "@/data/site";
 
 /**
@@ -99,6 +100,7 @@ const rest = projects.slice(GRID_LIMIT);
                   <Icon name="external" size={14} />
                 </a>
               )}
+              {p.github && <GhStats url={p.github} pushed />}
             </div>
           </div>
         </li>
@@ -124,6 +126,7 @@ const rest = projects.slice(GRID_LIMIT);
             <header class="mb-4 flex items-center justify-between">
               <span class="font-mono text-accent text-[0.7rem]">{layers[p.layer]}</span>
               <div class="relative z-[1] flex items-center gap-3">
+                {p.github && <GhStats url={p.github} />}
                 {p.closed && (
                   <span class="font-mono text-faint text-[0.68rem]" title="Closed source">
                     closed
