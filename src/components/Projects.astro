@@ -5,56 +5,57 @@ import GhStats from "@/components/GhStats.astro";
 import { featured, projects, layers, projectsIntro } from "@/data/site";
 
 /**
- * Featured Projects — side projects only, as big alternating spotlights over
- * a grid of smaller cards, the shape Brittany Chiang's v4 established for
- * this genre.
+ * Featured Projects — side projects only. A flat carousel of the ones with a
+ * demo (scroll-snap, so touch and trackpads just work; the buttons are for
+ * everyone else), then a flat list of the rest.
  *
- * The spotlights deliberately do NOT use a full-card overlay link: every
- * one of them carries a promo clip, and an overlay would sit on top of the
- * video and swallow the play button. Links here are explicit instead.
+ * Clips are muted, load nothing until their slide is on screen, and play only
+ * while it stays there. Reduced-motion visitors get the poster and native
+ * controls instead.
  */
-const GRID_LIMIT = 6;
-const firstSix = projects.slice(0, GRID_LIMIT);
-const rest = projects.slice(GRID_LIMIT);
+const total = featured.length;
+const pad = (n: number) => String(n).padStart(2, "0");
+const label = (org: string | undefined, layer: keyof typeof layers) => `${org ?? "personal"} · ${layers[layer]}`;
 ---
 
 <Section id="projects" title="Featured Projects">
-  <p class="text-muted mb-14 max-w-xl text-sm" data-reveal>
-    {projectsIntro.replace(/\s+/g, " ")}
-  </p>
+  <div class="mb-8 flex flex-wrap items-end justify-between gap-x-8 gap-y-5" data-reveal>
+    <p class="text-muted max-w-xl text-sm">{projectsIntro.replace(/\s+/g, " ")}</p>
+    <div class="flex items-center gap-3">
+      <span class="font-mono text-faint text-xs tabular-nums" data-counter aria-hidden="true">
+        {pad(1)} / {pad(total)}
+      </span>
+      <button type="button" class="carousel-btn" data-prev aria-label="Previous project">
+        <Icon name="arrow" size={16} class="rotate-180" />
+      </button>
+      <button type="button" class="carousel-btn" data-next aria-label="Next project">
+        <Icon name="arrow" size={16} />
+      </button>
+    </div>
+  </div>
 
-  {/* Featured spotlights — media one side, copy the other, alternating */}
-  <ul class="space-y-16 md:space-y-28">
-    {
-      featured.map((p, i) => (
-        <li
-          class="group relative grid items-center gap-x-10 gap-y-5 md:grid-cols-2"
-          data-reveal
-        >
-          {/* Media — deliberately never covered by the copy, so the controls stay clickable */}
-          <div class={`relative ${i % 2 === 0 ? "md:order-2" : "md:order-1"}`}>
+  <div data-reveal style="--reveal-delay: 100ms">
+    <ul class="track" data-track tabindex="0" aria-label="Featured projects, scroll for more">
+      {
+        featured.map((p, i) => (
+          <li class="slide" aria-roledescription="slide" aria-label={`${i + 1} of ${total}: ${p.title}`}>
             <div class="border-line bg-bg-raised overflow-hidden rounded-lg border">
               <video
-                controls
+                muted
+                loop
                 playsinline
                 preload="none"
                 poster={p.videoPoster}
                 aria-label={`${p.title} demo`}
-                class="block w-full"
+                class="block aspect-[16/10] w-full object-cover object-top"
+                data-clip
               >
                 <source src={p.video} type={p.videoType ?? "video/mp4"} />
               </video>
             </div>
-          </div>
 
-          {/* Copy */}
-          <div
-            class={`relative ${
-              i % 2 === 0 ? "md:order-1 md:text-left" : "md:order-2 md:text-right"
-            }`}
-          >
-            <p class="font-mono text-accent mb-2 text-xs">{layers[p.layer]}</p>
-            <h3 class="text-xl font-semibold sm:text-2xl">
+            <p class="font-mono text-accent mt-5 text-[0.7rem]">{label(p.org, p.layer)}</p>
+            <h3 class="mt-1 text-lg font-semibold">
               <a
                 href={p.external ?? p.github}
                 target="_blank"
@@ -64,21 +65,13 @@ const rest = projects.slice(GRID_LIMIT);
                 {p.title}
               </a>
             </h3>
-            <div class="border-line bg-bg-raised mt-4 rounded-lg border p-5">
-              <p class="text-body text-[0.95rem]">{p.blurb}</p>
-            </div>
-            <ul
-              class={`mt-5 flex flex-wrap gap-x-4 gap-y-1 ${
-                i % 2 === 0 ? "" : "md:justify-end"
-              }`}
-            >
+            <p class="text-body mt-2 text-[0.92rem]">{p.blurb}</p>
+            <ul class="mt-4 flex flex-wrap gap-x-4 gap-y-1">
               {p.tech.map((t) => (
                 <li class="chip">{t}</li>
               ))}
             </ul>
-            <div
-              class={`mt-5 flex items-center gap-4 ${i % 2 === 0 ? "" : "md:justify-end"}`}
-            >
+            <div class="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2">
               {p.github && (
                 <a
                   href={p.github}
@@ -87,7 +80,7 @@ const rest = projects.slice(GRID_LIMIT);
                   aria-label={`${p.title} on GitHub`}
                   class="text-muted hover:text-accent transition-colors"
                 >
-                  <Icon name="github" size={20} />
+                  <Icon name="github" size={18} />
                 </a>
               )}
               {p.external && (
@@ -98,66 +91,28 @@ const rest = projects.slice(GRID_LIMIT);
                   class="font-mono text-muted hover:text-accent inline-flex items-center gap-2 text-xs transition-colors"
                 >
                   {p.externalLabel ?? "Visit"}
-                  <Icon name="external" size={14} />
+                  <Icon name="external" size={13} />
                 </a>
               )}
               {p.github && <GhStats url={p.github} pushed />}
             </div>
-          </div>
-        </li>
-      ))
-    }
-  </ul>
+          </li>
+        ))
+      }
+    </ul>
+    <div class="bg-line mt-2 h-px" aria-hidden="true">
+      <span class="bg-accent block h-px w-0 transition-[width] duration-200" data-progress></span>
+    </div>
+  </div>
 
-  {/* Other noteworthy projects */}
-  <h3 class="mt-24 text-center text-xl font-medium" data-reveal>Other noteworthy projects</h3>
-  <p class="mt-3 text-center" data-reveal>
-    <a href="/archive" class="link font-mono text-sm">view the archive</a>
-  </p>
-
-  <ul class="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3" id="noteworthy">
+  {/* Everything else, as a flat list */}
+  <h3 class="mt-20 text-lg font-medium" data-reveal>More projects</h3>
+  <ul class="border-line mt-6 border-t" data-reveal>
     {
-      [...firstSix, ...rest].map((p, i) => (
-        <li
-          data-reveal={i < GRID_LIMIT ? true : undefined}
-          class={i >= GRID_LIMIT ? "more-project hidden" : undefined}
-          style={i < GRID_LIMIT ? `--reveal-delay: ${(i % 3) * 100}ms` : undefined}
-        >
-          <article class="group border-line bg-bg-raised hover:border-accent/40 relative flex h-full flex-col rounded-lg border p-6 transition-all duration-300 hover:-translate-y-1.5">
-            <header class="mb-4 flex items-center justify-between">
-              <span class="font-mono text-accent text-[0.7rem]">{layers[p.layer]}</span>
-              <div class="relative z-[1] flex items-center gap-3">
-                {p.github && <GhStats url={p.github} />}
-                {p.closed && (
-                  <span class="font-mono text-faint text-[0.68rem]" title="Closed source">
-                    closed
-                  </span>
-                )}
-                {p.github && (
-                  <a
-                    href={p.github}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    aria-label={`${p.title} on GitHub`}
-                    class="text-muted hover:text-accent transition-colors"
-                  >
-                    <Icon name="github" size={18} />
-                  </a>
-                )}
-                {p.external && (
-                  <a
-                    href={p.external}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    aria-label={`${p.title} external link`}
-                    class="text-muted hover:text-accent transition-colors"
-                  >
-                    <Icon name="external" size={18} />
-                  </a>
-                )}
-              </div>
-            </header>
-            <h4 class="text-base font-medium">
+      projects.map((p) => (
+        <li class="row group border-line relative grid gap-x-8 gap-y-2 border-b py-5 sm:grid-cols-[10rem_1fr]">
+          <div>
+            <h4 class="text-heading text-[0.95rem] font-medium">
               {p.github || p.external ? (
                 <a
                   href={p.github ?? p.external}
@@ -171,37 +126,185 @@ const rest = projects.slice(GRID_LIMIT);
                 p.title
               )}
             </h4>
-            <p class="text-muted mt-2 grow text-sm">{p.blurb}</p>
-            <ul class="mt-5 flex flex-wrap gap-x-3 gap-y-1">
-              {p.tech.map((t) => (
-                <li class="chip">{t}</li>
-              ))}
-            </ul>
-          </article>
+            <p class="font-mono text-faint mt-1 text-[0.68rem]">{label(p.org, p.layer)}</p>
+          </div>
+          <div>
+            <p class="text-muted text-sm">{p.blurb}</p>
+            <div class="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2">
+              <ul class="flex flex-wrap gap-x-3 gap-y-1">
+                {p.tech.map((t) => (
+                  <li class="chip">{t}</li>
+                ))}
+              </ul>
+              <div class="relative z-[1] ml-auto flex items-center gap-3">
+                {p.github && <GhStats url={p.github} />}
+                {p.closed && (
+                  <span class="font-mono text-faint text-[0.68rem]" title="Private repository">
+                    private
+                  </span>
+                )}
+                {p.github && p.external && (
+                  <a
+                    href={p.external}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={`${p.title} site`}
+                    class="text-muted hover:text-accent transition-colors"
+                  >
+                    <Icon name="external" size={15} />
+                  </a>
+                )}
+              </div>
+            </div>
+          </div>
         </li>
       ))
     }
   </ul>
 
-  {
-    rest.length > 0 && (
-      <div class="mt-10 flex justify-center" data-reveal>
-        <button type="button" class="btn" id="more-toggle" aria-expanded="false">
-          Show More
-        </button>
-      </div>
-    )
-  }
+  <p class="mt-8 text-center" data-reveal>
+    <a href="/archive" class="link font-mono text-sm">view the archive</a>
+  </p>
 </Section>
 
-<script>
-  const toggle = document.getElementById("more-toggle");
-  const hidden = Array.from(document.querySelectorAll<HTMLElement>(".more-project"));
+<style>
+  .track {
+    position: relative;
+    display: flex;
+    gap: 1.5rem;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scroll-snap-type: x mandatory;
+    scroll-behavior: smooth;
+    scrollbar-width: none;
+    padding-bottom: 1rem;
+  }
+  .track::-webkit-scrollbar {
+    display: none;
+  }
+  .track:focus-visible {
+    outline: 2px dashed var(--color-accent);
+    outline-offset: 6px;
+  }
+  /* A peek of the next slide says "there's more" without a word. */
+  .slide {
+    flex: 0 0 86%;
+    scroll-snap-align: start;
+  }
+  @media (min-width: 768px) {
+    .slide {
+      flex-basis: calc(50% - 2rem);
+    }
+  }
 
-  toggle?.addEventListener("click", () => {
-    const open = toggle.getAttribute("aria-expanded") === "true";
-    hidden.forEach((el) => el.classList.toggle("hidden", open));
-    toggle.setAttribute("aria-expanded", String(!open));
-    toggle.textContent = open ? "Show More" : "Show Less";
-  });
+  .carousel-btn {
+    display: inline-grid;
+    place-items: center;
+    width: 2.25rem;
+    height: 2.25rem;
+    border: 1px solid var(--color-line);
+    border-radius: 999px;
+    color: var(--color-body);
+    transition:
+      color 0.2s var(--ease-swift),
+      border-color 0.2s var(--ease-swift),
+      opacity 0.2s var(--ease-swift);
+  }
+  .carousel-btn:hover:not(:disabled),
+  .carousel-btn:focus-visible {
+    color: var(--color-accent);
+    border-color: var(--color-accent);
+  }
+  .carousel-btn:disabled {
+    opacity: 0.35;
+    cursor: default;
+  }
+
+  .row {
+    transition: background-color 0.2s var(--ease-swift);
+  }
+  .row:hover {
+    background-color: var(--color-accent-soft);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .track {
+      scroll-behavior: auto;
+    }
+  }
+</style>
+
+<script>
+  const track = document.querySelector<HTMLElement>("[data-track]");
+  if (track) {
+    const slides = Array.from(track.querySelectorAll<HTMLElement>(".slide"));
+    const prev = document.querySelector<HTMLButtonElement>("[data-prev]")!;
+    const next = document.querySelector<HTMLButtonElement>("[data-next]")!;
+    const counter = document.querySelector<HTMLElement>("[data-counter]");
+    const progress = document.querySelector<HTMLElement>("[data-progress]");
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const pad = (n: number) => String(n).padStart(2, "0");
+
+    /** The slide whose left edge is nearest the track's scroll position. */
+    const current = () => {
+      let best = 0;
+      slides.forEach((s, i) => {
+        if (Math.abs(s.offsetLeft - track.scrollLeft) < Math.abs(slides[best].offsetLeft - track.scrollLeft)) best = i;
+      });
+      return best;
+    };
+
+    const update = () => {
+      const max = track.scrollWidth - track.clientWidth;
+      const atEnd = track.scrollLeft >= max - 2;
+      const i = atEnd ? slides.length - 1 : current();
+      if (counter) counter.textContent = `${pad(i + 1)} / ${pad(slides.length)}`;
+      if (progress) progress.style.width = `${max > 0 ? (track.scrollLeft / max) * 100 : 100}%`;
+      prev.disabled = track.scrollLeft <= 2;
+      next.disabled = atEnd;
+    };
+
+    const go = (dir: number) => {
+      const i = Math.max(0, Math.min(slides.length - 1, current() + dir));
+      track.scrollTo({ left: slides[i].offsetLeft });
+    };
+
+    prev.addEventListener("click", () => go(-1));
+    next.addEventListener("click", () => go(1));
+    let ticking = false;
+    track.addEventListener(
+      "scroll",
+      () => {
+        if (ticking) return;
+        ticking = true;
+        requestAnimationFrame(() => {
+          update();
+          ticking = false;
+        });
+      },
+      { passive: true },
+    );
+    window.addEventListener("resize", update);
+    update();
+
+    // Clips: play while their slide is mostly on screen, pause otherwise.
+    const clips = Array.from(track.querySelectorAll<HTMLVideoElement>("[data-clip]"));
+    if (reduced) {
+      clips.forEach((v) => (v.controls = true));
+    } else if ("IntersectionObserver" in window) {
+      const io = new IntersectionObserver(
+        (entries) => {
+          for (const e of entries) {
+            const v = e.target as HTMLVideoElement;
+            if (e.isIntersecting) v.play().catch(() => (v.controls = true));
+            else v.pause();
+          }
+        },
+        { threshold: 0.6 },
+      );
+      clips.forEach((v) => io.observe(v));
+      // A click toggles, for anyone who wants to stop the motion.
+      clips.forEach((v) => v.addEventListener("click", () => (v.paused ? v.play() : v.pause())));
+    }
+  }
 </script>

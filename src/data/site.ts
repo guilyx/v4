@@ -327,10 +327,12 @@ export interface Project {
   external?: string;
   externalLabel?: string;
   glyph?: string;
+  /** The org it lives under (Clanker Labs, Unchained Labs…); omitted means personal. */
+  org?: string;
   /** Local promo clip under public/media/, with a poster frame shown before playback. */
   video?: string;
   videoPoster?: string;
-  /** Defaults to video/mp4; weave's clip is VP8 WebM. */
+  /** Defaults to video/mp4. */
   videoType?: string;
   /** Set when there's no public link — closed source or internal. */
   closed?: boolean;
@@ -349,22 +351,72 @@ export interface ArchiveEntry {
 
 /** The framing for the Featured Projects section: side projects only. */
 export const projectsIntro = `Side projects, built on my own time and in the
-  open. Same question as the day job — given a goal and constraints, what
-  happens next — asked on the metal, in the loop and in the field. Six have a
-  demo worth watching; the rest are in the archive.`;
+  open — lately most of them under Clanker Labs, a self-hosted stack for the
+  home with an agent running it. Swipe through the ones with a demo; the rest
+  are listed below and in the archive.`;
 
 /**
- * Featured projects — the six side projects that earn a full spotlight, every
- * one of them with a real promo clip recorded from the thing actually running.
- * Work done for an employer belongs in Built for Companies, not here.
+ * Featured projects — the carousel. Every slide has a real demo clip recorded
+ * from the thing actually running. Work done for an employer belongs in Built
+ * for Companies, not here.
  */
 export const featured: Project[] = [
   {
+    title: "Clanker Labs",
+    blurb:
+      "Self-host your home, let the agent run it. One stack that moves notes, mail, media, passwords and money back onto hardware you own — a NUC in a closet, an old laptop — with an agent in front so keeping it running doesn't take a sysadmin.",
+    tech: ["Ansible", "Docker", "LangGraph", "MCP"],
+    layer: "machine",
+    org: "Clanker Labs",
+    github: "https://github.com/Clanker-Labs",
+    external: "https://clanker-labs.github.io/clanker-labs-public/",
+    externalLabel: "Visit the site",
+    video: "/media/clanker-labs-promo.mp4",
+    videoPoster: "/media/clanker-labs-poster.png",
+  },
+  {
+    title: "grip",
+    blurb:
+      "Pass the whiteboard defense before you push. A git hook that asks five questions about your own diff — what it does, why it's built this way, where it fails — grades the answers against a hidden rubric, and blocks the push below your team's pass mark. It checks the developer, not the code.",
+    tech: ["Python", "Git Hooks", "LLM Grading", "Coding Agents"],
+    layer: "agent",
+    github: "https://github.com/guilyx/grip",
+    external: "https://guilyx.github.io/grip/",
+    externalLabel: "Read the docs",
+    video: "/media/grip-promo.mp4",
+    videoPoster: "/media/grip-poster.jpg",
+  },
+  {
+    title: "wallet",
+    blurb:
+      "Your money, on your machine. Net worth, budgets and investments in any currency, in one SQLite file behind passkey sign-in — with an assistant you can drop a bank statement on, reachable from Claude Code, Codex or Telegram through the same tools.",
+    tech: ["Next.js", "SQLite", "MCP", "Passkeys"],
+    layer: "agent",
+    org: "Clanker Labs",
+    github: "https://github.com/Clanker-Labs/wallet",
+    external: "https://clanker-labs.github.io/wallet/",
+    externalLabel: "Docs & demos",
+    video: "/media/wallet-promo.mp4",
+    videoPoster: "/media/wallet-poster.jpg",
+  },
+  {
+    title: "tradesights",
+    blurb:
+      "Talk is cheap; options cost money. Every morning it lines up what the price did, what the options market is paid to believe and what people are saying, and ranks the names where those stop agreeing. A screener: it tells you where to look, not what to do.",
+    tech: ["Python", "Options Data", "Data Viz"],
+    layer: "agent",
+    org: "Clanker Labs",
+    github: "https://github.com/Clanker-Labs/tradesights",
+    video: "/media/tradesights-promo.mp4",
+    videoPoster: "/media/tradesights-poster.png",
+  },
+  {
     title: "PyMAPF",
     blurb:
-      "A multi-agent planning toolbox — CBS, PIBT, LaCAM and Prioritized Planning solvers, running on arbitrary graphs, not just grids. Every solver streams its search live, so you can watch conflicts get found and resolved node by node instead of taking the answer on faith.",
-    tech: ["Python", "Multi-Agent Planning", "Graph Search", "CBS / PIBT"],
+      "A multi-agent planning toolbox — CBS, PIBT, LaCAM and Prioritized Planning on arbitrary graphs, not just grids. Every solver streams its search live, so you can watch conflicts get found and resolved node by node.",
+    tech: ["Python", "Multi-Agent Planning", "Graph Search"],
     layer: "field",
+    org: "APLA-Toolbox",
     github: "https://github.com/APLA-Toolbox/pymapf",
     external: "https://apla-toolbox.github.io/pymapf/",
     externalLabel: "Open the playground",
@@ -374,9 +426,10 @@ export const featured: Project[] = [
   {
     title: "jupyddl",
     blurb:
-      "A pure-Python PDDL planning framework — hand-written parser and grounder covering STRIPS through durative actions, 14 planners from BFS to weighted A* to LM-cut, and heuristics you can train on your own solved plans.",
-    tech: ["Python", "PDDL", "A* / Search", "Heuristics"],
+      "A pure-Python PDDL planning framework — hand-written parser and grounder from STRIPS to durative actions, 14 planners from BFS to LM-cut, and heuristics you can train on your own solved plans.",
+    tech: ["Python", "PDDL", "Heuristic Search"],
     layer: "field",
+    org: "APLA-Toolbox",
     github: "https://github.com/APLA-Toolbox/pythonpddl",
     external: "https://apla-toolbox.github.io/PythonPDDL/",
     externalLabel: "Open the workbench",
@@ -386,7 +439,7 @@ export const featured: Project[] = [
   {
     title: "rostree",
     blurb:
-      "A ROS 2 dependency graph is a DAG, not a tree — expanding it path by path is exponential. rostree explores it properly instead: from the command line, a TUI, or a self-contained HTML file with no CDN and no network calls, so it survives being opened on a robot with no route out.",
+      "A ROS 2 dependency graph is a DAG, not a tree. rostree explores it properly — from the command line, a TUI, or a self-contained HTML file with no network calls, so it still opens on a robot with no route out.",
     tech: ["Python", "Graph Theory", "ROS 2", "TUI"],
     layer: "machine",
     github: "https://github.com/guilyx/rostree",
@@ -397,7 +450,7 @@ export const featured: Project[] = [
   {
     title: "flybots",
     blurb:
-      "Flight algorithms from scratch: multirotor, fixed-wing and VTOL physics written out in full, 40+ runnable simulations, and a gym for teaching a drone to fly itself. The platform-agnostic argument made literal — the planning and control layer doesn't know or care what it's flying.",
+      "Flight algorithms from scratch: multirotor, fixed-wing and VTOL physics written out in full, 40+ runnable simulations, and a gym for teaching a drone to fly itself.",
     tech: ["Python", "Flight Dynamics", "Reinforcement Learning"],
     layer: "field",
     github: "https://github.com/guilyx/flybots",
@@ -408,57 +461,40 @@ export const featured: Project[] = [
   {
     title: "Kymatics",
     blurb:
-      "Speak an intent and watch it become a queue of build jobs. Voice goes in through a Python speech service, a Rust orchestrator plans and schedules the work, and a React board tracks every job through todo → running → done. The queue plans itself — the same scheduling problem as a robot fleet, with a microphone as the input device.",
+      "Speak an intent and watch it become a queue of build jobs: a Python speech service in, a Rust orchestrator that plans and schedules the work, and a React board tracking every job from todo to done.",
     tech: ["Rust", "Python", "React", "Voice / STT"],
     layer: "agent",
+    org: "Unchained Labs",
     github: "https://github.com/Unchained-Labs/kymatics",
     external: "https://kymatics.vercel.app/",
     video: "/media/kymatics-promo.mp4",
     videoPoster: "/media/kymatics-poster.png",
   },
-  {
-    title: "weave",
-    blurb:
-      "A live D&D session assistant — captures table audio, transcribes the narrative, maintains a rolling recap, and offers suggestions grounded in the campaign's own characters and lore. STT plus a LangGraph agent plus a memory of the campaign — a planning problem wearing a dice-game costume.",
-    tech: ["Python", "FastAPI", "LangGraph", "STT"],
-    layer: "agent",
-    github: "https://github.com/guilyx/weave",
-    video: "/media/weave-promo.webm",
-    videoPoster: "/media/weave-poster.png",
-    videoType: "video/webm",
-  },
 ];
 
 /**
- * Other noteworthy projects — the small grid under the spotlights. Six show
- * by default; the rest of the record lives in /archive.
+ * More projects — the flat list under the carousel. Private repos are
+ * described but never linked: a link a visitor can't open is worse than none.
  */
 export const projects: Project[] = [
   {
-    title: "grip",
-    blurb:
-      "A git hook that quizzes you on your own diff before you commit or push, with an LLM-graded score and a pass mark.",
-    tech: ["Git Hooks", "LLM", "CLI"],
-    layer: "agent",
-    github: "https://github.com/guilyx/grip",
-    external: "https://guilyx.github.io/grip/",
-  },
-  {
     title: "BTView",
     blurb:
-      "A visual graph editor for BehaviorTree.CPP trees, built into VS Code and Cursor. Bidirectional XML sync, tidy layout, and a validation panel that jumps straight to the offending node.",
+      "A visual graph editor for BehaviorTree.CPP trees, built into VS Code and Cursor: bidirectional XML sync, tidy layout, and a validation panel that jumps to the offending node.",
     tech: ["TypeScript", "Behavior Trees", "VS Code"],
     layer: "agent",
     github: "https://github.com/guilyx/btview-vscode-plugin",
     external: "https://marketplace.visualstudio.com/items?itemName=rangonomics.btview",
   },
   {
-    title: "setup",
+    title: "lebenchmark",
     blurb:
-      "One curl command turns a bare Ubuntu box into my entire working environment — shell, toolchains, containers, dotfiles via chezmoi. Ansible underneath for idempotency, a typed Python CLI so every generated command is auditable before it runs.",
-    tech: ["Ansible", "Python", "chezmoi"],
+      "How reliably do locally served models call tools? Structured calls against calls leaked into prose, picking the right tool, knowing when not to call one, and the latency it costs — written up as an interactive study site.",
+    tech: ["Python", "LLM Evaluation", "Statistics"],
     layer: "machine",
-    github: "https://github.com/guilyx/setup",
+    org: "Clanker Labs",
+    github: "https://github.com/Clanker-Labs/lebenchmark",
+    external: "https://clanker-labs.github.io/lebenchmark/",
   },
   {
     title: "t212-mcp",
@@ -469,21 +505,56 @@ export const projects: Project[] = [
     github: "https://github.com/guilyx/t212-mcp",
   },
   {
+    title: "selfmail",
+    blurb:
+      "A small mail relay for a private network: services on the LAN POST a message with an API key, it hands delivery to an upstream SMTP host and keeps the audit trail. One Rust binary and a dashboard.",
+    tech: ["Rust", "axum", "SQLite"],
+    layer: "machine",
+    org: "Clanker Labs",
+    github: "https://github.com/Clanker-Labs/selfmail",
+  },
+  {
+    title: "setup",
+    blurb:
+      "One curl command takes a bare Ubuntu box — a dev machine or a VPS — to provisioned: packages, users, SSH hardening, firewall, reverse proxy, dotfiles through chezmoi. Ansible underneath, a typed Python CLI on top.",
+    tech: ["Ansible", "Python", "chezmoi"],
+    layer: "machine",
+    org: "Clanker Labs",
+    github: "https://github.com/Clanker-Labs/setup",
+  },
+  {
     title: "Doxmosis",
     blurb:
       "Agentic tooling that keeps documentation alive: watches a codebase, detects drift, and opens documentation pull requests on its own.",
     tech: ["Go", "Agentic AI", "GitHub Apps"],
     layer: "agent",
+    org: "Unchained Labs",
     external: "https://doxmosis.vercel.app/",
   },
   {
     title: "zucman",
     blurb:
-      "A campaign kit for one statistic: sourced research, regenerable charts, decks in two languages, and a zero-dependency dataviz site — all rebuilt from the underlying data by script, never by hand.",
+      "A campaign kit for one statistic: sourced research, regenerable charts, decks in two languages and a zero-dependency dataviz site, all rebuilt from the data by script.",
     tech: ["Python", "Matplotlib", "Data Viz"],
     layer: "agent",
     github: "https://github.com/guilyx/zucman",
     external: "https://guilyx.github.io/zucman/",
+  },
+  {
+    title: "LeHarness",
+    blurb:
+      "Serves local models on whatever hardware is in the box — vLLM with tensor parallelism on a GPU rig, Ollama with GGUF on a Jetson or a bare CPU — behind one OpenAI-compatible URL.",
+    tech: ["vLLM", "Ollama", "Docker", "CUDA"],
+    layer: "machine",
+    org: "Clanker Labs",
+    closed: true,
+  },
+  {
+    title: "artin-pathfinding",
+    blurb: "A C++17 pathfinding library — A*, Dijkstra, DFS/BFS and friends — with a clean interface for grid worlds.",
+    tech: ["C++17", "Algorithms"],
+    layer: "field",
+    github: "https://github.com/master-coro/artin-pathfinding",
   },
   {
     title: "epsteinexposed-mcp",
@@ -492,22 +563,6 @@ export const projects: Project[] = [
     tech: ["Python", "MCP", "Public Data"],
     layer: "agent",
     github: "https://github.com/guilyx/epsteinexposed-mcp",
-  },
-  {
-    title: "artin-pathfinding",
-    blurb:
-      "A C++17 pathfinding library — A*, Dijkstra, DFS/BFS and friends — with a clean interface for grid worlds.",
-    tech: ["C++17", "Algorithms"],
-    layer: "field",
-    github: "https://github.com/master-coro/artin-pathfinding",
-  },
-  {
-    title: "LeHarness",
-    blurb:
-      "Serves local models on whatever hardware is actually in the box — vLLM with tensor parallelism on a GPU rig, Ollama with GGUF quantization on a Jetson or a bare CPU — behind one OpenAI-compatible URL.",
-    tech: ["vLLM", "Ollama", "Docker", "CUDA"],
-    layer: "machine",
-    closed: true,
   },
 ];
 
@@ -518,9 +573,48 @@ export const projects: Project[] = [
 export const archive: ArchiveEntry[] = [
   {
     year: 2026,
-    title: "weave",
-    tech: ["Python", "FastAPI", "LangGraph", "STT"],
-    github: "https://github.com/guilyx/weave",
+    title: "grip",
+    tech: ["Python", "Git Hooks", "LLM Grading"],
+    github: "https://github.com/guilyx/grip",
+    external: "https://guilyx.github.io/grip/",
+  },
+  {
+    year: 2026,
+    title: "Clanker Labs",
+    madeAt: "Clanker Labs",
+    tech: ["Ansible", "Docker", "LangGraph", "MCP"],
+    github: "https://github.com/Clanker-Labs",
+    external: "https://clanker-labs.github.io/clanker-labs-public/",
+  },
+  {
+    year: 2026,
+    title: "wallet",
+    madeAt: "Clanker Labs",
+    tech: ["Next.js", "SQLite", "MCP", "Passkeys"],
+    github: "https://github.com/Clanker-Labs/wallet",
+    external: "https://clanker-labs.github.io/wallet/",
+  },
+  {
+    year: 2026,
+    title: "tradesights",
+    madeAt: "Clanker Labs",
+    tech: ["Python", "Options Data", "Data Viz"],
+    github: "https://github.com/Clanker-Labs/tradesights",
+  },
+  {
+    year: 2026,
+    title: "selfmail",
+    madeAt: "Clanker Labs",
+    tech: ["Rust", "axum", "SQLite"],
+    github: "https://github.com/Clanker-Labs/selfmail",
+  },
+  {
+    year: 2026,
+    title: "lebenchmark",
+    madeAt: "Clanker Labs",
+    tech: ["Python", "LLM Evaluation", "Statistics"],
+    github: "https://github.com/Clanker-Labs/lebenchmark",
+    external: "https://clanker-labs.github.io/lebenchmark/",
   },
   {
     year: 2026,
@@ -580,12 +674,14 @@ export const archive: ArchiveEntry[] = [
   {
     year: 2026,
     title: "setup",
+    madeAt: "Clanker Labs",
     tech: ["Ansible", "Python", "chezmoi", "Flask"],
-    github: "https://github.com/guilyx/setup",
+    github: "https://github.com/Clanker-Labs/setup",
   },
   {
     year: 2026,
     title: "LeHarness",
+    madeAt: "Clanker Labs",
     tech: ["vLLM", "Ollama", "Docker", "CUDA"],
   },
   {

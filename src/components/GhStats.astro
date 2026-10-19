@@ -18,23 +18,29 @@ interface Props {
 }
 const { url, pushed = false, class: className = "" } = Astro.props;
 const slug = new URL(url).pathname.replace(/^\/|\/$/g, "");
+// Only owner/repo links have stats; an org page has none to show.
+const isRepo = slug.split("/").length === 2;
 ---
 
-<span
-  class={`gh-stats font-mono text-muted inline-flex items-center gap-3 text-[0.7rem] ${className}`}
-  data-gh={slug}
-  hidden
->
-  <span class="inline-flex items-center gap-1" title="GitHub stars" hidden>
-    <Icon name="star" size={13} />
-    <span data-gh-stars></span>
-  </span>
-  <span class="inline-flex items-center gap-1" title="GitHub forks" hidden>
-    <Icon name="fork" size={13} />
-    <span data-gh-forks></span>
-  </span>
-  {pushed && <span class="text-faint" data-gh-pushed></span>}
-</span>
+{
+  isRepo && (
+    <span
+      class={`gh-stats font-mono text-muted inline-flex items-center gap-3 text-[0.7rem] ${className}`}
+      data-gh={slug}
+      hidden
+    >
+      <span class="inline-flex items-center gap-1" title="GitHub stars" hidden>
+        <Icon name="star" size={13} />
+        <span data-gh-stars></span>
+      </span>
+      <span class="inline-flex items-center gap-1" title="GitHub forks" hidden>
+        <Icon name="fork" size={13} />
+        <span data-gh-forks></span>
+      </span>
+      {pushed && <span class="text-faint" data-gh-pushed></span>}
+    </span>
+  )
+}
 
 <script>
   type Stats = { stars: number; forks: number; pushed: string };
