@@ -234,3 +234,16 @@ html.has-js [data-reveal].is-visible {
 .prose figcaption {
   @apply font-mono text-faint mt-2 text-xs;
 }
+.prose table {
+  @apply my-6 w-full text-sm;
+  border-collapse: collapse;
+}
+.prose th {
+  @apply font-mono text-faint border-line border-b pr-4 pb-2 text-left text-xs font-normal;
+}
+.prose td {
+  @apply border-line border-b py-2.5 pr-4 align-top;
+}
+.prose td strong {
+  @apply text-heading font-medium;
+}

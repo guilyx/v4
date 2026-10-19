@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 200" width="800" height="200" role="img" aria-label="The voice loop: wake word and voice on the Pi, speech-to-text and Claude in the cloud, the answer on the screen">
+  <title>The voice loop: wake word and voice on the Pi, speech-to-text and Claude in the cloud, the answer on the screen</title>
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 z" fill="#858b9c"/>
+    </marker>
+  </defs>
+  <rect x="0.5" y="0.5" width="799" height="199" rx="10" fill="#1a1d26" stroke="#2c3040"/>
+  <g font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">
+    <text x="22" y="34" fill="#8b95f0" font-size="11">solid · on the Pi</text>
+    <text x="172" y="34" fill="#858b9c" font-size="11">dashed · in the cloud</text>
+    <rect x="22" y="64" width="136" height="56" rx="6" fill="rgba(139,149,240,0.08)" stroke="#8b95f0"/>
+    <text x="90.0" y="87" fill="#e8eaf0" font-size="13" text-anchor="middle">wake word</text>
+    <text x="90.0" y="105" fill="#858b9c" font-size="10.5" text-anchor="middle">openWakeWord</text>
+    <rect x="176" y="64" width="136" height="56" rx="6" fill="none" stroke="#858b9c" stroke-dasharray="4 4"/>
+    <text x="244.0" y="87" fill="#e8eaf0" font-size="13" text-anchor="middle">speech → text</text>
+    <text x="244.0" y="105" fill="#858b9c" font-size="10.5" text-anchor="middle">cloud STT</text>
+    <rect x="330" y="64" width="136" height="56" rx="6" fill="none" stroke="#858b9c" stroke-dasharray="4 4"/>
+    <text x="398.0" y="87" fill="#e8eaf0" font-size="13" text-anchor="middle">Claude</text>
+    <text x="398.0" y="105" fill="#858b9c" font-size="10.5" text-anchor="middle">the brain</text>
+    <rect x="484" y="64" width="136" height="56" rx="6" fill="rgba(139,149,240,0.08)" stroke="#8b95f0"/>
+    <text x="552.0" y="87" fill="#e8eaf0" font-size="13" text-anchor="middle">text → speech</text>
+    <text x="552.0" y="105" fill="#858b9c" font-size="10.5" text-anchor="middle">Piper</text>
+    <rect x="638" y="64" width="136" height="56" rx="6" fill="rgba(139,149,240,0.08)" stroke="#8b95f0"/>
+    <text x="706.0" y="87" fill="#e8eaf0" font-size="13" text-anchor="middle">screen</text>
+    <text x="706.0" y="105" fill="#858b9c" font-size="10.5" text-anchor="middle">Chromium kiosk</text>
+    <line x1="160" y1="92.0" x2="173" y2="92.0" stroke="#858b9c" stroke-width="1.2" marker-end="url(#a)"/>
+    <line x1="314" y1="92.0" x2="327" y2="92.0" stroke="#858b9c" stroke-width="1.2" marker-end="url(#a)"/>
+    <line x1="468" y1="92.0" x2="481" y2="92.0" stroke="#858b9c" stroke-width="1.2" marker-end="url(#a)"/>
+    <line x1="622" y1="92.0" x2="635" y2="92.0" stroke="#858b9c" stroke-width="1.2" marker-end="url(#a)"/>
+    <path d="M552.0 124 C 552.0 178, 90.0 178, 90.0 126" fill="none" stroke="#616779" stroke-dasharray="3 4" marker-end="url(#a)"/>
+    <text x="321.0" y="180" fill="#616779" font-size="10.5" text-anchor="middle">the mic pauses while it talks</text>
+
+  </g>
+</svg>
