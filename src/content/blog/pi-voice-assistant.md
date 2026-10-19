@@ -1,30 +1,30 @@
 ---
 title: "A homemade Alexa, and the agents that will hack my house"
-description: "Four parts, no soldering, about AED 1,200: a Raspberry Pi voice assistant with a screen, and the first step toward agents that reverse-engineer my IoT devices and build the integrations on their own."
+description: "A Raspberry Pi 4, a 10.1-inch touchscreen and a speakerphone, all here by 28 October: a homemade voice assistant with a screen, and the first step toward agents that reverse-engineer my IoT devices and build the integrations on their own."
 date: 2026-10-19
 tags: ["raspberry-pi", "voice", "agents", "iot", "clanker-labs"]
 ---
 
 Every connected thing in my home came with its own app, and each app phones home to a cloud I didn't pick. An Alexa would tie them together, on Amazon's terms. I'd rather build the one place where they all meet myself, on hardware I own, which is the whole idea behind [Clanker Labs](https://clanker-labs.github.io/clanker-labs-public/): self-host your home, and let the agent run it.
 
-So the first thing I'm building is the front door: a voice assistant with a screen, on a Raspberry Pi. The shopping list is written; the parts aren't on my desk yet. This is the plan, and the reason I think it's the start of something bigger than a smart speaker.
+So the first thing I'm building is the front door: a voice assistant with a screen, on a Raspberry Pi. The parts are ordered, and the last of them lands on 28 October. This is the plan, and the reason I think it's the start of something bigger than a smart speaker.
 
-## The cart
+## The cart, arriving 28 October
 
-Four things to buy, no soldering:
+Ordered on 19 October. Everything but the Pi lands on the 20th; the Pi itself arrives on the 28th. Still no soldering:
 
-| Part | Why this one | AED, est. |
+| Part | What it's for | Arrives |
 |---|---|---|
-| **Raspberry Pi 5 starter kit, 4 GB** | Board, power supply, case with a fan, and a 64 GB card with Pi OS already on it | 450⁠–⁠600 |
-| **Touch Display 2, 7″** | The official one: 720×1280, five-finger touch, powered by the Pi, so no extra plug | 300⁠–⁠400 |
-| **KKSB stand and case** | Covers the Pi on the back and puts the screen on a ball joint, so it looks like a finished smart display | 150⁠–⁠250 |
-| **EMEET M0 Plus speakerphone** | Four mics with 360° pickup and a speaker in one USB-C puck; shows up as a plain sound card | 150⁠–⁠250 |
+| **[Raspberry Pi 4 starter kit, 4 GB](https://www.amazon.ae/dp/B0D1N3V2FF)** | The computer: board, 64 GB card, housing, heatsinks and a 15 W supply, from db-tronic | 28 Oct |
+| **[GeeekPi 10.1″ touchscreen](https://www.amazon.ae/dp/B0DHVCT5DP)** | The face: 1280×800 IPS, capacitive touch, two speakers, and mount holes to carry the Pi on its back | 20 Oct |
+| **[EMEET M1A speakerphone](https://www.amazon.ae/dp/B09WWYKP42)** | Ears and voice: 360° mics with noise reduction and echo cancellation, on one USB plug | 20 Oct |
+| **[UGREEN micro-HDMI to HDMI cable](https://www.amazon.ae/dp/B0BXGJGQMB)** | The Pi 4 only has micro-HDMI out | 20 Oct |
+| **[GeeekPi 27 W USB-C supply](https://www.amazon.ae/dp/B0CQ2DL2RW)** | Power with headroom; it's a Pi 5-grade supply | 20 Oct |
+| **[GeeekPi copper heatsinks](https://www.amazon.ae/dp/B0CJDSGBL8)** | The Pi lives on the back of a screen, where there isn't much air | 20 Oct |
 
-That's roughly **AED 1,050–1,500** on Amazon.ae, and the stand is optional, which takes the floor to about AED 900. Pi kits on Amazon.ae cost well above list price, so a local reseller is probably cheaper for the first item.
+Assembly is a screwdriver job: heatsinks on the Pi, the Pi onto the screen's mount holes, micro-HDMI for the picture, a USB cable for touch, the speakerphone into another USB port, power in. That's the hardware.
 
-Assembly is about fifteen minutes. Put a heatsink or the kit's fan on the Pi, screw it onto the back of the screen, plug in the ribbon cable and the two-wire power lead, close it in the case, plug in the speakerphone. That's the hardware.
-
-4 GB is enough because only the cheap parts of the pipeline run on the Pi. The 8 GB board is the upgrade path if I ever want speech-to-text on the device too.
+4 GB is enough because only the cheap parts of the pipeline run on the Pi. And since the supply is already Pi 5-grade, if I ever want speech-to-text on the device too, the upgrade is just the board.
 
 ## The loop
 
@@ -36,7 +36,7 @@ Assembly is about fifteen minutes. Put a heatsink or the kit's fan on the Pi, sc
 - **The voice, on the Pi.** [Piper](https://github.com/rhasspy/piper) speaks the answer locally.
 - **The screen, on the Pi.** A Chromium kiosk page shows the answer and everything else.
 
-The assistant stops listening while it talks, so a cheap puck without fancy echo cancellation is fine.
+The M1A does echo cancellation, and the assistant stops listening while it talks anyway, so it never hears itself.
 
 To be straight about the trade: once the wake word fires, my voice leaves the house, and the brain is a cloud model. That's the price of a 4 GB Pi and a working version soon. Everything that's cheap to do locally is local, and once LeHarness, the Clanker Labs piece that serves models on whatever hardware is in the box, runs one here, the dashed boxes can move inside one at a time.
 
@@ -62,12 +62,12 @@ A few rules hold from day one:
 
 ## The first application: one screen
 
-The first thing the Pi will run is a homemade Alexa and an IoT dashboard in one place. The 7″ screen shows a tile per device, and voice and touch drive the same device graph underneath. Saying "hey Claude, movie time" and tapping a movie tile should do the same thing: lights down, AC to 23, TV on.
+The first thing the Pi will run is a homemade Alexa and an IoT dashboard in one place. The 10.1″ screen shows a tile per device, and voice and touch drive the same device graph underneath. Saying "hey Claude, movie time" and tapping a movie tile should do the same thing: lights down, AC to 23, TV on.
 
 Every integration the agents produce lands in two places at once: a tile on the dashboard, and a tool the voice loop can call. One set of tools, three ways in: my voice, my finger, and the agents themselves.
 
 ## What's next
 
-1. Buy the four parts.
+1. Put it together when the Pi lands on 28 October.
 2. Get "hey Claude, what time is it?" working end to end, wake word to screen.
 3. Point the first reverse-engineering agent at the first device and write up what happens, failures included.
