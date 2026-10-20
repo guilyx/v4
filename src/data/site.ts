@@ -60,11 +60,14 @@ export const about = {
      navigation stack of a robot working the aisles of a supermarket in
      Odense, Denmark, at [Coalescent Mobile Robotics](https://cm-robotics.com/).`,
     `On the side I run [Unchained Labs](https://unchainedlabs.dev/), building
-     local-first agentic systems — and I bring that back to robotics: agentic
-     tooling that turns robot data into diagnostics, and self-healing autonomy
-     that detects and recovers from failures in the field. When I'm not
-     shipping autonomy stacks I'm playing basketball, watching films, or
-     chasing ranked ladders.`,
+     local-first agentic systems for companies, and
+     [Clanker Labs](https://clanker-labs.github.io/clanker-labs-public/), the
+     same idea pointed at my own home: one self-hosted stack, with an agent
+     running it. I bring both back to robotics: agentic tooling that turns
+     robot data into diagnostics, and self-healing autonomy that detects and
+     recovers from failures in the field. When I'm not shipping autonomy
+     stacks I'm playing basketball, watching films, or chasing ranked
+     ladders.`,
   ],
   technologies: [
     "ROS 2",
