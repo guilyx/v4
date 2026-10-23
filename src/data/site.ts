@@ -51,8 +51,8 @@ export const about = {
      deployment: behavior, task and path planning, sensor fusion, motion
      control, and the system design that keeps robots reliable outside the
      lab. ROS 2 is home.`,
-    `Today I'm Head of Robotics Software at [SIRB.AI](https://sirb.ai/) and
-     lead a team of 9 robotics engineers at the
+    `Today I'm Head of Robotics at [SIRB.AI](https://sirb.ai/). Until early
+     2026 I led a team of 9 robotics engineers at the
      [Technology Innovation Institute](https://www.tii.ae/) — autonomy,
      infrastructure and platform integration for drone fleets. I've been
      leading teams for 2+ years, from product roadmaps through PI planning to
@@ -107,10 +107,10 @@ export const experience: Job[] = [
     company: "SIRB.AI",
     shortName: "SIRB.AI",
     url: "https://sirb.ai/",
-    role: "Head of Robotics Software",
-    period: "2026 — Present",
+    role: "Head of Robotics",
+    period: "Feb 2026 — Present",
     location: "Abu Dhabi, UAE",
-    start: 2026,
+    start: 2026.1,
     end: null,
     bullets: [
       "Head the robotics software team at a defense-technology startup spun off from the Technology Innovation Institute.",
@@ -122,15 +122,18 @@ export const experience: Job[] = [
     company: "Technology Innovation Institute",
     shortName: "TII",
     url: "https://www.tii.ae/",
-    role: "Lead Engineer",
-    period: "2026 — Present",
+    role: "Team Lead — Robotics Software",
+    period: "2024 — 2026",
     location: "Abu Dhabi, UAE",
-    start: 2026,
-    end: null,
+    start: 2024,
+    end: 2026.1,
     bullets: [
-      "Grew and lead a Robotics Software team of 9 engineers across autonomy (navigation, perception, orchestration), infrastructure (DevOps, RobotOps) and platform integration.",
-      "Run delivery end to end — product roadmap, PI planning, sprints — while staying hands-on in the ROS 2 stack.",
+      "Grew and led a Robotics Software team of 9 engineers across autonomy (navigation, perception, orchestration), infrastructure (DevOps, RobotOps) and platform integration.",
+      "Ran delivery end to end — product roadmap, PI planning, sprints — while staying hands-on in the ROS 2 stack.",
       "Overhauled the swarm autonomy architecture, cutting onboard CPU usage by 74% and network bandwidth by 52%.",
+      "Scaled the multi-drone framework (modular architecture, lifecycle management, behavior orchestration) and grew the team's scope to own path planning and path tracking.",
+      "Joint program with Caltech on their multi-modal robot M4 and their humanoid: outdoor planning and tracking for M4's flying and rolling modalities.",
+      "Designed new swarm behaviors, including decentralized bird-inspired flocking published at IEEE/RSJ IROS 2024.",
       "Led autonomy demos to companies in Europe and the UAE, resulting in USD 10M+ in contracts.",
       "Started building AI tooling for the team to raise engineering efficiency and productivity.",
     ],
@@ -139,23 +142,7 @@ export const experience: Job[] = [
     company: "Technology Innovation Institute",
     shortName: "TII",
     url: "https://www.tii.ae/",
-    role: "Senior Robotics Software Engineer",
-    period: "2024 — 2026",
-    location: "Abu Dhabi, UAE",
-    start: 2024,
-    end: 2026,
-    bullets: [
-      "Scaled the multi-drone framework (modular architecture, lifecycle management, behavior orchestration) and built tooling around it to make missions more reliable and repeatable.",
-      "Expanded the team's scope to own path planning and path tracking, integrated into the framework.",
-      "Joint program with Caltech on their multi-modal robot M4 and their humanoid: worked on outdoor planning and tracking for M4's flying and rolling modalities.",
-      "Designed new swarm behaviors, including decentralized bird-inspired flocking published at IEEE/RSJ IROS 2024.",
-    ],
-  },
-  {
-    company: "Technology Innovation Institute",
-    shortName: "TII",
-    url: "https://www.tii.ae/",
-    role: "Robotics Software Engineer",
+    role: "Senior Engineer — Robotics Software",
     period: "2022 — 2024",
     location: "Abu Dhabi, UAE",
     start: 2022,
@@ -764,11 +751,11 @@ export const archive: ArchiveEntry[] = [
  * Deliberately does not restate the tagline above it or the spec block
  * beside it — this is the part that carries the story.
  */
-export const heroSummary = `Leading robotics software teams at SIRB.AI and the
-  Technology Innovation Institute while staying hands-on in the code. Two-plus
-  years running teams from product roadmaps through PI planning to sprints;
-  eight years taking autonomy from research to real-world deployment — from a
-  supermarket robot in Denmark to drone fleets in the UAE.`;
+export const heroSummary = `Head of Robotics at SIRB.AI, after leading a robotics
+  software team at the Technology Innovation Institute, and still hands-on in
+  the code. Two-plus years running teams from product roadmaps through PI
+  planning to sprints; eight years taking autonomy from research to real-world
+  deployment — from a supermarket robot in Denmark to drone fleets in the UAE.`;
 
 export const spec = [
   { key: "role", value: "team lead · robotics software" },
