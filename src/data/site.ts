@@ -435,8 +435,8 @@ export const featured: Project[] = [
     layer: "field",
     github: "https://github.com/guilyx/flybots",
     external: "https://guilyx.github.io/flybots/",
-    video: "/media/autonomous-uav-guide-promo.mp4",
-    videoPoster: "/media/autonomous-uav-guide-poster.png",
+    video: "/media/flybots-promo.mp4",
+    videoPoster: "/media/flybots-poster.jpg",
   },
   {
     title: "Clanker Labs",

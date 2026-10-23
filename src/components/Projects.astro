@@ -2,13 +2,16 @@
 import Section from "@/components/Section.astro";
 import Icon from "@/components/Icon.astro";
 import GhStats from "@/components/GhStats.astro";
-import { featured, projects, layers, projectsIntro, type Project } from "@/data/site";
+import { getCollection } from "astro:content";
+import { featured, projects, archive, layers, projectsIntro, type Project } from "@/data/site";
 
 /**
  * Featured Projects — side projects only. A flat carousel of the ones with a
  * demo, three to a view on wide screens (scroll-snap, so touch and trackpads
  * just work; the buttons page through for everyone else), then a short grid
- * of more open source, with the archive for the rest.
+ * of more open source, then the way out to the archive, the blog and photos.
+ * On wide screens the carousel breaks out of the text column to give the
+ * clips room.
  *
  * Clips are muted, load nothing until their slide is on screen, and play only
  * while it stays there. Reduced-motion visitors get the poster and native
@@ -18,25 +21,37 @@ const total = featured.length;
 const pad = (n: number) => String(n).padStart(2, "0");
 const label = (p: Project) =>
   [p.isOrg ? "org" : (p.org ?? "personal"), p.layer && layers[p.layer]].filter(Boolean).join(" · ");
+
+const [latestPost] = (await getCollection("blog", ({ data }) => !data.draft)).sort(
+  (a, b) => b.data.date.valueOf() - a.data.date.valueOf(),
+);
+const photoCount = (await getCollection("photos")).length;
+const elsewhere = [
+  {
+    href: "/archive",
+    eyebrow: "/archive",
+    title: "Every project",
+    body: `All ${archive.length} of them, from papers to old portfolios. Sort and filter by year, org or stack.`,
+  },
+  {
+    href: latestPost ? `/blog/${latestPost.id}/` : "/blog",
+    eyebrow: "/blog · latest",
+    title: latestPost?.data.title ?? "Field Notes",
+    body: "Writing on planning, robotics software, and whatever I'm building.",
+  },
+  {
+    href: "/photos",
+    eyebrow: "/photos",
+    title: "Through the Lens",
+    body: `${photoCount} photos: places, light, and the occasional robot.`,
+  },
+];
 ---
 
 <Section id="projects" title="Featured Projects">
-  <div class="mb-8 flex flex-wrap items-end justify-between gap-x-8 gap-y-5" data-reveal>
-    <p class="text-muted max-w-xl text-sm">{projectsIntro.replace(/\s+/g, " ")}</p>
-    <div class="flex items-center gap-3">
-      <span class="font-mono text-faint text-xs tabular-nums" data-counter aria-hidden="true">
-        {pad(1)} / {pad(total)}
-      </span>
-      <button type="button" class="carousel-btn" data-prev aria-label="Previous projects">
-        <Icon name="arrow" size={16} class="rotate-180" />
-      </button>
-      <button type="button" class="carousel-btn" data-next aria-label="Next projects">
-        <Icon name="arrow" size={16} />
-      </button>
-    </div>
-  </div>
+  <p class="text-muted mb-10 max-w-xl text-sm" data-reveal>{projectsIntro.replace(/\s+/g, " ")}</p>
 
-  <div data-reveal style="--reveal-delay: 100ms">
+  <div class="bleed" data-reveal style="--reveal-delay: 100ms">
     <ul class="track" data-track tabindex="0" aria-label="Featured projects, scroll for more">
       {
         featured.map((p, i) => (
@@ -57,7 +72,7 @@ const label = (p: Project) =>
             </div>
 
             <p class="font-mono text-accent mt-5 text-[0.7rem]">{label(p)}</p>
-            <h3 class="mt-1 text-lg font-semibold">
+            <h3 class="mt-1 text-xl font-semibold">
               <a
                 href={p.external ?? p.github}
                 target="_blank"
@@ -67,7 +82,7 @@ const label = (p: Project) =>
                 {p.title}
               </a>
             </h3>
-            <p class="text-body mt-2 text-sm">{p.blurb}</p>
+            <p class="text-body mt-2 text-[0.92rem]">{p.blurb}</p>
             <ul class="mt-4 flex flex-wrap gap-x-3 gap-y-1">
               {p.tech.map((t) => (
                 <li class="chip">{t}</li>
@@ -102,8 +117,19 @@ const label = (p: Project) =>
         ))
       }
     </ul>
-    <div class="bg-line mt-2 h-px" aria-hidden="true">
-      <span class="bg-accent block h-px w-0 transition-[width] duration-200" data-progress></span>
+    <div class="mt-4 flex items-center gap-4">
+      <div class="bg-line h-px flex-1" aria-hidden="true">
+        <span class="bg-accent block h-px w-0 transition-[width] duration-200" data-progress></span>
+      </div>
+      <span class="font-mono text-faint text-xs tabular-nums" data-counter aria-hidden="true">
+        {pad(1)} / {pad(total)}
+      </span>
+      <button type="button" class="carousel-btn" data-prev aria-label="Previous projects">
+        <Icon name="arrow" size={16} class="rotate-180" />
+      </button>
+      <button type="button" class="carousel-btn" data-next aria-label="Next projects">
+        <Icon name="arrow" size={16} />
+      </button>
     </div>
   </div>
 
@@ -151,12 +177,37 @@ const label = (p: Project) =>
     }
   </ul>
 
-  <p class="mt-10 text-center" data-reveal>
-    <a href="/archive" class="link font-mono text-sm">everything else, in the archive</a>
-  </p>
+  <h3 class="mt-20 text-lg font-medium" data-reveal>Keep exploring</h3>
+  <ul class="mt-6 grid gap-4 sm:grid-cols-3" data-reveal>
+    {
+      elsewhere.map((e) => (
+        <li class="card group border-line relative flex flex-col rounded-lg border p-5">
+          <p class="font-mono text-accent text-[0.68rem]">{e.eyebrow}</p>
+          <h4 class="text-heading mt-2 text-[0.95rem] font-medium">
+            <a href={e.href} class="group-hover:text-accent transition-colors after:absolute after:inset-0">
+              {e.title}
+            </a>
+          </h4>
+          <p class="text-muted mt-2 text-sm">{e.body}</p>
+          <span class="text-muted group-hover:text-accent mt-auto pt-4 transition-colors" aria-hidden="true">
+            <Icon name="arrow" size={16} />
+          </span>
+        </li>
+      ))
+    }
+  </ul>
 </Section>
 
 <style>
+  /* From tablets up, the carousel breaks out of the text column and runs
+     nearly edge to edge, up to 1360px, so the clips get room. The 2.5rem a
+     side also covers a classic scrollbar counted inside 100vw. */
+  @media (min-width: 768px) {
+    .bleed {
+      margin-inline: calc(50% - min(50vw - 2.5rem, 680px));
+    }
+  }
+
   .track {
     position: relative;
     display: flex;
@@ -185,7 +236,8 @@ const label = (p: Project) =>
       flex-basis: calc((100% - 1.5rem) / 2);
     }
   }
-  @media (min-width: 1024px) {
+  /* Three to a view only once each card can stay big. */
+  @media (min-width: 1200px) {
     .slide {
       flex-basis: calc((100% - 3rem) / 3);
     }
