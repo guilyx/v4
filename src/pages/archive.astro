@@ -3,7 +3,29 @@ import Base from "@/layouts/Base.astro";
 import Icon from "@/components/Icon.astro";
 import { archive } from "@/data/site";
 
-const rows = [...archive].sort((a, b) => b.year - a.year);
+/**
+ * The full record. Server-rendered newest first, so it reads fine without
+ * JavaScript; the script adds search, filters by org and stack, and sortable
+ * columns, and mirrors them in the query string so a filtered view can be
+ * linked.
+ */
+const rows = [...archive].sort((a, b) => b.year - a.year || a.title.localeCompare(b.title));
+
+const PERSONAL = "Personal";
+const orgs = [...new Set(archive.map((r) => r.madeAt ?? PERSONAL))].sort((a, b) =>
+  a === PERSONAL ? -1 : b === PERSONAL ? 1 : a.localeCompare(b),
+);
+
+// Stacks by how often they come up, so the common ones head the list.
+const techCount = new Map<string, number>();
+for (const r of archive) for (const t of r.tech) techCount.set(t, (techCount.get(t) ?? 0) + 1);
+const techs = [...techCount.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
+
+const sortable = [
+  { key: "year", label: "Year", class: "" },
+  { key: "title", label: "Title", class: "" },
+  { key: "org", label: "Made at", class: "hidden sm:table-cell" },
+] as const;
 ---
 
 <Base
@@ -18,42 +40,83 @@ const rows = [...archive].sort((a, b) => b.year - a.year);
       <Icon name="arrow" size={14} class="rotate-180" /> all projects
     </a>
 
-    <header class="mt-8 mb-12" data-reveal>
+    <header class="mt-8 mb-10" data-reveal>
       <h1 class="text-3xl font-semibold sm:text-4xl">Archive</h1>
       <p class="text-muted mt-4 max-w-xl text-sm">
         A big list of things I've built — tools, robots, agents, and a few papers.
       </p>
     </header>
 
+    <form class="mb-6 flex flex-wrap items-center gap-3" data-controls hidden onsubmit="return false">
+      <label class="sr-only" for="archive-q">Search</label>
+      <input
+        id="archive-q"
+        type="search"
+        placeholder="Search by name or stack"
+        autocomplete="off"
+        class="field min-w-0 flex-1 basis-56"
+      />
+      <label class="sr-only" for="archive-org">Made at</label>
+      <select id="archive-org" class="field">
+        <option value="">Made anywhere</option>
+        {orgs.map((o) => <option value={o}>{o}</option>)}
+      </select>
+      <label class="sr-only" for="archive-tech">Built with</label>
+      <select id="archive-tech" class="field max-w-[12rem]">
+        <option value="">Any stack</option>
+        {
+          techs.map(([t, n]) => (
+            <option value={t}>
+              {t} ({n})
+            </option>
+          ))
+        }
+      </select>
+      <span class="font-mono text-faint ml-auto text-xs tabular-nums" data-count aria-live="polite"></span>
+      <button type="button" class="link font-mono text-xs" data-reset hidden>clear</button>
+    </form>
+
     <div class="scroller -mx-4 overflow-x-auto px-4">
       <table class="w-full min-w-[560px] border-collapse text-left">
         <thead>
           <tr class="border-line border-b">
-            <th class="font-mono text-faint py-3 pr-4 text-xs font-normal">Year</th>
-            <th class="font-mono text-faint py-3 pr-4 text-xs font-normal">Title</th>
-            <th class="font-mono text-faint hidden py-3 pr-4 text-xs font-normal sm:table-cell">
-              Made at
-            </th>
-            <th class="font-mono text-faint hidden py-3 pr-4 text-xs font-normal md:table-cell">
-              Built with
-            </th>
+            {
+              sortable.map((c) => (
+                <th class={`font-mono text-faint py-3 pr-4 text-xs font-normal ${c.class}`} data-sort-col={c.key}>
+                  <button type="button" class="sort-btn inline-flex items-center gap-1" data-sort={c.key}>
+                    {c.label}
+                    <span class="sort-arrow" aria-hidden="true" />
+                  </button>
+                </th>
+              ))
+            }
+            <th class="font-mono text-faint hidden py-3 pr-4 text-xs font-normal md:table-cell">Built with</th>
             <th class="font-mono text-faint py-3 text-xs font-normal">Link</th>
           </tr>
         </thead>
-        <tbody>
+        <tbody data-rows>
           {
             rows.map((row) => (
-              <tr class="border-line hover:bg-bg-raised border-b transition-colors">
-                <td class="font-mono text-faint py-4 pr-4 align-top text-xs whitespace-nowrap">
-                  {row.year}
-                </td>
+              <tr
+                class="border-line hover:bg-bg-raised border-b transition-colors"
+                data-row
+                data-year={row.year}
+                data-title={row.title}
+                data-org={row.madeAt ?? PERSONAL}
+                data-tech={JSON.stringify(row.tech)}
+              >
+                <td class="font-mono text-faint py-4 pr-4 align-top text-xs whitespace-nowrap">{row.year}</td>
                 <td class="text-heading py-4 pr-4 align-top text-sm font-medium">{row.title}</td>
                 <td class="text-muted hidden py-4 pr-4 align-top text-sm sm:table-cell">
                   {row.madeAt ?? <span class="text-faint">—</span>}
                 </td>
                 <td class="hidden py-4 pr-4 align-top md:table-cell">
-                  <span class="font-mono text-muted text-xs">
-                    {row.tech.join(" · ")}
+                  <span class="font-mono text-muted flex flex-wrap gap-x-2 gap-y-1 text-xs">
+                    {row.tech.map((t) => (
+                      <button type="button" class="tech-btn" data-tech-btn={t} title={`Only ${t}`}>
+                        {t}
+                      </button>
+                    ))}
                   </span>
                 </td>
                 <td class="py-4 align-top">
@@ -90,6 +153,12 @@ const rows = [...archive].sort((a, b) => b.year - a.year);
               </tr>
             ))
           }
+          <tr data-empty hidden>
+            <td colspan="5" class="text-muted py-10 text-center text-sm">
+              Nothing matches.{" "}
+              <button type="button" class="link font-mono text-xs" data-reset>clear the filters</button>
+            </td>
+          </tr>
         </tbody>
       </table>
     </div>
@@ -114,4 +183,185 @@ const rows = [...archive].sort((a, b) => b.year - a.year);
   .scroller::-webkit-scrollbar-thumb:hover {
     background: var(--color-accent);
   }
+
+  .field {
+    height: 2.25rem;
+    padding: 0 0.75rem;
+    border: 1px solid var(--color-line);
+    border-radius: 0.375rem;
+    background: var(--color-bg-raised);
+    color: var(--color-body);
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    transition: border-color 0.2s var(--ease-swift);
+  }
+  .field::placeholder {
+    color: var(--color-faint);
+  }
+  .field:hover,
+  .field:focus-visible {
+    border-color: var(--color-accent);
+    outline: none;
+  }
+
+  .sort-btn {
+    cursor: pointer;
+    transition: color 0.2s var(--ease-swift);
+  }
+  .sort-btn:hover,
+  .sort-btn:focus-visible,
+  th[aria-sort] .sort-btn {
+    color: var(--color-accent);
+  }
+  th[aria-sort="ascending"] .sort-arrow::after {
+    content: "↑";
+  }
+  th[aria-sort="descending"] .sort-arrow::after {
+    content: "↓";
+  }
+
+  .tech-btn {
+    cursor: pointer;
+    text-align: left;
+    transition: color 0.2s var(--ease-swift);
+  }
+  .tech-btn:hover,
+  .tech-btn:focus-visible {
+    color: var(--color-accent);
+  }
+  .tech-btn[aria-pressed="true"] {
+    color: var(--color-accent);
+  }
+  /* Stacks are often two words, so they need a visible separator. */
+  .tech-btn + .tech-btn::before {
+    content: "·";
+    margin-right: 0.5rem;
+    color: var(--color-faint);
+  }
 </style>
+
+<script>
+  type Key = "year" | "title" | "org";
+  type Dir = "asc" | "desc";
+
+  const form = document.querySelector<HTMLFormElement>("[data-controls]");
+  const body = document.querySelector<HTMLElement>("[data-rows]");
+  if (form && body) {
+    const q = form.querySelector<HTMLInputElement>("#archive-q")!;
+    const org = form.querySelector<HTMLSelectElement>("#archive-org")!;
+    const tech = form.querySelector<HTMLSelectElement>("#archive-tech")!;
+    const count = form.querySelector<HTMLElement>("[data-count]")!;
+    const resets = document.querySelectorAll<HTMLButtonElement>("[data-reset]");
+    const empty = body.querySelector<HTMLElement>("[data-empty]")!;
+    const ths = document.querySelectorAll<HTMLElement>("[data-sort-col]");
+
+    const rows = Array.from(body.querySelectorAll<HTMLElement>("[data-row]")).map((el) => {
+      const d = el.dataset;
+      const stack: string[] = JSON.parse(d.tech!);
+      return {
+        el,
+        year: Number(d.year),
+        title: d.title!,
+        org: d.org!,
+        stack,
+        haystack: [d.title, d.org, ...stack].join(" ").toLowerCase(),
+      };
+    });
+
+    // The year runs newest first; words run A to Z.
+    const defaultDir: Record<Key, Dir> = { year: "desc", title: "asc", org: "asc" };
+    let sort: Key = "year";
+    let dir: Dir = "desc";
+
+    // Seed from the query string, ignoring anything that isn't an option.
+    const params = new URLSearchParams(location.search);
+    q.value = params.get("q") ?? "";
+    const pick = (sel: HTMLSelectElement, v: string | null) => {
+      if (v && Array.from(sel.options).some((o) => o.value === v)) sel.value = v;
+    };
+    pick(org, params.get("org"));
+    pick(tech, params.get("tech"));
+    const s = params.get("sort");
+    if (s === "year" || s === "title" || s === "org") {
+      sort = s;
+      dir = params.get("dir") === "asc" || params.get("dir") === "desc" ? (params.get("dir") as Dir) : defaultDir[s];
+    }
+
+    const compare = (a: (typeof rows)[number], b: (typeof rows)[number]) => {
+      const sign = dir === "asc" ? 1 : -1;
+      const primary =
+        sort === "year" ? a.year - b.year : sort === "title" ? a.title.localeCompare(b.title) : a.org.localeCompare(b.org);
+      // Ties fall back to newest first, then by title.
+      return sign * primary || b.year - a.year || a.title.localeCompare(b.title);
+    };
+
+    const apply = () => {
+      const needle = q.value.trim().toLowerCase();
+      let shown = 0;
+      for (const r of [...rows].sort(compare)) {
+        const ok =
+          (!needle || r.haystack.includes(needle)) &&
+          (!org.value || r.org === org.value) &&
+          (!tech.value || r.stack.includes(tech.value));
+        r.el.hidden = !ok;
+        if (ok) shown++;
+        body.insertBefore(r.el, empty);
+      }
+      empty.hidden = shown > 0;
+
+      const filtered = Boolean(needle || org.value || tech.value);
+      count.textContent = filtered ? `${shown} of ${rows.length}` : `${rows.length} projects`;
+      resets.forEach((b) => (b.hidden = !filtered && b.closest("form") !== null));
+
+      ths.forEach((th) => {
+        if (th.dataset.sortCol === sort) th.setAttribute("aria-sort", dir === "asc" ? "ascending" : "descending");
+        else th.removeAttribute("aria-sort");
+      });
+      document
+        .querySelectorAll<HTMLButtonElement>("[data-tech-btn]")
+        .forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.techBtn === tech.value)));
+
+      const next = new URLSearchParams();
+      if (needle) next.set("q", q.value.trim());
+      if (org.value) next.set("org", org.value);
+      if (tech.value) next.set("tech", tech.value);
+      if (sort !== "year" || dir !== "desc") {
+        next.set("sort", sort);
+        next.set("dir", dir);
+      }
+      const qs = next.toString();
+      history.replaceState(null, "", qs ? `?${qs}` : location.pathname);
+    };
+
+    q.addEventListener("input", apply);
+    org.addEventListener("change", apply);
+    tech.addEventListener("change", apply);
+    document.querySelectorAll<HTMLButtonElement>("[data-sort]").forEach((b) =>
+      b.addEventListener("click", () => {
+        const key = b.dataset.sort as Key;
+        dir = key === sort ? (dir === "asc" ? "desc" : "asc") : defaultDir[key];
+        sort = key;
+        apply();
+      }),
+    );
+    // A stack in a row is a shortcut to filtering by it; pressing it again lets go.
+    body.addEventListener("click", (e) => {
+      const b = (e.target as HTMLElement).closest<HTMLButtonElement>("[data-tech-btn]");
+      if (!b) return;
+      tech.value = tech.value === b.dataset.techBtn ? "" : b.dataset.techBtn!;
+      apply();
+    });
+    resets.forEach((b) =>
+      b.addEventListener("click", () => {
+        q.value = "";
+        org.value = "";
+        tech.value = "";
+        apply();
+        q.focus();
+      }),
+    );
+
+    form.hidden = false;
+    apply();
+  }
+</script>

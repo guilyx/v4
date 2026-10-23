@@ -1,0 +1,94 @@
+---
+import { getCollection } from "astro:content";
+import { Image } from "astro:assets";
+import Section from "@/components/Section.astro";
+
+/**
+ * Writing & Photos — the two non-code halves of the site, side by side just
+ * before Contact: the latest posts on the left, the latest photos on the
+ * right, a vertical rule between them. On phones they stack, and the rule
+ * turns horizontal.
+ */
+const posts = (await getCollection("blog", ({ data }) => !data.draft)).sort(
+  (a, b) => b.data.date.valueOf() - a.data.date.valueOf(),
+);
+const photos = (await getCollection("photos")).sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+
+const latestPosts = posts.slice(0, 3);
+const latestPhotos = photos.slice(0, 4);
+const fmt = new Intl.DateTimeFormat("en", { year: "numeric", month: "short", day: "2-digit" });
+---
+
+<Section id="notes" title="Writing & Photos">
+  <div class="grid gap-12 md:grid-cols-[1fr_1px_1fr] md:gap-10" data-reveal>
+    {/* Left: the blog */}
+    <div class="flex flex-col">
+      <p class="font-mono text-accent text-xs">/blog</p>
+      <h3 class="mt-1 text-lg font-medium">Field Notes</h3>
+      <p class="text-muted mt-2 text-sm">Writing on planning, robotics software, and whatever I'm building.</p>
+
+      <ul class="mt-6 space-y-1">
+        {
+          latestPosts.map((post) => (
+            <li>
+              <a
+                href={`/blog/${post.id}/`}
+                class="group hover:bg-bg-raised -mx-3 block rounded-lg px-3 py-3 transition-colors"
+              >
+                <time datetime={post.data.date.toISOString()} class="font-mono text-faint text-[0.68rem]">
+                  {fmt.format(post.data.date)}
+                </time>
+                <p class="text-heading group-hover:text-accent mt-1 text-[0.95rem] font-medium transition-colors">
+                  {post.data.title}
+                </p>
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+
+      <p class="mt-auto pt-6">
+        <a href="/blog" class="link font-mono text-xs">all {posts.length} posts →</a>
+      </p>
+    </div>
+
+    {/* The rule between them */}
+    <span class="bg-line hidden md:block" aria-hidden="true"></span>
+
+    {/* Right: the photos */}
+    <div class="border-line flex flex-col border-t pt-12 md:border-t-0 md:pt-0">
+      <p class="font-mono text-accent text-xs">/photos</p>
+      <h3 class="mt-1 text-lg font-medium">Through the Lens</h3>
+      <p class="text-muted mt-2 text-sm">Places, light, and the occasional robot.</p>
+
+      <ul class="mt-6 grid grid-cols-2 gap-3">
+        {
+          latestPhotos.map((photo) => (
+            <li>
+              <a
+                href="/photos"
+                class="group border-line bg-bg-raised relative block overflow-hidden rounded-lg border"
+                aria-label={`${photo.data.title}, in the photo gallery`}
+              >
+                <Image
+                  src={photo.data.cover}
+                  alt={photo.data.description ?? photo.data.title}
+                  widths={[240, 480]}
+                  sizes="(min-width: 768px) 220px, 45vw"
+                  class="aspect-square w-full object-cover transition-transform duration-500 group-hover:scale-[1.04]"
+                />
+                <span class="font-mono absolute inset-x-0 bottom-0 truncate bg-gradient-to-t from-black/80 to-transparent px-3 pt-6 pb-2 text-[0.68rem] text-white/90">
+                  {photo.data.title}
+                </span>
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+
+      <p class="mt-auto pt-6">
+        <a href="/photos" class="link font-mono text-xs">all {photos.length} photos →</a>
+      </p>
+    </div>
+  </div>
+</Section>
