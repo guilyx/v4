@@ -2,14 +2,13 @@
 import Section from "@/components/Section.astro";
 import Icon from "@/components/Icon.astro";
 import GhStats from "@/components/GhStats.astro";
-import { getCollection } from "astro:content";
 import { featured, projects, archive, layers, projectsIntro, type Project } from "@/data/site";
 
 /**
  * Featured Projects — side projects only. A flat carousel of the ones with a
  * demo, three to a view on wide screens (scroll-snap, so touch and trackpads
  * just work; the buttons page through for everyone else), then a short grid
- * of more open source, then the way out to the archive, the blog and photos.
+ * of more open source and a link to the archive for everything else.
  * On wide screens the carousel breaks out of the text column to give the
  * clips room.
  *
@@ -21,31 +20,6 @@ const total = featured.length;
 const pad = (n: number) => String(n).padStart(2, "0");
 const label = (p: Project) =>
   [p.isOrg ? "org" : (p.org ?? "personal"), p.layer && layers[p.layer]].filter(Boolean).join(" · ");
-
-const [latestPost] = (await getCollection("blog", ({ data }) => !data.draft)).sort(
-  (a, b) => b.data.date.valueOf() - a.data.date.valueOf(),
-);
-const photoCount = (await getCollection("photos")).length;
-const elsewhere = [
-  {
-    href: "/archive",
-    eyebrow: "/archive",
-    title: "Every project",
-    body: `All ${archive.length} of them, from papers to old portfolios. Sort and filter by year, org or stack.`,
-  },
-  {
-    href: latestPost ? `/blog/${latestPost.id}/` : "/blog",
-    eyebrow: "/blog · latest",
-    title: latestPost?.data.title ?? "Field Notes",
-    body: "Writing on planning, robotics software, and whatever I'm building.",
-  },
-  {
-    href: "/photos",
-    eyebrow: "/photos",
-    title: "Through the Lens",
-    body: `${photoCount} photos: places, light, and the occasional robot.`,
-  },
-];
 ---
 
 <Section id="projects" title="Featured Projects">
@@ -177,25 +151,11 @@ const elsewhere = [
     }
   </ul>
 
-  <h3 class="mt-20 text-lg font-medium" data-reveal>Keep exploring</h3>
-  <ul class="mt-6 grid gap-4 sm:grid-cols-3" data-reveal>
-    {
-      elsewhere.map((e) => (
-        <li class="card group border-line relative flex flex-col rounded-lg border p-5">
-          <p class="font-mono text-accent text-[0.68rem]">{e.eyebrow}</p>
-          <h4 class="text-heading mt-2 text-[0.95rem] font-medium">
-            <a href={e.href} class="group-hover:text-accent transition-colors after:absolute after:inset-0">
-              {e.title}
-            </a>
-          </h4>
-          <p class="text-muted mt-2 text-sm">{e.body}</p>
-          <span class="text-muted group-hover:text-accent mt-auto pt-4 transition-colors" aria-hidden="true">
-            <Icon name="arrow" size={16} />
-          </span>
-        </li>
-      ))
-    }
-  </ul>
+  <p class="mt-10 text-center" data-reveal>
+    <a href="/archive" class="link font-mono text-sm">
+      all {archive.length} projects, sortable and filterable, in the archive →
+    </a>
+  </p>
 </Section>
 
 <style>
