@@ -256,6 +256,18 @@ export const systemsIntro = `Solutions I've engineered for companies, sketched
 
 export const systems: System[] = [
   {
+    id: "swarm",
+    tab: "Swarm navigation & coverage",
+    headline: "Plan, fly in formation, cover the zone, find the target.",
+    points: [
+      "**Plan around what the fleet must not touch.** Zones and every other source of the world are costmap layers; a global plan is routed through them before anything moves.",
+      "**Fly in formation, links in view.** The flock holds its slots behind a virtual leader, a safety barrier underneath keeps every vehicle clear of the boundary, and link strength across the mesh is part of the picture.",
+      "**Cover, then localize.** In the task zone the formation breaks into a Voronoi partition and each vehicle sweeps its own cell. When one gets a contact, the others take bearings and triangulate it.",
+    ],
+    note: "Change the vehicle, change a plugin: every motion algorithm became a tracker behind the same contract.",
+    caption: "plan → formation transit → Voronoi coverage → triangulation",
+  },
+  {
     id: "bt",
     tab: "Behavior tree densification & scoring",
     headline: "Mission trees anyone can read, scored before they fly.",
@@ -278,18 +290,6 @@ export const systems: System[] = [
     ],
     note: "This is most of the distance between a demo and a product: autonomy that doesn't need a person on the link.",
     caption: "report → one timeline → read the window → repair",
-  },
-  {
-    id: "swarm",
-    tab: "Swarm navigation & coverage",
-    headline: "Plan, fly in formation, cover the zone, find the target.",
-    points: [
-      "**Plan around what the fleet must not touch.** Zones and every other source of the world are costmap layers; a global plan is routed through them before anything moves.",
-      "**Fly in formation, links in view.** The flock holds its slots behind a virtual leader, a safety barrier underneath keeps every vehicle clear of the boundary, and link strength across the mesh is part of the picture.",
-      "**Cover, then localize.** In the task zone the formation breaks into a Voronoi partition and each vehicle sweeps its own cell. When one gets a contact, the others take bearings and triangulate it.",
-    ],
-    note: "Change the vehicle, change a plugin: every motion algorithm became a tracker behind the same contract.",
-    caption: "plan → formation transit → Voronoi coverage → triangulation",
   },
 ];
 
