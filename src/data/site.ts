@@ -51,8 +51,9 @@ export const about = {
      deployment: behavior, task and path planning, sensor fusion, motion
      control, and the system design that keeps robots reliable outside the
      lab. ROS 2 is home.`,
-    `Today I'm Head of Robotics at [SIRB.AI](https://sirb.ai/). Until early
-     2026 I led a team of 9 robotics engineers at the
+    `Today I'm Head of Robotics at [SIRB.AI](https://sirb.ai/), on the founding
+     team that took its swarm autonomy stack from prototype to public launch
+     at UMEX 2026. Until then I led a team of 9 robotics engineers at the
      [Technology Innovation Institute](https://www.tii.ae/) — autonomy,
      infrastructure and platform integration for drone fleets. I've been
      leading teams for 2+ years, from product roadmaps through PI planning to
@@ -71,7 +72,7 @@ export const about = {
   ],
   technologies: [
     "ROS 2",
-    "C++ / Python / Go",
+    "C++ / Python / Go / Rust",
     "Behavior Trees",
     "Task & Path Planning",
     "Multi-Agent Planning",
@@ -113,9 +114,9 @@ export const experience: Job[] = [
     start: 2026.1,
     end: null,
     bullets: [
-      "Head the robotics software team at a defense-technology startup spun off from the Technology Innovation Institute.",
-      "Agentic mission generation for surveillance, monitoring and tail-chasing — missions framed as tool calls for an LLM instead of waypoints for a flight controller.",
-      "Own the robotics software roadmap: multi-agent task allocation and mission planning across heterogeneous drone fleets.",
+      "Joined as founding team: designed the robotics software architecture and set the autonomy roadmap.",
+      "Built a self-healing autonomy layer: swarm-wide fault and state recording, agents that detect and recover from failures, and ML-based mission scoring before launch.",
+      "Took the autonomy stack from prototype to public launch at UMEX 2026, unveiled as the Middle East's first AI-powered swarm platform.",
     ],
   },
   {
@@ -129,11 +130,9 @@ export const experience: Job[] = [
     end: 2026.1,
     bullets: [
       "Grew and led a Robotics Software team of 9 engineers across autonomy (navigation, perception, orchestration), infrastructure (DevOps, RobotOps) and platform integration.",
-      "Ran delivery end to end — product roadmap, PI planning, sprints — while staying hands-on in the ROS 2 stack.",
       "Overhauled the swarm autonomy architecture, cutting onboard CPU usage by 74% and network bandwidth by 52%.",
-      "Scaled the multi-drone framework (modular architecture, lifecycle management, behavior orchestration) and grew the team's scope to own path planning and path tracking.",
-      "Joint program with Caltech on their multi-modal robot M4 and their humanoid: outdoor planning and tracking for M4's flying and rolling modalities.",
-      "Designed new swarm behaviors, including decentralized bird-inspired flocking published at IEEE/RSJ IROS 2024.",
+      "Scaled the framework with tooling for reliable, repeatable missions, and expanded the team's scope to path planning and path tracking.",
+      "Joint program with Caltech on their multi-modal robot M4 and their humanoid: worked on outdoor planning and tracking for M4's flying and rolling modalities.",
       "Led autonomy demos to companies in Europe and the UAE, resulting in USD 10M+ in contracts.",
       "Started building AI tooling for the team to raise engineering efficiency and productivity.",
     ],
@@ -148,7 +147,8 @@ export const experience: Job[] = [
     start: 2022,
     end: 2024,
     bullets: [
-      "Led the software design and implementation of the decentralized framework used to develop and run multi-drone missions, built on behavior trees and task orchestration so each drone runs and switches between multiple behaviors.",
+      "Led the research & development of components for multi-robot behavior orchestration, collaboration and control.",
+      "Designed new swarm behaviors, including decentralized bird-inspired flocking published at IEEE/RSJ IROS 2024.",
       "Ran the live demos to partners; the project led to USD 3M in contracts with other companies in the UAE ecosystem.",
     ],
   },
@@ -176,9 +176,8 @@ export const experience: Job[] = [
     start: 2021,
     end: 2022.9,
     bullets: [
-      "Founding engineer on the team that delivered the first 24/7 in-store robot at Bilka, Odense.",
-      "Led the navigation and path-planning stack — localization, motion control, collision-free routing among shoppers.",
-      "Demonstrations under this stack supported the company's pre-seed round.",
+      "Founding core technical team that delivered the first working in-store robot system, supporting company milestones across pre-seed and seed rounds.",
+      "Led development of the navigation stack — path planning, motion control and localization — and contributed to perception: detection, filtering, tracking.",
     ],
   },
   {
@@ -220,7 +219,6 @@ export const experience: Job[] = [
     end: 2019.5,
     bullets: [
       "Developed a SystemC/TLM virtual prototype of an STM32 microcontroller for SoC emulation — TIM, I2C, CAN, GPIO, USART peripherals with QEMU integration.",
-      "Built a virtual temperature/humidity sensor and validated firmware against real hardware.",
     ],
   },
   {
@@ -356,7 +354,7 @@ export const featured: Project[] = [
   {
     title: "grip",
     blurb:
-      "Pass the whiteboard defense before you push. A git hook that quizzes you on your own diff, grades the answers against a hidden rubric, and blocks the push below your team's pass mark.",
+      "Pass the whiteboard defense before you ship. A git hook that quizzes you on your own diff before you commit or push, grades the answers against a hidden rubric, and blocks anything below your team's pass mark.",
     tech: ["Python", "Git Hooks", "LLM Grading"],
     layer: "agent",
     github: "https://github.com/guilyx/grip",
@@ -368,7 +366,7 @@ export const featured: Project[] = [
   {
     title: "PyMAPF",
     blurb:
-      "Multi-agent planning on arbitrary graphs, not just grids: CBS, PIBT, LaCAM and Prioritized Planning, each streaming its search live so you can watch conflicts get found and resolved.",
+      "Multi-agent planning on arbitrary graphs, not just grids: CBS, PIBT, LaCAM and MAPF-LNS, plus multi-agent RL. The solvers stream their search live, so you can watch conflicts get found and resolved.",
     tech: ["Python", "Multi-Agent Planning", "Graph Search"],
     layer: "field",
     org: "APLA-Toolbox",
@@ -381,7 +379,7 @@ export const featured: Project[] = [
   {
     title: "PythonPDDL",
     blurb:
-      "A pure-Python PDDL planning framework: a hand-written parser and grounder from STRIPS to durative actions, 14 planners from BFS to LM-cut, and heuristics you can train on your own plans.",
+      "A dependency-free Python PDDL framework: a hand-written parser and grounder from STRIPS to durative actions, 14 planners, LM-cut and FF heuristics, and heuristics you can train on your own plans.",
     tech: ["Python", "PDDL", "Heuristic Search"],
     layer: "field",
     org: "APLA-Toolbox",

@@ -107,10 +107,19 @@ import { site, spec, heroSummary } from "@/data/site";
         ? `${parseInt(hex[1]!, 16)}, ${parseInt(hex[2]!, 16)}, ${parseInt(hex[3]!, 16)}`
         : "136, 146, 176";
     })();
-    const COUNT = window.innerWidth < 640 ? 24 : 44;
-    const PERCEPTION = 70;
-    const MAX_SPEED = 1.4;
-    const MAX_FORCE = 0.035;
+    // Tuned on a desktop-width hero. Everything with a length in it scales
+    // with the canvas width, so on a phone the flock is smaller rather than
+    // the same pixel size on a third of the screen; the count follows the
+    // area, so it doesn't get denser either.
+    const REF_WIDTH = 1100;
+    const BASE = { perception: 70, link: 55, speed: 1.4, force: 0.035, pointer: 110 };
+    let scale = 1;
+    let count = 44;
+    let PERCEPTION = BASE.perception;
+    let LINK = BASE.link;
+    let MAX_SPEED = BASE.speed;
+    let MAX_FORCE = BASE.force;
+    let POINTER = BASE.pointer;
 
     let w = 0;
     let h = 0;
@@ -133,19 +142,33 @@ import { site, spec, heroSummary } from "@/data/site";
       canvas!.width = Math.floor(w * dpr);
       canvas!.height = Math.floor(h * dpr);
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+      scale = Math.min(1, Math.max(0.55, w / REF_WIDTH));
+      PERCEPTION = BASE.perception * scale;
+      LINK = BASE.link * scale;
+      MAX_SPEED = BASE.speed * scale;
+      MAX_FORCE = BASE.force * scale;
+      POINTER = BASE.pointer * scale;
+      count = Math.round(Math.min(44, Math.max(14, (w * h) / 28000)));
+      fill();
     }
 
-    function spawn() {
-      boids.length = 0;
-      for (let i = 0; i < COUNT; i++) {
-        const a = Math.random() * Math.PI * 2;
-        boids.push({
-          x: Math.random() * w,
-          y: Math.random() * h,
-          vx: Math.cos(a) * MAX_SPEED * 0.7,
-          vy: Math.sin(a) * MAX_SPEED * 0.7,
-        });
-      }
+    function addBoid() {
+      const a = Math.random() * Math.PI * 2;
+      boids.push({
+        x: Math.random() * w,
+        y: Math.random() * h,
+        vx: Math.cos(a) * MAX_SPEED * 0.7,
+        vy: Math.sin(a) * MAX_SPEED * 0.7,
+      });
+    }
+
+    // Grow or trim the flock to the current count, keeping whoever is
+    // already flying, so a resize (or a phone's toolbar sliding away)
+    // doesn't reset the scene.
+    function fill() {
+      while (boids.length < count) addBoid();
+      boids.length = count;
     }
 
     function limit(vx: number, vy: number, max: number): [number, number] {
@@ -194,9 +217,9 @@ import { site, spec, heroSummary } from "@/data/site";
           const dx = b.x - pointer.x;
           const dy = b.y - pointer.y;
           const d = Math.hypot(dx, dy);
-          if (d > 0 && d < 110) {
-            ax += (dx / d) * 0.12 * (1 - d / 110);
-            ay += (dy / d) * 0.12 * (1 - d / 110);
+          if (d > 0 && d < POINTER) {
+            ax += (dx / d) * 0.12 * scale * (1 - d / POINTER);
+            ay += (dy / d) * 0.12 * scale * (1 - d / POINTER);
           }
         }
 
@@ -205,9 +228,10 @@ import { site, spec, heroSummary } from "@/data/site";
         [b.vx, b.vy] = limit(b.vx, b.vy, MAX_SPEED);
         // keep a minimum cruise speed so nobody stalls
         const sp = Math.hypot(b.vx, b.vy);
-        if (sp < 0.4 && sp > 0) {
-          b.vx = (b.vx / sp) * 0.4;
-          b.vy = (b.vy / sp) * 0.4;
+        const minSpeed = 0.4 * scale;
+        if (sp < minSpeed && sp > 0) {
+          b.vx = (b.vx / sp) * minSpeed;
+          b.vy = (b.vy / sp) * minSpeed;
         }
         b.x += b.vx;
         b.y += b.vy;
@@ -230,8 +254,8 @@ import { site, spec, heroSummary } from "@/data/site";
           const a = boids[i]!;
           const o = boids[j]!;
           const d = Math.hypot(a.x - o.x, a.y - o.y);
-          if (d < 55) {
-            ctx.strokeStyle = `rgba(${ACCENT}, ${0.06 * (1 - d / 55)})`;
+          if (d < LINK) {
+            ctx.strokeStyle = `rgba(${ACCENT}, ${0.06 * (1 - d / LINK)})`;
             ctx.beginPath();
             ctx.moveTo(a.x, a.y);
             ctx.lineTo(o.x, o.y);
@@ -246,6 +270,7 @@ import { site, spec, heroSummary } from "@/data/site";
         ctx.save();
         ctx.translate(b.x, b.y);
         ctx.rotate(ang);
+        ctx.scale(scale, scale);
         ctx.fillStyle = `rgba(${ACCENT}, 0.3)`;
         ctx.beginPath();
         ctx.moveTo(5, 0);
@@ -265,7 +290,6 @@ import { site, spec, heroSummary } from "@/data/site";
     }
 
     resize();
-    spawn();
 
     if (reduceMotion) {
       // static formation for reduced-motion users
