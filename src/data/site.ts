@@ -325,13 +325,16 @@ export interface Project {
   title: string;
   blurb: string;
   tech: string[];
-  layer: Layer;
+  /** Omitted for things that don't run anywhere, like a curated list. */
+  layer?: Layer;
   github?: string;
   external?: string;
   externalLabel?: string;
   glyph?: string;
   /** The org it lives under (Clanker Labs, Unchained Labs…); omitted means personal. */
   org?: string;
+  /** The card is the org itself, not one repo in it. */
+  isOrg?: boolean;
   /** Local promo clip under public/media/, with a poster frame shown before playback. */
   video?: string;
   videoPoster?: string;
@@ -354,9 +357,8 @@ export interface ArchiveEntry {
 
 /** The framing for the Featured Projects section: side projects only. */
 export const projectsIntro = `Side projects, built on my own time and in the
-  open — lately most of them under Clanker Labs, a self-hosted stack for the
-  home with an agent running it. Swipe through the ones with a demo; the rest
-  are listed below and in the archive.`;
+  open: planning toolboxes, robotics tooling, and the two orgs where most of it
+  lives now, Clanker Labs and Unchained Labs.`;
 
 /**
  * Featured projects — the carousel. Every slide has a real demo clip recorded
@@ -365,23 +367,10 @@ export const projectsIntro = `Side projects, built on my own time and in the
  */
 export const featured: Project[] = [
   {
-    title: "Clanker Labs",
-    blurb:
-      "Self-host your home, let the agent run it. One stack that moves notes, mail, media, passwords and money back onto hardware you own — a NUC in a closet, an old laptop — with an agent in front so keeping it running doesn't take a sysadmin.",
-    tech: ["Ansible", "Docker", "LangGraph", "MCP"],
-    layer: "machine",
-    org: "Clanker Labs",
-    github: "https://github.com/Clanker-Labs",
-    external: "https://clanker-labs.github.io/clanker-labs-public/",
-    externalLabel: "Visit the site",
-    video: "/media/clanker-labs-promo.mp4",
-    videoPoster: "/media/clanker-labs-poster.png",
-  },
-  {
     title: "grip",
     blurb:
-      "Pass the whiteboard defense before you push. A git hook that asks five questions about your own diff — what it does, why it's built this way, where it fails — grades the answers against a hidden rubric, and blocks the push below your team's pass mark. It checks the developer, not the code.",
-    tech: ["Python", "Git Hooks", "LLM Grading", "Coding Agents"],
+      "Pass the whiteboard defense before you push. A git hook that quizzes you on your own diff, grades the answers against a hidden rubric, and blocks the push below your team's pass mark.",
+    tech: ["Python", "Git Hooks", "LLM Grading"],
     layer: "agent",
     github: "https://github.com/guilyx/grip",
     external: "https://guilyx.github.io/grip/",
@@ -390,33 +379,9 @@ export const featured: Project[] = [
     videoPoster: "/media/grip-poster.jpg",
   },
   {
-    title: "wallet",
-    blurb:
-      "Your money, on your machine. Net worth, budgets and investments in any currency, in one SQLite file behind passkey sign-in — with an assistant you can drop a bank statement on, reachable from Claude Code, Codex or Telegram through the same tools.",
-    tech: ["Next.js", "SQLite", "MCP", "Passkeys"],
-    layer: "agent",
-    org: "Clanker Labs",
-    github: "https://github.com/Clanker-Labs/wallet",
-    external: "https://clanker-labs.github.io/wallet/",
-    externalLabel: "Docs & demos",
-    video: "/media/wallet-promo.mp4",
-    videoPoster: "/media/wallet-poster.jpg",
-  },
-  {
-    title: "tradesights",
-    blurb:
-      "Talk is cheap; options cost money. Every morning it lines up what the price did, what the options market is paid to believe and what people are saying, and ranks the names where those stop agreeing. A screener: it tells you where to look, not what to do.",
-    tech: ["Python", "Options Data", "Data Viz"],
-    layer: "agent",
-    org: "Clanker Labs",
-    github: "https://github.com/Clanker-Labs/tradesights",
-    video: "/media/tradesights-promo.mp4",
-    videoPoster: "/media/tradesights-poster.png",
-  },
-  {
     title: "PyMAPF",
     blurb:
-      "A multi-agent planning toolbox — CBS, PIBT, LaCAM and Prioritized Planning on arbitrary graphs, not just grids. Every solver streams its search live, so you can watch conflicts get found and resolved node by node.",
+      "Multi-agent planning on arbitrary graphs, not just grids: CBS, PIBT, LaCAM and Prioritized Planning, each streaming its search live so you can watch conflicts get found and resolved.",
     tech: ["Python", "Multi-Agent Planning", "Graph Search"],
     layer: "field",
     org: "APLA-Toolbox",
@@ -427,9 +392,9 @@ export const featured: Project[] = [
     videoPoster: "/media/pymapf-poster.png",
   },
   {
-    title: "jupyddl",
+    title: "PythonPDDL",
     blurb:
-      "A pure-Python PDDL planning framework — hand-written parser and grounder from STRIPS to durative actions, 14 planners from BFS to LM-cut, and heuristics you can train on your own solved plans.",
+      "A pure-Python PDDL planning framework: a hand-written parser and grounder from STRIPS to durative actions, 14 planners from BFS to LM-cut, and heuristics you can train on your own plans.",
     tech: ["Python", "PDDL", "Heuristic Search"],
     layer: "field",
     org: "APLA-Toolbox",
@@ -440,9 +405,21 @@ export const featured: Project[] = [
     videoPoster: "/media/jupyddl-poster.png",
   },
   {
+    title: "roue",
+    blurb:
+      "Drop a file, get the file you wanted. An offline file converter for the Linux desktop: Ctrl+Shift+right-click a file, pick a format on the wheel, and the result lands next to the original.",
+    tech: ["Python", "GTK 4", "FFmpeg", "libvips"],
+    layer: "machine",
+    github: "https://github.com/guilyx/roue",
+    external: "https://guilyx.github.io/roue/",
+    externalLabel: "Visit the site",
+    video: "/media/roue-promo.mp4",
+    videoPoster: "/media/roue-poster.jpg",
+  },
+  {
     title: "rostree",
     blurb:
-      "A ROS 2 dependency graph is a DAG, not a tree. rostree explores it properly — from the command line, a TUI, or a self-contained HTML file with no network calls, so it still opens on a robot with no route out.",
+      "A ROS 2 dependency graph is a DAG, not a tree. rostree explores it from the command line, a TUI, or a self-contained HTML file that still opens on a robot with no route out.",
     tech: ["Python", "Graph Theory", "ROS 2", "TUI"],
     layer: "machine",
     github: "https://github.com/guilyx/rostree",
@@ -462,110 +439,70 @@ export const featured: Project[] = [
     videoPoster: "/media/autonomous-uav-guide-poster.png",
   },
   {
-    title: "Kymatics",
+    title: "Clanker Labs",
     blurb:
-      "Speak an intent and watch it become a queue of build jobs: a Python speech service in, a Rust orchestrator that plans and schedules the work, and a React board tracking every job from todo to done.",
-    tech: ["Rust", "Python", "React", "Voice / STT"],
+      "Self-host your home, let the agent run it. Notes, mail, media, passwords and money back on hardware you own, with an agent in front so keeping it running doesn't take a sysadmin.",
+    tech: ["Ansible", "Docker", "LangGraph", "MCP"],
+    layer: "machine",
+    org: "Clanker Labs",
+    isOrg: true,
+    github: "https://github.com/Clanker-Labs",
+    external: "https://clanker-labs.github.io/clanker-labs-public/",
+    externalLabel: "Visit the site",
+    video: "/media/clanker-labs-promo.mp4",
+    videoPoster: "/media/clanker-labs-poster.png",
+  },
+  {
+    title: "Unchained Labs",
+    blurb:
+      "AI brains for companies: local-first agentic systems that run on their own models, data and infrastructure. Shown here, Kymatics turns a spoken intent into a queue of build jobs.",
+    tech: ["Rust", "Python", "Agentic AI", "Voice / STT"],
     layer: "agent",
     org: "Unchained Labs",
-    github: "https://github.com/Unchained-Labs/kymatics",
-    external: "https://kymatics.vercel.app/",
+    isOrg: true,
+    github: "https://github.com/Unchained-Labs",
+    external: "https://unchainedlabs.dev/",
+    externalLabel: "Visit the site",
     video: "/media/kymatics-promo.mp4",
     videoPoster: "/media/kymatics-poster.png",
   },
 ];
 
 /**
- * More projects — the flat list under the carousel. Private repos are
- * described but never linked: a link a visitor can't open is worse than none.
+ * More open source — the short grid under the carousel. The archive has
+ * everything else.
  */
 export const projects: Project[] = [
   {
+    title: "awesome-daily-minigames",
+    blurb:
+      "281 games that give you one puzzle a day, Wordle and everything since, across 18 categories, with a searchable site generated from one YAML file.",
+    tech: ["Awesome List", "YAML", "Node.js"],
+    github: "https://github.com/guilyx/awesome-daily-minigames",
+    external: "https://guilyx.github.io/awesome-daily-minigames/",
+  },
+  {
+    title: "awesome-github-pages-portfolios",
+    blurb: "A curated list of portfolio templates and personal sites hosted on GitHub Pages, each with its repo and live demo.",
+    tech: ["Awesome List", "GitHub Pages"],
+    github: "https://github.com/guilyx/awesome-github-pages-portfolios",
+  },
+  {
+    title: "jarvis_ros2",
+    blurb:
+      "Event, fault and recovery management for ROS 2 robots: a real fault lifecycle, rule-based recovery behind safety gates, an agent that explains incidents with evidence, and a live dashboard.",
+    tech: ["ROS 2", "Python", "React", "LiteLLM"],
+    layer: "field",
+    github: "https://github.com/guilyx/jarvis_ros2",
+  },
+  {
     title: "BTView",
     blurb:
-      "A visual graph editor for BehaviorTree.CPP trees, built into VS Code and Cursor: bidirectional XML sync, tidy layout, and a validation panel that jumps to the offending node.",
+      "A visual graph editor for BehaviorTree.CPP trees inside VS Code and Cursor: bidirectional XML sync, tidy layout, and a validation panel that jumps to the offending node.",
     tech: ["TypeScript", "Behavior Trees", "VS Code"],
     layer: "agent",
     github: "https://github.com/guilyx/btview-vscode-plugin",
     external: "https://marketplace.visualstudio.com/items?itemName=rangonomics.btview",
-  },
-  {
-    title: "lebenchmark",
-    blurb:
-      "How reliably do locally served models call tools? Structured calls against calls leaked into prose, picking the right tool, knowing when not to call one, and the latency it costs — written up as an interactive study site.",
-    tech: ["Python", "LLM Evaluation", "Statistics"],
-    layer: "machine",
-    org: "Clanker Labs",
-    github: "https://github.com/Clanker-Labs/lebenchmark",
-    external: "https://clanker-labs.github.io/lebenchmark/",
-  },
-  {
-    title: "t212-mcp",
-    blurb:
-      "An MCP server giving AI assistants read-only access to a Trading 212 account — balances, positions, dividends, pies. No code path issues anything but a GET.",
-    tech: ["TypeScript", "Node.js", "MCP"],
-    layer: "agent",
-    github: "https://github.com/guilyx/t212-mcp",
-  },
-  {
-    title: "selfmail",
-    blurb:
-      "A small mail relay for a private network: services on the LAN POST a message with an API key, it hands delivery to an upstream SMTP host and keeps the audit trail. One Rust binary and a dashboard.",
-    tech: ["Rust", "axum", "SQLite"],
-    layer: "machine",
-    org: "Clanker Labs",
-    github: "https://github.com/Clanker-Labs/selfmail",
-  },
-  {
-    title: "setup",
-    blurb:
-      "One curl command takes a bare Ubuntu box — a dev machine or a VPS — to provisioned: packages, users, SSH hardening, firewall, reverse proxy, dotfiles through chezmoi. Ansible underneath, a typed Python CLI on top.",
-    tech: ["Ansible", "Python", "chezmoi"],
-    layer: "machine",
-    org: "Clanker Labs",
-    github: "https://github.com/Clanker-Labs/setup",
-  },
-  {
-    title: "Doxmosis",
-    blurb:
-      "Agentic tooling that keeps documentation alive: watches a codebase, detects drift, and opens documentation pull requests on its own.",
-    tech: ["Go", "Agentic AI", "GitHub Apps"],
-    layer: "agent",
-    org: "Unchained Labs",
-    external: "https://doxmosis.vercel.app/",
-  },
-  {
-    title: "zucman",
-    blurb:
-      "A campaign kit for one statistic: sourced research, regenerable charts, decks in two languages and a zero-dependency dataviz site, all rebuilt from the data by script.",
-    tech: ["Python", "Matplotlib", "Data Viz"],
-    layer: "agent",
-    github: "https://github.com/guilyx/zucman",
-    external: "https://guilyx.github.io/zucman/",
-  },
-  {
-    title: "LeHarness",
-    blurb:
-      "Serves local models on whatever hardware is in the box — vLLM with tensor parallelism on a GPU rig, Ollama with GGUF on a Jetson or a bare CPU — behind one OpenAI-compatible URL.",
-    tech: ["vLLM", "Ollama", "Docker", "CUDA"],
-    layer: "machine",
-    org: "Clanker Labs",
-    closed: true,
-  },
-  {
-    title: "artin-pathfinding",
-    blurb: "A C++17 pathfinding library — A*, Dijkstra, DFS/BFS and friends — with a clean interface for grid worlds.",
-    tech: ["C++17", "Algorithms"],
-    layer: "field",
-    github: "https://github.com/master-coro/artin-pathfinding",
-  },
-  {
-    title: "epsteinexposed-mcp",
-    blurb:
-      "An MCP server over a public-records API, so an assistant can query the archive — persons, documents, flight logs — directly instead of being told about it.",
-    tech: ["Python", "MCP", "Public Data"],
-    layer: "agent",
-    github: "https://github.com/guilyx/epsteinexposed-mcp",
   },
 ];
 
@@ -574,6 +511,26 @@ export const projects: Project[] = [
  * year for the papers), not the last time something was touched.
  */
 export const archive: ArchiveEntry[] = [
+  {
+    year: 2026,
+    title: "roue",
+    tech: ["Python", "GTK 4", "FFmpeg", "libvips"],
+    github: "https://github.com/guilyx/roue",
+    external: "https://guilyx.github.io/roue/",
+  },
+  {
+    year: 2026,
+    title: "jarvis_ros2",
+    tech: ["ROS 2", "Python", "React", "LiteLLM"],
+    github: "https://github.com/guilyx/jarvis_ros2",
+  },
+  {
+    year: 2026,
+    title: "awesome-daily-minigames",
+    tech: ["Awesome List", "YAML", "Node.js"],
+    github: "https://github.com/guilyx/awesome-daily-minigames",
+    external: "https://guilyx.github.io/awesome-daily-minigames/",
+  },
   {
     year: 2026,
     title: "grip",
@@ -695,6 +652,14 @@ export const archive: ArchiveEntry[] = [
   },
   {
     year: 2024,
+    title: "Unchained Labs",
+    madeAt: "Unchained Labs",
+    tech: ["Rust", "Python", "Agentic AI"],
+    github: "https://github.com/Unchained-Labs",
+    external: "https://unchainedlabs.dev/",
+  },
+  {
+    year: 2024,
     title: "Decentralized Acceleration-Based Bird-Inspired Flocking",
     madeAt: "Technology Innovation Institute",
     tech: ["C++", "ROS 2", "Control Theory", "IROS 2024"],
@@ -734,7 +699,7 @@ export const archive: ArchiveEntry[] = [
   },
   {
     year: 2020,
-    title: "jupyddl",
+    title: "PythonPDDL",
     madeAt: "APLA-Toolbox",
     tech: ["Python", "PDDL", "A* / Search", "Heuristics"],
     github: "https://github.com/APLA-Toolbox/pythonpddl",
@@ -746,6 +711,12 @@ export const archive: ArchiveEntry[] = [
     madeAt: "Ecole Centrale de Nantes",
     tech: ["C++17", "Algorithms"],
     github: "https://github.com/master-coro/artin-pathfinding",
+  },
+  {
+    year: 2020,
+    title: "awesome-github-pages-portfolios",
+    tech: ["Awesome List", "GitHub Pages"],
+    github: "https://github.com/guilyx/awesome-github-pages-portfolios",
   },
   {
     year: 2020,

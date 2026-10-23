@@ -2,12 +2,13 @@
 import Section from "@/components/Section.astro";
 import Icon from "@/components/Icon.astro";
 import GhStats from "@/components/GhStats.astro";
-import { featured, projects, layers, projectsIntro } from "@/data/site";
+import { featured, projects, layers, projectsIntro, type Project } from "@/data/site";
 
 /**
  * Featured Projects — side projects only. A flat carousel of the ones with a
- * demo (scroll-snap, so touch and trackpads just work; the buttons are for
- * everyone else), then a flat list of the rest.
+ * demo, three to a view on wide screens (scroll-snap, so touch and trackpads
+ * just work; the buttons page through for everyone else), then a short grid
+ * of more open source, with the archive for the rest.
  *
  * Clips are muted, load nothing until their slide is on screen, and play only
  * while it stays there. Reduced-motion visitors get the poster and native
@@ -15,7 +16,8 @@ import { featured, projects, layers, projectsIntro } from "@/data/site";
  */
 const total = featured.length;
 const pad = (n: number) => String(n).padStart(2, "0");
-const label = (org: string | undefined, layer: keyof typeof layers) => `${org ?? "personal"} · ${layers[layer]}`;
+const label = (p: Project) =>
+  [p.isOrg ? "org" : (p.org ?? "personal"), p.layer && layers[p.layer]].filter(Boolean).join(" · ");
 ---
 
 <Section id="projects" title="Featured Projects">
@@ -25,10 +27,10 @@ const label = (org: string | undefined, layer: keyof typeof layers) => `${org ??
       <span class="font-mono text-faint text-xs tabular-nums" data-counter aria-hidden="true">
         {pad(1)} / {pad(total)}
       </span>
-      <button type="button" class="carousel-btn" data-prev aria-label="Previous project">
+      <button type="button" class="carousel-btn" data-prev aria-label="Previous projects">
         <Icon name="arrow" size={16} class="rotate-180" />
       </button>
-      <button type="button" class="carousel-btn" data-next aria-label="Next project">
+      <button type="button" class="carousel-btn" data-next aria-label="Next projects">
         <Icon name="arrow" size={16} />
       </button>
     </div>
@@ -38,7 +40,7 @@ const label = (org: string | undefined, layer: keyof typeof layers) => `${org ??
     <ul class="track" data-track tabindex="0" aria-label="Featured projects, scroll for more">
       {
         featured.map((p, i) => (
-          <li class="slide" aria-roledescription="slide" aria-label={`${i + 1} of ${total}: ${p.title}`}>
+          <li class="slide flex flex-col" aria-roledescription="slide" aria-label={`${i + 1} of ${total}: ${p.title}`}>
             <div class="border-line bg-bg-raised overflow-hidden rounded-lg border">
               <video
                 muted
@@ -54,7 +56,7 @@ const label = (org: string | undefined, layer: keyof typeof layers) => `${org ??
               </video>
             </div>
 
-            <p class="font-mono text-accent mt-5 text-[0.7rem]">{label(p.org, p.layer)}</p>
+            <p class="font-mono text-accent mt-5 text-[0.7rem]">{label(p)}</p>
             <h3 class="mt-1 text-lg font-semibold">
               <a
                 href={p.external ?? p.github}
@@ -65,13 +67,13 @@ const label = (org: string | undefined, layer: keyof typeof layers) => `${org ??
                 {p.title}
               </a>
             </h3>
-            <p class="text-body mt-2 text-[0.92rem]">{p.blurb}</p>
-            <ul class="mt-4 flex flex-wrap gap-x-4 gap-y-1">
+            <p class="text-body mt-2 text-sm">{p.blurb}</p>
+            <ul class="mt-4 flex flex-wrap gap-x-3 gap-y-1">
               {p.tech.map((t) => (
                 <li class="chip">{t}</li>
               ))}
             </ul>
-            <div class="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2">
+            <div class="mt-auto flex flex-wrap items-center gap-x-4 gap-y-2 pt-4">
               {p.github && (
                 <a
                   href={p.github}
@@ -105,56 +107,43 @@ const label = (org: string | undefined, layer: keyof typeof layers) => `${org ??
     </div>
   </div>
 
-  {/* Everything else, as a flat list */}
-  <h3 class="mt-20 text-lg font-medium" data-reveal>More projects</h3>
-  <ul class="border-line mt-6 border-t" data-reveal>
+  {/* More open source: a short grid, then the archive for everything else */}
+  <h3 class="mt-20 text-lg font-medium" data-reveal>More open source</h3>
+  <ul class="mt-6 grid gap-4 sm:grid-cols-2" data-reveal>
     {
       projects.map((p) => (
-        <li class="row group border-line relative grid gap-x-8 gap-y-2 border-b py-5 sm:grid-cols-[10rem_1fr]">
-          <div>
-            <h4 class="text-heading text-[0.95rem] font-medium">
-              {p.github || p.external ? (
+        <li class="card group border-line relative flex flex-col rounded-lg border p-5">
+          <p class="font-mono text-faint text-[0.68rem]">{label(p)}</p>
+          <h4 class="text-heading mt-1 text-[0.95rem] font-medium break-words">
+            <a
+              href={p.github ?? p.external}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="group-hover:text-accent transition-colors after:absolute after:inset-0"
+            >
+              {p.title}
+            </a>
+          </h4>
+          <p class="text-muted mt-2 text-sm">{p.blurb}</p>
+          <div class="mt-auto flex flex-wrap items-center gap-x-4 gap-y-2 pt-4">
+            <ul class="flex flex-wrap gap-x-3 gap-y-1">
+              {p.tech.map((t) => (
+                <li class="chip">{t}</li>
+              ))}
+            </ul>
+            <div class="relative z-[1] ml-auto flex items-center gap-3">
+              {p.github && <GhStats url={p.github} />}
+              {p.github && p.external && (
                 <a
-                  href={p.github ?? p.external}
+                  href={p.external}
                   target="_blank"
                   rel="noopener noreferrer"
-                  class="group-hover:text-accent transition-colors after:absolute after:inset-0"
+                  aria-label={`${p.title} site`}
+                  class="text-muted hover:text-accent transition-colors"
                 >
-                  {p.title}
+                  <Icon name="external" size={15} />
                 </a>
-              ) : (
-                p.title
               )}
-            </h4>
-            <p class="font-mono text-faint mt-1 text-[0.68rem]">{label(p.org, p.layer)}</p>
-          </div>
-          <div>
-            <p class="text-muted text-sm">{p.blurb}</p>
-            <div class="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2">
-              <ul class="flex flex-wrap gap-x-3 gap-y-1">
-                {p.tech.map((t) => (
-                  <li class="chip">{t}</li>
-                ))}
-              </ul>
-              <div class="relative z-[1] ml-auto flex items-center gap-3">
-                {p.github && <GhStats url={p.github} />}
-                {p.closed && (
-                  <span class="font-mono text-faint text-[0.68rem]" title="Private repository">
-                    private
-                  </span>
-                )}
-                {p.github && p.external && (
-                  <a
-                    href={p.external}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    aria-label={`${p.title} site`}
-                    class="text-muted hover:text-accent transition-colors"
-                  >
-                    <Icon name="external" size={15} />
-                  </a>
-                )}
-              </div>
             </div>
           </div>
         </li>
@@ -162,8 +151,8 @@ const label = (org: string | undefined, layer: keyof typeof layers) => `${org ??
     }
   </ul>
 
-  <p class="mt-8 text-center" data-reveal>
-    <a href="/archive" class="link font-mono text-sm">view the archive</a>
+  <p class="mt-10 text-center" data-reveal>
+    <a href="/archive" class="link font-mono text-sm">everything else, in the archive</a>
   </p>
 </Section>
 
@@ -186,14 +175,19 @@ const label = (org: string | undefined, layer: keyof typeof layers) => `${org ??
     outline: 2px dashed var(--color-accent);
     outline-offset: 6px;
   }
-  /* A peek of the next slide says "there's more" without a word. */
+  /* On phones, a peek of the next slide says "there's more" without a word. */
   .slide {
     flex: 0 0 86%;
     scroll-snap-align: start;
   }
-  @media (min-width: 768px) {
+  @media (min-width: 640px) {
     .slide {
-      flex-basis: calc(50% - 2rem);
+      flex-basis: calc((100% - 1.5rem) / 2);
+    }
+  }
+  @media (min-width: 1024px) {
+    .slide {
+      flex-basis: calc((100% - 3rem) / 3);
     }
   }
 
@@ -220,11 +214,14 @@ const label = (org: string | undefined, layer: keyof typeof layers) => `${org ??
     cursor: default;
   }
 
-  .row {
-    transition: background-color 0.2s var(--ease-swift);
+  .card {
+    transition:
+      background-color 0.2s var(--ease-swift),
+      border-color 0.2s var(--ease-swift);
   }
-  .row:hover {
+  .card:hover {
     background-color: var(--color-accent-soft);
+    border-color: color-mix(in srgb, var(--color-accent) 40%, var(--color-line));
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -254,18 +251,31 @@ const label = (org: string | undefined, layer: keyof typeof layers) => `${org ??
       return best;
     };
 
+    /** How many slides fit in the track at once: 3, 2 or 1 by breakpoint. */
+    const perView = () => {
+      const gap = parseFloat(getComputedStyle(track).columnGap) || 0;
+      const w = slides[0].getBoundingClientRect().width;
+      return Math.max(1, Math.round((track.clientWidth + gap) / (w + gap)));
+    };
+
     const update = () => {
       const max = track.scrollWidth - track.clientWidth;
       const atEnd = track.scrollLeft >= max - 2;
-      const i = atEnd ? slides.length - 1 : current();
-      if (counter) counter.textContent = `${pad(i + 1)} / ${pad(slides.length)}`;
+      const n = perView();
+      const first = atEnd ? Math.max(0, slides.length - n) : current();
+      const last = Math.min(slides.length, first + n);
+      if (counter)
+        counter.textContent =
+          n > 1
+            ? `${pad(first + 1)}–${pad(last)} / ${pad(slides.length)}`
+            : `${pad(first + 1)} / ${pad(slides.length)}`;
       if (progress) progress.style.width = `${max > 0 ? (track.scrollLeft / max) * 100 : 100}%`;
       prev.disabled = track.scrollLeft <= 2;
       next.disabled = atEnd;
     };
 
     const go = (dir: number) => {
-      const i = Math.max(0, Math.min(slides.length - 1, current() + dir));
+      const i = Math.max(0, Math.min(slides.length - 1, current() + dir * perView()));
       track.scrollTo({ left: slides[i].offsetLeft });
     };
 
