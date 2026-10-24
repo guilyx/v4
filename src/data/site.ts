@@ -6,10 +6,10 @@
 export const site = {
   name: "Erwin Lejeune",
   handle: "guilyx",
-  role: "Team Lead — Robotics Software",
+  role: "Head of Robotics",
   tagline: "Building the layer that decides what happens next.",
   description:
-    "Erwin Lejeune — Team Lead, Robotics Software, in Abu Dhabi. Hands-on ROS 2 developer: behavior, task and path planning, sensor fusion, multi-agent planning and agentic AI orchestration. C++, Python, Go.",
+    "Erwin Lejeune — Head of Robotics at SIRB.AI, in Abu Dhabi. A hands-on robotics leader since 2021: behavior, task and path planning, swarm autonomy, sensor fusion and agentic AI, built to embedded and web engineering standards. ROS 2, C++, Python, Go.",
   url: "https://v4.elejeune.me",
   email: "erwin.lejeune15@gmail.com",
   location: "Abu Dhabi, UAE",
@@ -36,7 +36,7 @@ export const site = {
 
 export const nav = [
   { label: "background", href: "/#about" },
-  { label: "experiences", href: "/#experience" },
+  { label: "evolution", href: "/#experience" },
   { label: "systems", href: "/#systems" },
   { label: "projects", href: "/#projects" },
   { label: "open source", href: "/#open-source" },
@@ -47,29 +47,26 @@ export const nav = [
 
 export const about = {
   paragraphs: [
-    `Hello! I'm Erwin — a robotics software team lead who still writes the
-     code. I've spent 8+ years taking autonomy from research to real-world
-     deployment: behavior, task and path planning, sensor fusion, motion
-     control, and the system design that keeps robots reliable outside the
-     lab. ROS 2 is home.`,
-    `Today I'm Head of Robotics at [SIRB.AI](https://sirb.ai/), on the founding
-     team that took its swarm autonomy stack from prototype to public launch
-     at UMEX 2026. Until then I led a team of 9 robotics engineers at the
-     [Technology Innovation Institute](https://www.tii.ae/) — autonomy,
-     infrastructure and platform integration for drone fleets. I've been
-     leading teams for 2+ years, from product roadmaps through PI planning to
-     sprints, while staying hands-on in the stack. Before drones, I built the
-     navigation stack of a robot working the aisles of a supermarket in
-     Odense, Denmark, at [Coalescent Mobile Robotics](https://cm-robotics.com/).`,
-    `On the side I run [Unchained Labs](https://unchainedlabs.dev/), building
-     local-first agentic systems for companies, and
-     [Clanker Labs](https://clanker-labs.github.io/clanker-labs-public/), the
-     same idea pointed at my own home: one self-hosted stack, with an agent
-     running it. I bring both back to robotics: agentic tooling that turns
-     robot data into diagnostics, and self-healing autonomy that detects and
-     recovers from failures in the field. When I'm not shipping autonomy
-     stacks I'm playing basketball, watching films, or chasing ranked
-     ladders.`,
+    `Hello! I'm Erwin — Head of Robotics at [SIRB.AI](https://sirb.ai/), and a
+     leader who still writes the code. I've spent eight years taking autonomy
+     from research to real-world deployment across most of the stack:
+     behavior, task and path planning, sensor fusion, motion control, swarm
+     coordination, and lately agents that help robots diagnose and recover
+     themselves. ROS 2 is home.`,
+    `My engineering standards come from outside robotics. Embedded work taught
+     me to treat timing, memory and bandwidth as budgets, and to test against a
+     model of the hardware before trusting the hardware. Web work made
+     services, CI, containers and code review the default. Robots get both.`,
+    `I've led teams since 2021, each in a different way: navigation and trolley
+     detection at [Coalescent Mobile Robotics](https://cm-robotics.com/) after
+     its CTO left; a team of 9 robotics engineers at the
+     [Technology Innovation Institute](https://www.tii.ae/); my own company,
+     [Unchained Labs](https://unchainedlabs.dev/), from vision and clients to
+     shipped SaaS; and now SIRB.AI, where we took swarm autonomy from
+     prototype to public launch at UMEX 2026.`,
+    `Off the clock, [Clanker Labs](https://clanker-labs.github.io/clanker-labs-public/)
+     points the same ideas at my home: one self-hosted stack, with an agent
+     running it. Otherwise: basketball, films, and ranked ladders.`,
   ],
   technologies: [
     "ROS 2",
@@ -80,12 +77,152 @@ export const about = {
     "PDDL",
     "Sensor Fusion",
     "Motion Control",
-    "Agent Orchestration",
-    "MCP / RAG",
-    "Docker / CI",
+    "Embedded / Real-time",
+    "Agents / MCP / RAG",
+    "Docker / CI / RobotOps",
     "Scrum / PI Planning",
   ],
 } as const;
+
+/**
+ * Evolution — the experience section told as chapters. Each one says what I
+ * built, what I led and what I took with me, and lights the layers of the
+ * "scope" stack it worked on, from silicon at the bottom up to a whole
+ * company. Roles point back here through `Job.chapter`, so their full detail
+ * sits inside the chapter.
+ */
+export const scopeLayers = ["silicon", "software", "robot", "fleet", "team", "company"] as const;
+export type ScopeLayer = (typeof scopeLayers)[number];
+
+export type ChapterId = "metal" | "research" | "field" | "swarm" | "team" | "company" | "head";
+
+export interface Chapter {
+  id: ChapterId;
+  /** One word for the tab. */
+  tab: string;
+  years: string;
+  where: string;
+  title: string;
+  /** What changed in this chapter, in one line. */
+  shift: string;
+  built: string;
+  led?: string;
+  kept: string;
+  /** Label for `kept`, when "Took with me" doesn't fit. */
+  keptLabel?: string;
+  /** What this chapter did on each layer it reached. */
+  scope: Partial<Record<ScopeLayer, string>>;
+}
+
+export const evolutionIntro = `Eight years, from a microcontroller to running
+  robotics at a startup. Each step kept what the last one taught: watch the
+  stack grow, or pick a chapter.`;
+
+export const chapters: Chapter[] = [
+  {
+    id: "metal",
+    tab: "metal",
+    years: "2018 — 2019",
+    where: "Bordeaux · Coimbra",
+    title: "Close to the metal",
+    shift: "Started where software meets hardware: microcontrollers, peripherals, and robots built from scratch.",
+    built:
+      "A SystemC/TLM virtual prototype of an STM32 (timers, I2C, CAN, GPIO, USART) running under QEMU. Then full autonomy stacks on small robots with ROS, which won both maze competitions.",
+    kept: "Timing, memory and bandwidth are budgets. Test against a model of the hardware before trusting the hardware.",
+    scope: { silicon: "STM32 virtual prototype", robot: "maze robots, won both runs" },
+  },
+  {
+    id: "research",
+    tab: "research",
+    years: "2020 — 2021",
+    where: "Nantes · remote",
+    title: "Research, and the web",
+    shift: "Split between a robotics lab and a production web backend.",
+    built:
+      "Go services with PostgreSQL and Docker for an engineering platform, and an automated programming test manager for hiring.",
+    led: "Four research projects: multi-agent pathfinding, PDDL planning, real-time ROS control on Xenomai, and ROS 2 latency benchmarks. Two papers came out of them.",
+    kept: "Services, CI, containers and code review as the default, not the exception. And a lasting taste for planning problems.",
+    scope: {
+      software: "Go services · Docker · CI",
+      robot: "real-time ROS control",
+      fleet: "multi-agent pathfinding",
+    },
+  },
+  {
+    id: "field",
+    tab: "field",
+    years: "2021 — 2022",
+    where: "Odense, Denmark",
+    title: "First robot in the field, first team",
+    shift: "Founding engineer at a startup whose robot works the aisles of a real supermarket.",
+    built:
+      "The navigation stack (path planning, motion control, localization) and perception for detection and tracking: the first in-store system that worked, through pre-seed and seed.",
+    led: "After the CTO left, led navigation and trolley detection. Recruited and trained interns and a junior, ran planning, and turned the CEO's product asks into technical sprints.",
+    kept: "A robot in a shop at opening time is the only demo that counts. Leading is translating: product into plan, plan into sprints.",
+    scope: { robot: "supermarket nav stack", team: "first hires · sprints" },
+  },
+  {
+    id: "swarm",
+    tab: "swarm",
+    years: "2022 — 2024",
+    where: "Abu Dhabi",
+    title: "From one robot to a swarm",
+    shift: "Senior engineer at TII, where the problem stopped being one robot and became many.",
+    built:
+      "Multi-robot behavior orchestration, collaboration and control, and new swarm behaviors, including decentralized bird-inspired flocking published at IROS 2024.",
+    led: "The R&D of those components, and the live demos to partners that led to USD 3M in contracts.",
+    kept: "At swarm scale every byte and every millisecond multiplies. The embedded habits, again.",
+    scope: { fleet: "swarm orchestration" },
+  },
+  {
+    id: "team",
+    tab: "team",
+    years: "2024 — 2026",
+    where: "Abu Dhabi",
+    title: "Leading the team",
+    shift: "Promoted to Team Lead, Robotics Software, at TII.",
+    built:
+      "An overhauled swarm autonomy architecture, with 74% less onboard CPU and 52% less bandwidth, and the tooling for reliable, repeatable missions.",
+    led: "Grew and led 9 engineers across autonomy, infrastructure and platform integration, from roadmaps through PI planning to sprints. A joint program with Caltech, and demos that brought in USD 10M+ in contracts.",
+    kept: "The team is the system. Hire well, set the bar, then make the standards the easy path.",
+    scope: {
+      software: "RobotOps · AI tooling",
+      fleet: "−74% CPU · −52% bandwidth",
+      team: "9 engineers · roadmap",
+    },
+  },
+  {
+    id: "company",
+    tab: "company",
+    years: "2024 — now",
+    where: "Remote",
+    title: "Building a company",
+    shift: "Founded Unchained Labs, alongside the day job, to build AI brains for companies.",
+    built:
+      "Local-first agentic systems that run on a client's own models, data and infrastructure, and Kymatics, a graph-based agent orchestrator, with its tooling open-sourced.",
+    led: "Everything a company needs: the vision, finding clients, setting it up, and developing and deploying the SaaS.",
+    kept: "Selling, scoping and shipping are one job. And agents deserve the same rigor as robots.",
+    scope: { software: "agent orchestration", company: "vision · clients · SaaS" },
+  },
+  {
+    id: "head",
+    tab: "now",
+    years: "2026 — now",
+    where: "Abu Dhabi",
+    title: "Head of Robotics",
+    shift: "Joined SIRB.AI's founding team to own robotics end to end.",
+    built:
+      "The robotics software architecture, and a self-healing autonomy layer: swarm-wide fault and state recording, agents that detect and recover from failures, and ML mission scoring before launch.",
+    led: "The autonomy roadmap, from prototype to public launch at UMEX 2026, unveiled as the Middle East's first AI-powered swarm platform.",
+    kept: "Every layer below still matters. Leading robotics means being able to go down to any of them, and I still do.",
+    keptLabel: "Brings",
+    scope: {
+      fleet: "self-healing swarm autonomy",
+      team: "head of robotics",
+      company: "founding team · UMEX 2026",
+    },
+  },
+];
 
 export interface Job {
   company: string;
@@ -96,13 +233,12 @@ export interface Job {
   location?: string;
   /** Decimal years, used to place the bar on the trajectory timeline. */
   start: number;
-  /** `null` means still running — the bar extends to the present marker. */
+  /** `null` means still running. */
   end: number | null;
+  /** The `chapters` entry this role belongs to. */
+  chapter: ChapterId;
   bullets: string[];
 }
-
-/** Left edge of the trajectory axis. */
-export const TIMELINE_START = 2018;
 
 export const experience: Job[] = [
   {
@@ -114,6 +250,7 @@ export const experience: Job[] = [
     location: "Abu Dhabi, UAE",
     start: 2026.1,
     end: null,
+    chapter: "head",
     bullets: [
       "Joined as founding team: designed the robotics software architecture and set the autonomy roadmap.",
       "Built a self-healing autonomy layer: swarm-wide fault and state recording, agents that detect and recover from failures, and ML-based mission scoring before launch.",
@@ -129,6 +266,7 @@ export const experience: Job[] = [
     location: "Abu Dhabi, UAE",
     start: 2024,
     end: 2026.1,
+    chapter: "team",
     bullets: [
       "Grew and led a Robotics Software team of 9 engineers across autonomy (navigation, perception, orchestration), infrastructure (DevOps, RobotOps) and platform integration.",
       "Overhauled the swarm autonomy architecture, cutting onboard CPU usage by 74% and network bandwidth by 52%.",
@@ -147,6 +285,7 @@ export const experience: Job[] = [
     location: "Abu Dhabi, UAE",
     start: 2022,
     end: 2024,
+    chapter: "swarm",
     bullets: [
       "Led the research & development of components for multi-robot behavior orchestration, collaboration and control.",
       "Designed new swarm behaviors, including decentralized bird-inspired flocking published at IEEE/RSJ IROS 2024.",
@@ -162,7 +301,9 @@ export const experience: Job[] = [
     location: "Remote",
     start: 2024,
     end: null,
+    chapter: "company",
     bullets: [
+      "Set the vision, found the clients and set up the company; develop and deploy its SaaS.",
       "Build AI brains for companies: local-first agentic systems that run on their own models, data and infrastructure.",
       "Design graph-based agent orchestration (Kymatics) and open-source the tooling to run it reliably.",
     ],
@@ -176,9 +317,11 @@ export const experience: Job[] = [
     location: "Odense, Denmark",
     start: 2021,
     end: 2022.9,
+    chapter: "field",
     bullets: [
       "Founding core technical team that delivered the first working in-store robot system, supporting company milestones across pre-seed and seed rounds.",
       "Led development of the navigation stack — path planning, motion control and localization — and contributed to perception: detection, filtering, tracking.",
+      "After the CTO left, led the team on autonomous navigation and trolley detection: recruited and trained interns and a junior engineer, ran planning, and turned the CEO's product requirements into technical sprints.",
     ],
   },
   {
@@ -190,6 +333,7 @@ export const experience: Job[] = [
     location: "Nantes, France",
     start: 2020.2,
     end: 2021.2,
+    chapter: "research",
     bullets: [
       "Led 4 research projects: multi-agent pathfinding, AI planning (PDDL), real-time ROS control on Xenomai/XDDP, and ROS 2 latency benchmarking.",
       "Published research on real-time jitter measurements under ROS 2 and a survey of multi-agent pathfinding solutions.",
@@ -204,6 +348,7 @@ export const experience: Job[] = [
     location: "Remote",
     start: 2020.5,
     end: 2021.1,
+    chapter: "research",
     bullets: [
       "Built core backend services in Go with PostgreSQL and Docker for a computer-aided production engineering platform.",
       "Developed an automated programming test manager for candidate evaluation.",
@@ -218,6 +363,7 @@ export const experience: Job[] = [
     location: "Bordeaux, France",
     start: 2018.7,
     end: 2019.5,
+    chapter: "metal",
     bullets: [
       "Developed a SystemC/TLM virtual prototype of an STM32 microcontroller for SoC emulation — TIM, I2C, CAN, GPIO, USART peripherals with QEMU integration.",
     ],
@@ -231,6 +377,7 @@ export const experience: Job[] = [
     location: "Coimbra, Portugal",
     start: 2019.5,
     end: 2019.75,
+    chapter: "metal",
     bullets: [
       "Built full autonomy stacks from scratch with ROS and embedded systems.",
       "Won both the mapped and unmapped maze-solving competitions.",
@@ -755,17 +902,18 @@ export const archive: ArchiveEntry[] = [
  * Deliberately does not restate the tagline above it or the spec block
  * beside it — this is the part that carries the story.
  */
-export const heroSummary = `Head of Robotics at SIRB.AI, after leading a robotics
-  software team at the Technology Innovation Institute, and still hands-on in
-  the code. Two-plus years running teams from product roadmaps through PI
-  planning to sprints; eight years taking autonomy from research to real-world
-  deployment — from a supermarket robot in Denmark to drone fleets in the UAE.`;
+export const heroSummary = `Head of Robotics at SIRB.AI, and still hands-on in
+  the code. I've led robotics teams since 2021, at Coalescent, TII, Unchained
+  Labs and now SIRB.AI, with engineering standards borrowed from embedded and
+  the web. Eight years taking autonomy from research to the field, from a
+  supermarket robot in Denmark to drone fleets in the UAE.`;
 
 export const spec = [
-  { key: "role", value: "team lead · robotics software" },
+  { key: "role", value: "head of robotics · hands-on" },
   { key: "based", value: "abu dhabi, uae" },
-  { key: "domain", value: "behavior, task & path planning, sensor fusion" },
-  { key: "hands-on", value: "ros 2 · c++ · python" },
+  { key: "domain", value: "planning, swarms, sensor fusion" },
+  { key: "standards", value: "embedded · web" },
+  { key: "leading", value: "teams since 2021" },
 ] as const;
 
 export const contact = {

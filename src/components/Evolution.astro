@@ -1,0 +1,712 @@
+---
+import Section from "@/components/Section.astro";
+import { chapters, evolutionIntro, experience, scopeLayers } from "@/data/site";
+
+/**
+ * Evolution — the career as chapters rather than a timeline. A story-style
+ * tab row plays through the chapters once when the section comes into view,
+ * then settles on the present; hovering or focusing it pauses, and picking a
+ * chapter (or tapping the story) hands over control for good.
+ *
+ * Beside the story, a "scope" stack — silicon at the bottom, a whole company
+ * at the top — lights the layers each chapter worked on and keeps the earlier
+ * ones dimly lit, so the stack visibly grows as the chapters go by. It only
+ * restates what the chapter text says, so it is hidden from assistive tech.
+ *
+ * Without JS, or with reduced motion, it starts on the last chapter with the
+ * whole stack lit, which is the most useful single frame.
+ */
+
+/** Seconds each chapter holds while playing. */
+const DUR = 9;
+const last = chapters.length - 1;
+const pad = (n: number) => String(n).padStart(2, "0");
+
+// Each layer's state per chapter: lit by this chapter ("now"), lit earlier and
+// carried forward ("kept", with the latest note it had), or not reached yet.
+const stack = chapters.map((c, i) =>
+  scopeLayers.map((layer) => {
+    if (c.scope[layer]) return { state: "now", note: c.scope[layer]! };
+    for (let k = i - 1; k >= 0; k--) {
+      const note = chapters[k].scope[layer];
+      if (note) return { state: "kept", note };
+    }
+    return { state: "off", note: "" };
+  }),
+);
+// The highest layer reached so far, for the rail beside the stack.
+const reach = stack.map((layers) => layers.map((l) => l.state !== "off").lastIndexOf(true));
+
+const rolesOf = (id: string) => experience.filter((j) => j.chapter === id).sort((a, b) => a.start - b.start);
+
+/**
+ * Company favicons from the same source resume.elejeune.me uses: Google's
+ * faviconV2 on gstatic, given the *full* page URL rather than a bare domain.
+ * Domain-only lookups downgrade to http:// and miss modern sites (sirb.ai
+ * among them), and the older www.google.com/s2/favicons host sits on common
+ * tracker blocklists, so it silently fails for anyone running a blocker.
+ *
+ * `size` is the requested pixel size — ask for 2x the rendered box. If it
+ * fails anyway, `onerror` drops the image and the monogram behind shows.
+ */
+const faviconFor = (url: string, size: number) =>
+  `https://t0.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=${encodeURIComponent(
+    url,
+  )}&size=${size}`;
+---
+
+<Section id="experience" title="Evolution">
+  <div data-reveal>
+    <div class="mb-8 flex flex-wrap items-end justify-between gap-x-8 gap-y-3">
+      <p class="text-muted max-w-xl text-sm">{evolutionIntro.replace(/\s+/g, " ")}</p>
+      <button type="button" class="evo-play font-mono" data-evo-play hidden>
+        <svg class="evo-play-icon" viewBox="0 0 12 12" width="11" height="11" aria-hidden="true">
+          <path class="i-play" d="M3 1.5v9l7.5-4.5z" fill="currentColor"></path>
+          <path class="i-pause" d="M2.5 1.5h2.5v9H2.5zM7 1.5h2.5v9H7z" fill="currentColor"></path>
+          <path
+            class="i-replay"
+            d="M2.2 6a3.8 3.8 0 1 0 1.1-2.7M2.2 1.6v2.2h2.2"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.4"
+            stroke-linecap="round"
+            stroke-linejoin="round"></path>
+        </svg>
+        <span data-evo-play-label>play</span>
+      </button>
+    </div>
+
+    <div
+      class="evo"
+      data-evo
+      data-mode="manual"
+      data-stack={JSON.stringify(stack)}
+      data-reach={JSON.stringify(reach)}
+      style={`--evo-dur: ${DUR}s`}
+    >
+      <div role="tablist" aria-label="Chapters" class="grid grid-cols-7 gap-1.5 sm:gap-2.5">
+        {
+          chapters.map((c, i) => (
+            <button
+              role="tab"
+              id={`evo-tab-${i}`}
+              aria-controls={`evo-panel-${i}`}
+              aria-selected={i === last ? "true" : "false"}
+              aria-label={`${c.years}: ${c.title}`}
+              tabindex={i === last ? 0 : -1}
+              data-state={i === last ? "active" : "done"}
+              class="evo-tab"
+            >
+              <span class="evo-track" aria-hidden="true">
+                <span class="evo-fill" />
+              </span>
+              <span class="evo-num font-mono" aria-hidden="true">
+                {pad(i + 1)}
+              </span>
+              <span class="evo-year font-mono" aria-hidden="true">
+                {c.years.slice(0, 4)}
+              </span>
+              <span class="evo-label hidden sm:block" aria-hidden="true">
+                {c.tab}
+              </span>
+            </button>
+          ))
+        }
+      </div>
+
+      <div class="mt-8 grid gap-8 lg:grid-cols-[3fr_2fr] lg:gap-12">
+        <figure class="evo-stack lg:order-2" aria-hidden="true" style={`--reach: ${reach[last]}`}>
+          <p class="font-mono text-faint mb-3 text-[0.65rem]">scope</p>
+          <div class="relative">
+            <span class="evo-rail">
+              <span class="evo-rail-fill" />
+            </span>
+            <ol class="evo-layers">
+              {
+                scopeLayers.map((layer, li) => (
+                  <li class="evo-layer" data-state={stack[last][li].state} style={`--inset: ${(5 - li) * 1.25}%`}>
+                    <span class="evo-layer-name font-mono">{layer}</span>
+                    <span class="evo-layer-note font-mono">{stack[last][li].note}</span>
+                  </li>
+                ))
+              }
+            </ol>
+          </div>
+          <figcaption class="font-mono text-faint mt-3 flex flex-wrap gap-x-4 gap-y-1 text-[0.62rem]">
+            <span><span class="evo-key evo-key-now" /> this chapter</span>
+            <span><span class="evo-key evo-key-kept" /> carried forward</span>
+          </figcaption>
+        </figure>
+
+        <div class="evo-panels lg:order-1" data-evo-panels>
+          {
+            chapters.map((c, i) => (
+              <article
+                role="tabpanel"
+                id={`evo-panel-${i}`}
+                aria-labelledby={`evo-tab-${i}`}
+                class:list={["evo-panel", { "is-active": i === last }]}
+                inert={i !== last}
+              >
+                <p class="font-mono text-muted text-xs">
+                  {c.years}
+                  <span class="text-faint"> · {c.where}</span>
+                </p>
+                <h3 class="mt-1 text-lg font-medium sm:text-xl">{c.title}</h3>
+                <p class="text-muted mt-2 text-[0.95rem]">{c.shift}</p>
+
+                <dl class="mt-6 space-y-4">
+                  <div>
+                    <dt class="evo-dt">built</dt>
+                    <dd class="evo-dd">{c.built}</dd>
+                  </div>
+                  {c.led && (
+                    <div>
+                      <dt class="evo-dt">led</dt>
+                      <dd class="evo-dd">{c.led}</dd>
+                    </div>
+                  )}
+                  <div>
+                    <dt class="evo-dt">{(c.keptLabel ?? "Took with me").toLowerCase()}</dt>
+                    <dd class="evo-dd">{c.kept}</dd>
+                  </div>
+                </dl>
+
+                <div class="border-line mt-7 space-y-1 border-t pt-4">
+                  {rolesOf(c.id).map((job) => (
+                    <details class="evo-role group">
+                      <summary class="flex cursor-pointer list-none items-start gap-2.5 py-1.5">
+                        <span
+                          class="border-line bg-bg font-mono relative mt-0.5 inline-flex size-5 shrink-0 items-center justify-center overflow-hidden rounded-[3px] border text-[0.55rem]"
+                          aria-hidden="true"
+                        >
+                          {job.company.charAt(0)}
+                          <img
+                            src={faviconFor(job.url, 32)}
+                            alt=""
+                            width="14"
+                            height="14"
+                            loading="lazy"
+                            decoding="async"
+                            class="absolute inset-0 m-auto size-3.5"
+                            onerror="this.remove()"
+                          />
+                        </span>
+                        <span class="min-w-0 flex-1">
+                          <span class="text-heading block text-[0.9rem] leading-snug">
+                            {job.role} <span class="text-accent">@ {job.company}</span>
+                          </span>
+                          <span class="font-mono text-faint block text-[0.68rem]">
+                            {job.period}
+                            {job.location && <> · {job.location}</>}
+                          </span>
+                        </span>
+                        <span
+                          class="evo-chev font-mono text-faint mt-0.5 shrink-0 text-xs transition-transform duration-200 group-open:rotate-90"
+                          aria-hidden="true"
+                        >
+                          ›
+                        </span>
+                      </summary>
+                      <ul class="mt-2 mb-3 space-y-2 pl-7.5">
+                        {job.bullets.map((b) => (
+                          <li class="flex gap-3 text-[0.88rem]">
+                            <span class="text-accent mt-0.5 shrink-0" aria-hidden="true">
+                              ▸
+                            </span>
+                            <span>{b}</span>
+                          </li>
+                        ))}
+                        <li class="pt-1">
+                          <a
+                            href={job.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            class="link font-mono text-xs"
+                          >
+                            {new URL(job.url).hostname.replace(/^www\./, "")} ↗
+                          </a>
+                        </li>
+                      </ul>
+                    </details>
+                  ))}
+                </div>
+              </article>
+            ))
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+</Section>
+
+<style>
+  /* ---- Tabs: story-style bars that fill while a chapter plays ---- */
+  .evo-tab {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.15rem;
+    min-width: 0;
+    padding-bottom: 0.25rem;
+    text-align: left;
+    color: var(--color-muted);
+  }
+  .evo-track {
+    display: block;
+    width: 100%;
+    height: 2px;
+    margin-bottom: 0.55rem;
+    border-radius: 1px;
+    background: var(--color-line);
+    overflow: hidden;
+  }
+  .evo-fill {
+    display: block;
+    height: 100%;
+    background: var(--color-accent);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.35s var(--ease-swift);
+  }
+  .evo-tab[data-state="done"] .evo-fill {
+    transform: scaleX(1);
+    opacity: 0.5;
+  }
+  [data-mode="manual"] .evo-tab[data-state="active"] .evo-fill {
+    transform: scaleX(1);
+  }
+  /* Longhands: the `animation` shorthand would reset the play state below. */
+  [data-mode="play"] .evo-tab[data-state="active"] .evo-fill {
+    transition: none;
+    animation-name: evo-fill;
+    animation-duration: var(--evo-dur);
+    animation-timing-function: linear;
+    animation-fill-mode: forwards;
+  }
+  .evo.is-paused .evo-fill {
+    animation-play-state: paused;
+  }
+  @keyframes evo-fill {
+    to {
+      transform: scaleX(1);
+    }
+  }
+  .evo-num {
+    font-size: 0.7rem;
+    color: var(--color-faint);
+    transition: color 0.2s var(--ease-swift);
+  }
+  .evo-year {
+    font-size: 0.62rem;
+    color: var(--color-faint);
+  }
+  .evo-label {
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 0.8rem;
+    transition: color 0.2s var(--ease-swift);
+  }
+  .evo-tab:hover .evo-label {
+    color: var(--color-body);
+  }
+  .evo-tab[aria-selected="true"] .evo-num {
+    color: var(--color-accent);
+  }
+  .evo-tab[aria-selected="true"] .evo-label {
+    color: var(--color-heading);
+  }
+  .evo-tab:focus-visible {
+    outline: 2px dashed var(--color-accent);
+    outline-offset: 4px;
+  }
+
+  .evo-play {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.72rem;
+    color: var(--color-muted);
+    transition: color 0.2s var(--ease-swift);
+  }
+  .evo-play:hover,
+  .evo-play:focus-visible {
+    color: var(--color-accent);
+  }
+  .evo-play-icon path {
+    display: none;
+  }
+  .evo-play:not([data-state]) .i-play,
+  .evo-play[data-state="play"] .i-play,
+  .evo-play[data-state="pause"] .i-pause,
+  .evo-play[data-state="replay"] .i-replay {
+    display: inline;
+  }
+
+  /* ---- Panels: all share one grid cell, so the height never jumps ---- */
+  .evo-panels {
+    display: grid;
+  }
+  /* Out first, then in, so two chapters' text never overlaps mid-fade. */
+  .evo-panel {
+    grid-area: 1 / 1;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(6px);
+    transition:
+      opacity 0.15s ease-out,
+      transform 0.15s ease-out,
+      visibility 0s linear 0.15s;
+  }
+  .evo-panel.is-active {
+    opacity: 1;
+    visibility: visible;
+    transform: none;
+    transition:
+      opacity 0.3s var(--ease-swift) 0.15s,
+      transform 0.3s var(--ease-swift) 0.15s,
+      visibility 0s linear 0s;
+  }
+  .evo-dt {
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    color: var(--color-accent);
+  }
+  .evo-dd {
+    margin: 0.15rem 0 0;
+    font-size: 0.95rem;
+  }
+  .evo-role summary::-webkit-details-marker {
+    display: none;
+  }
+  .evo-role summary:hover .evo-chev,
+  .evo-role summary:focus-visible .evo-chev {
+    color: var(--color-accent);
+  }
+
+  /* ---- Scope stack: an upward-widening stack, silicon at the bottom ---- */
+  .evo-stack {
+    --row: 2rem;
+    --gap: 0.35rem;
+    margin: 0;
+    max-width: 30rem;
+  }
+  .evo-layers {
+    display: flex;
+    flex-direction: column-reverse;
+    gap: var(--gap);
+    padding-left: 1rem;
+  }
+  .evo-layer {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    height: var(--row);
+    margin-inline: var(--inset);
+    padding: 0 0.7rem;
+    overflow: hidden;
+    border: 1px dashed var(--color-line);
+    border-radius: 4px;
+    transition:
+      border-color 0.45s var(--ease-swift),
+      background-color 0.45s var(--ease-swift);
+  }
+  .evo-layer-name {
+    flex: 0 0 4.2rem;
+    font-size: 0.66rem;
+    color: var(--color-faint);
+    transition: color 0.45s var(--ease-swift);
+  }
+  .evo-layer-note {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 0.66rem;
+    color: var(--color-faint);
+    transition: color 0.45s var(--ease-swift);
+  }
+  .evo-layer[data-state="kept"] {
+    border-style: solid;
+    background: var(--color-bg-raised);
+  }
+  .evo-layer[data-state="kept"] .evo-layer-name {
+    color: var(--color-muted);
+  }
+  .evo-layer[data-state="now"] {
+    border-style: solid;
+    border-color: color-mix(in srgb, var(--color-accent) 70%, transparent);
+    background: color-mix(in srgb, var(--color-accent) 11%, var(--color-bg));
+  }
+  .evo-layer[data-state="now"] .evo-layer-name {
+    color: var(--color-accent);
+  }
+  .evo-layer[data-state="now"] .evo-layer-note {
+    color: var(--color-heading);
+  }
+  /* A light sweep across a layer the moment a chapter reaches it. */
+  .evo-layer.is-new::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      color-mix(in srgb, var(--color-accent) 30%, transparent) 50%,
+      transparent
+    );
+    transform: translateX(-100%);
+    animation: evo-sweep 0.9s var(--ease-swift) forwards;
+    pointer-events: none;
+  }
+  .evo-layer.is-new .evo-layer-note {
+    animation: evo-note 0.5s var(--ease-swift);
+  }
+  @keyframes evo-sweep {
+    to {
+      transform: translateX(100%);
+    }
+  }
+  @keyframes evo-note {
+    from {
+      opacity: 0;
+      transform: translateX(-4px);
+    }
+  }
+  /* The rail climbs to the highest layer reached so far. */
+  .evo-rail {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0.2rem;
+    width: 1px;
+    background: var(--color-line);
+  }
+  .evo-rail-fill {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 1px;
+    height: calc(var(--reach) * (var(--row) + var(--gap)) + var(--row) / 2);
+    background: var(--color-accent);
+    transition: height 0.6s var(--ease-swift);
+  }
+  .evo-rail-fill::after {
+    content: "";
+    position: absolute;
+    top: -3px;
+    left: -3px;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--color-accent);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-accent) 22%, transparent);
+  }
+  .evo-key {
+    display: inline-block;
+    width: 0.6rem;
+    height: 0.6rem;
+    margin-right: 0.3rem;
+    vertical-align: -0.05rem;
+    border-radius: 2px;
+    border: 1px solid var(--color-line);
+  }
+  .evo-key-now {
+    border-color: var(--color-accent);
+    background: color-mix(in srgb, var(--color-accent) 25%, var(--color-bg));
+  }
+  .evo-key-kept {
+    background: var(--color-bg-raised);
+  }
+
+  /* In the narrower side column, each layer takes two lines. */
+  @media (min-width: 1024px) {
+    .evo-stack {
+      --row: 2.55rem;
+      max-width: none;
+      padding-top: 0.25rem;
+    }
+    .evo-layer {
+      flex-direction: column;
+      align-items: flex-start;
+      justify-content: center;
+      gap: 0.05rem;
+    }
+    .evo-layer-name {
+      flex: none;
+      font-size: 0.58rem;
+    }
+    .evo-layer-note {
+      max-width: 100%;
+      font-size: 0.64rem;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .evo-panel,
+    .evo-fill,
+    .evo-layer,
+    .evo-rail-fill {
+      transition: none;
+    }
+    .evo-panel {
+      transform: none;
+    }
+  }
+</style>
+
+<script>
+  type Layer = { state: string; note: string };
+
+  const root = document.querySelector<HTMLElement>("[data-evo]");
+  const btn = document.querySelector<HTMLButtonElement>("[data-evo-play]");
+  if (root && btn) {
+    const tabs = Array.from(root.querySelectorAll<HTMLButtonElement>(".evo-tab"));
+    const panels = Array.from(root.querySelectorAll<HTMLElement>(".evo-panel"));
+    const layers = Array.from(root.querySelectorAll<HTMLElement>(".evo-layer"));
+    const stackEl = root.querySelector<HTMLElement>(".evo-stack")!;
+    const label = btn.querySelector<HTMLElement>("[data-evo-play-label]")!;
+    const stack = JSON.parse(root.dataset.stack!) as Layer[][];
+    const reach = JSON.parse(root.dataset.reach!) as number[];
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const last = tabs.length - 1;
+
+    let active = last;
+    let playing = false;
+    /** Reasons to hold the playback where it is: hover, focus, off-screen, hidden tab. */
+    const holds = new Set<string>();
+
+    function sweep(el: HTMLElement) {
+      if (reduced) return;
+      el.classList.remove("is-new");
+      void el.offsetWidth; // restart the animation
+      el.classList.add("is-new");
+    }
+
+    function show(i: number) {
+      active = i;
+      tabs.forEach((t, k) => {
+        t.setAttribute("aria-selected", String(k === i));
+        t.tabIndex = k === i ? 0 : -1;
+        t.dataset.state = k < i ? "done" : k === i ? "active" : "todo";
+      });
+      panels.forEach((p, k) => {
+        p.classList.toggle("is-active", k === i);
+        p.inert = k !== i;
+      });
+      layers.forEach((el, li) => {
+        const next = stack[i][li];
+        const note = el.querySelector<HTMLElement>(".evo-layer-note")!;
+        const fresh = next.state === "now" && (el.dataset.state !== "now" || note.textContent !== next.note);
+        el.dataset.state = next.state;
+        note.textContent = next.note;
+        el.classList.remove("is-new");
+        if (fresh) sweep(el);
+      });
+      stackEl.style.setProperty("--reach", String(reach[i]));
+    }
+
+    function setPlaying(on: boolean) {
+      playing = on;
+      root!.dataset.mode = on ? "play" : "manual";
+      const state = on ? "pause" : active === last ? "replay" : "play";
+      btn!.dataset.state = state;
+      label.textContent = state;
+    }
+
+    const syncHolds = () => root.classList.toggle("is-paused", holds.size > 0);
+    const hold = (why: string, on: boolean) => {
+      if (on) holds.add(why);
+      else holds.delete(why);
+      syncHolds();
+    };
+
+    /** The reader takes over: stop playing and show chapter i. */
+    function take(i: number) {
+      show(i);
+      setPlaying(false);
+    }
+
+    // The active bar filling up is the clock.
+    root.addEventListener("animationend", (e) => {
+      if (!playing || !(e.target as Element).classList.contains("evo-fill")) return;
+      if (active < last) show(active + 1);
+      else setPlaying(false);
+    });
+
+    tabs.forEach((tab, i) => {
+      tab.addEventListener("click", () => take(i));
+      tab.addEventListener("keydown", (e) => {
+        let next = -1;
+        if (e.key === "ArrowRight") next = (i + 1) % tabs.length;
+        if (e.key === "ArrowLeft") next = (i - 1 + tabs.length) % tabs.length;
+        if (e.key === "Home") next = 0;
+        if (e.key === "End") next = last;
+        if (next >= 0) {
+          e.preventDefault();
+          take(next);
+          tabs[next].focus();
+        }
+      });
+    });
+
+    btn.addEventListener("click", () => {
+      if (playing) return take(active);
+      show(active === last ? 0 : active);
+      setPlaying(true);
+    });
+
+    // Moving the mouse over the story or focusing it pauses it; a click or tap
+    // on it means "let me read". Only real movement counts as hover: a cursor
+    // parked mid-screen while the page scrolls past shouldn't stop the show,
+    // and the move events a browser sends then keep the same screen position.
+    let lastX = NaN;
+    let lastY = NaN;
+    root.addEventListener("pointermove", (e) => {
+      if (e.pointerType === "mouse" && (e.clientX !== lastX || e.clientY !== lastY) && !Number.isNaN(lastX))
+        hold("hover", true);
+    });
+    window.addEventListener(
+      "pointermove",
+      (e) => {
+        lastX = e.clientX;
+        lastY = e.clientY;
+      },
+      { passive: true },
+    );
+    root.addEventListener("pointerleave", () => hold("hover", false));
+    root.addEventListener("focusin", () => hold("focus", true));
+    root.addEventListener("focusout", (e) => {
+      if (!root.contains(e.relatedTarget as Node | null)) hold("focus", false);
+    });
+    root.querySelector("[data-evo-panels]")!.addEventListener("click", () => playing && take(active));
+    document.addEventListener("visibilitychange", () => hold("hidden", document.hidden));
+
+    // Play once, from the first chapter, when the section comes into view. The
+    // first chapter's layers sweep then, rather than while nobody is looking.
+    let seen = false;
+    if ("IntersectionObserver" in window) {
+      new IntersectionObserver(
+        ([e]) => {
+          hold("view", !e.isIntersecting);
+          if (e.isIntersecting && !seen) {
+            seen = true;
+            layers.forEach((el) => el.dataset.state === "now" && sweep(el));
+          }
+        },
+        { threshold: 0.25 },
+      ).observe(root);
+    }
+    btn.hidden = false;
+    if (reduced) {
+      setPlaying(false);
+    } else {
+      hold("view", true);
+      show(0);
+      setPlaying(true);
+    }
+  }
+</script>
