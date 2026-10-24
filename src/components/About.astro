@@ -6,14 +6,16 @@ import { about, site } from "@/data/site";
 // depend on GitHub being reachable. Re-download it there if it changes.
 import avatar from "@/assets/avatar.jpg";
 
-/** Tiny markdown-link renderer for the about paragraphs. */
+/**
+ * Tiny markdown-link renderer for the about paragraphs. Links are
+ * inline-block, so a line could break between one and the punctuation after
+ * it; a nowrap span keeps the two together.
+ */
 function md(text: string): string {
-  return text
-    .replace(/\s+/g, " ")
-    .replace(
-      /\[([^\]]+)\]\(([^)]+)\)/g,
-      '<a href="$2" target="_blank" rel="noopener noreferrer" class="link">$1</a>',
-    );
+  return text.replace(/\s+/g, " ").replace(/\[([^\]]+)\]\(([^)]+)\)([.,;:]?)/g, (_, label, href, punct) => {
+    const a = `<a href="${href}" target="_blank" rel="noopener noreferrer" class="link">${label}</a>`;
+    return punct ? `<span class="whitespace-nowrap">${a}${punct}</span>` : a;
+  });
 }
 ---
 
