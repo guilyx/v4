@@ -39,6 +39,7 @@ export const nav = [
   { label: "experiences", href: "/#experience" },
   { label: "systems", href: "/#systems" },
   { label: "projects", href: "/#projects" },
+  { label: "open source", href: "/#open-source" },
   { label: "contact", href: "/#contact" },
   { label: "blog", href: "/blog" },
   { label: "photos", href: "/photos" },
@@ -454,7 +455,41 @@ export const featured: Project[] = [
 ];
 
 /**
- * More open source — the short grid under the carousel. The archive has
+ * Open Source — its own section: why it matters, where it went upstream,
+ * and the repos of my own. `prs` links are GitHub searches for my pull
+ * requests in that repo, so they stay current without a list to maintain.
+ */
+export const openSource = {
+  since: 2018,
+  paragraphs: [
+    `I made my first open-source contribution in 2018 and haven't stopped
+     since. Robotics runs on shared code: ROS and the thousands of packages
+     around it exist because people chose to publish their work. Contributing
+     back is how I pay that forward, and nothing has taught me more about
+     writing code that strangers can read, review and build on.`,
+    `Upstream, that's meant projects like navigation2, the ROS 2 navigation
+     stack, and tf2, the transform library nearly every ROS robot leans on.
+     The rest is my own: tools for problems I kept running into, published so
+     the next person doesn't have to start from zero.`,
+  ],
+  upstream: [
+    {
+      name: "navigation2",
+      what: "the ROS 2 navigation stack",
+      repo: "https://github.com/ros-navigation/navigation2",
+      prs: "https://github.com/ros-navigation/navigation2/pulls?q=is%3Apr+author%3Aguilyx",
+    },
+    {
+      name: "tf2",
+      what: "ROS 2 coordinate transforms",
+      repo: "https://github.com/ros2/geometry2",
+      prs: "https://github.com/ros2/geometry2/pulls?q=is%3Apr+author%3Aguilyx",
+    },
+  ],
+} as const;
+
+/**
+ * My own open source — the grid in the Open Source section. The archive has
  * everything else.
  */
 export const projects: Project[] = [

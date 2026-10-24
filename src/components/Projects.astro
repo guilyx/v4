@@ -2,14 +2,13 @@
 import Section from "@/components/Section.astro";
 import Icon from "@/components/Icon.astro";
 import GhStats from "@/components/GhStats.astro";
-import { featured, projects, archive, layers, projectsIntro, type Project } from "@/data/site";
+import { featured, layers, projectsIntro, type Project } from "@/data/site";
 
 /**
  * Featured Projects — side projects only. A flat carousel of the ones with a
  * demo, three to a view on wide screens (scroll-snap, so touch and trackpads
- * just work; the buttons page through for everyone else), then a short grid
- * of more open source and a link to the archive for everything else.
- * On wide screens the carousel breaks out of the text column to give the
+ * just work; the buttons page through for everyone else). The rest of the
+ * open source has its own section, after this one. On wide screens the carousel breaks out of the text column to give the
  * clips room.
  *
  * Clips are muted, load nothing until their slide is on screen, and play only
@@ -107,55 +106,6 @@ const label = (p: Project) =>
     </div>
   </div>
 
-  {/* More open source: a short grid, then the archive for everything else */}
-  <h3 class="mt-20 text-lg font-medium" data-reveal>More open source</h3>
-  <ul class="mt-6 grid gap-4 sm:grid-cols-2" data-reveal>
-    {
-      projects.map((p) => (
-        <li class="card group border-line relative flex flex-col rounded-lg border p-5">
-          <p class="font-mono text-faint text-[0.68rem]">{label(p)}</p>
-          <h4 class="text-heading mt-1 text-[0.95rem] font-medium break-words">
-            <a
-              href={p.github ?? p.external}
-              target="_blank"
-              rel="noopener noreferrer"
-              class="group-hover:text-accent transition-colors after:absolute after:inset-0"
-            >
-              {p.title}
-            </a>
-          </h4>
-          <p class="text-muted mt-2 text-sm">{p.blurb}</p>
-          <div class="mt-auto flex flex-wrap items-center gap-x-4 gap-y-2 pt-4">
-            <ul class="flex flex-wrap gap-x-3 gap-y-1">
-              {p.tech.map((t) => (
-                <li class="chip">{t}</li>
-              ))}
-            </ul>
-            <div class="relative z-[1] ml-auto flex items-center gap-3">
-              {p.github && <GhStats url={p.github} />}
-              {p.github && p.external && (
-                <a
-                  href={p.external}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label={`${p.title} site`}
-                  class="text-muted hover:text-accent transition-colors"
-                >
-                  <Icon name="external" size={15} />
-                </a>
-              )}
-            </div>
-          </div>
-        </li>
-      ))
-    }
-  </ul>
-
-  <p class="mt-10 text-center" data-reveal>
-    <a href="/archive" class="link font-mono text-sm">
-      all {archive.length} projects, sortable and filterable, in the archive →
-    </a>
-  </p>
 </Section>
 
 <style>
@@ -226,15 +176,6 @@ const label = (p: Project) =>
     cursor: default;
   }
 
-  .card {
-    transition:
-      background-color 0.2s var(--ease-swift),
-      border-color 0.2s var(--ease-swift);
-  }
-  .card:hover {
-    background-color: var(--color-accent-soft);
-    border-color: color-mix(in srgb, var(--color-accent) 40%, var(--color-line));
-  }
 
   @media (prefers-reduced-motion: reduce) {
     .track {
