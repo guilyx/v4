@@ -60,6 +60,18 @@ html {
   }
 }
 
+/* Home page: when a scroll comes to rest near the start of a section, it
+   settles there, so the page moves section by section. Proximity, not
+   mandatory: sections taller than the screen still scroll freely inside,
+   and nothing is ever out of reach. The sections' scroll-margin-top keeps
+   the snapped heading clear of the fixed nav. */
+html.snap-sections {
+  scroll-snap-type: y proximity;
+}
+html.snap-sections #main > section {
+  scroll-snap-align: start;
+}
+
 body {
   @apply bg-bg text-body font-sans antialiased;
   font-size: 1rem;
