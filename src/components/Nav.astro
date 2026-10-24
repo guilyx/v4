@@ -30,7 +30,7 @@ import { nav, site } from "@/data/site";
 
     <button
       id="nav-toggle"
-      class="text-accent z-50 -mr-2 p-2 md:hidden"
+      class="text-accent z-50 -mr-2 p-2 xl:hidden"
       aria-label="Toggle menu"
       aria-expanded="false"
       aria-controls="nav-menu"
@@ -42,12 +42,13 @@ import { nav, site } from "@/data/site";
       </svg>
     </button>
 
-    {/* Desktop links live in the bar itself. */}
-    <ol class="hidden items-center gap-8 md:flex">
+    {/* Desktop links live in the bar itself, once there's room for all of
+        them on one line; below that, the drawer. */}
+    <ol class="hidden items-center gap-8 xl:flex">
       {
         nav.map((item) => (
           <li>
-            <a href={item.href} class="font-mono text-body hover:text-accent text-sm transition-colors">
+            <a href={item.href} class="font-mono text-body hover:text-accent text-sm whitespace-nowrap transition-colors">
               {item.label}
             </a>
           </li>
@@ -71,7 +72,7 @@ import { nav, site } from "@/data/site";
 */}
 <ol
   id="nav-menu"
-  class="nav-drawer border-line bg-bg-raised fixed inset-y-0 right-0 z-40 flex w-[min(78vw,320px)] translate-x-full flex-col items-start justify-center gap-8 border-l px-10 shadow-2xl transition-transform duration-300 ease-out md:hidden"
+  class="nav-drawer border-line bg-bg-raised fixed inset-y-0 right-0 z-40 flex w-[min(78vw,320px)] translate-x-full flex-col items-start justify-center gap-8 border-l px-10 shadow-2xl transition-transform duration-300 ease-out xl:hidden"
 >
   {
     nav.map((item) => (
@@ -89,7 +90,7 @@ import { nav, site } from "@/data/site";
   </li>
 </ol>
 
-<div id="nav-scrim" class="fixed inset-0 z-30 hidden bg-black/60 md:hidden"></div>
+<div id="nav-scrim" class="fixed inset-0 z-30 hidden bg-black/60 xl:hidden"></div>
 
 <style>
   /* Hide-on-scroll-down state (class toggled by script) */
