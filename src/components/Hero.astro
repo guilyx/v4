@@ -138,9 +138,9 @@ import avatar from "@/assets/avatar.jpg";
   // hero's text is a set of obstacles it flies around (a click on any
   // empty space further down works too), and the flock
   // follows you down the page: when you scroll, the birds drift away with
-  // the content, then fly back into view. On wide screens they keep to
-  // the margins beside each section; where there's no margin to speak of,
-  // they fly faintly behind the text instead.
+  // the content, then fly back into view. Every section is an obstacle
+  // course like the hero: they fly around each line of text and each
+  // solid block, through the margins and the gaps between.
   // ---------------------------------------------------------------------
   const canvas = document.getElementById("boids") as HTMLCanvasElement | null;
   const hero = document.querySelector<HTMLElement>("[data-hero]");
@@ -214,59 +214,74 @@ import avatar from "@/assets/avatar.jpg";
 
     const boids: Boid[] = [];
     let obstacles: Rect[] = [];
-    /** Section columns, where a bird is drawn faintly so it never competes with text. */
-    let content: Rect[] = [];
-    /** Below this much margin beside a section, birds fly behind it instead of around it. */
-    const MIN_GUTTER = 80;
-    /** Whether the section columns are obstacles right now (wide screens). */
-    let columns = false;
     let goal: Goal | null = null;
     /** Seek strength, 0..1, so a released goal lets go gradually. */
     let pull = 0;
     /** Expanding rings where the clicks landed. */
     const ripples: { x: number; y: number; born: number }[] = [];
 
+    const transparent = (c: string) => c === "transparent" || c === "rgba(0, 0, 0, 0)";
+
+    // Past the hero, what to fly around: every text node, and every solid
+    // element (images, video, canvases, and anything with its own
+    // background or a border on both sides, like cards and buttons).
+    // Finding them means a computed style per element, so it's done once
+    // and again when the page's content changes, not on every measure.
+    let texts: Text[] = [];
+    let solids: Element[] = [];
+    function scan() {
+      texts = [];
+      solids = [];
+      for (const sec of document.querySelectorAll("#main > section:not([data-hero]), #main > footer")) {
+        const walk = document.createTreeWalker(sec, NodeFilter.SHOW_TEXT);
+        while (walk.nextNode()) if (walk.currentNode.textContent?.trim()) texts.push(walk.currentNode as Text);
+        for (const el of sec.querySelectorAll("*")) {
+          if (el.closest("svg") && el.tagName.toLowerCase() !== "svg") continue;
+          if (el.matches("img, video, canvas, svg")) {
+            solids.push(el);
+            continue;
+          }
+          const st = getComputedStyle(el);
+          if (!transparent(st.backgroundColor) || (parseFloat(st.borderLeftWidth) > 0 && parseFloat(st.borderRightWidth) > 0))
+            solids.push(el);
+        }
+      }
+    }
+
     // Text as obstacles: one rectangle per line box, not per element, so a
     // ragged paragraph doesn't wall off the space beside its short lines.
-    // Past the hero, each section's column is one obstacle too (on wide
-    // screens) so the flock keeps to the margins, unless it has a goal to
-    // reach. Everything is in canvas space.
+    // Only what's on screen or near it counts. Everything is in canvas space.
     function measure() {
       const c = canvas!.getBoundingClientRect();
       const box = (r: DOMRect): Rect => ({ x0: r.left - c.left, y0: r.top - c.top, x1: r.right - c.left, y1: r.bottom - c.top });
+      const near = (r: DOMRect) =>
+        r.width >= 1 && r.height >= 1 && r.bottom > c.top - 0.5 * h && r.top < c.bottom + 0.5 * h && r.right > c.left - 50 && r.left < c.right + 50;
       const out: Rect[] = [];
-      const hr = hero!.getBoundingClientRect();
-      if (hr.bottom > c.top && hr.top < c.bottom) {
-        const range = document.createRange();
-        for (const el of hero!.querySelectorAll<HTMLElement>("[data-obstacle]")) {
-          if (el.hidden) continue;
-          range.selectNodeContents(el);
-          for (const r of range.getClientRects()) {
-            if (r.width < 1 || r.height < 1) continue;
-            out.push(box(r));
-          }
-        }
+      const range = document.createRange();
+      const lines = (node: Node) => {
+        range.selectNodeContents(node);
+        for (const r of range.getClientRects()) if (near(r)) out.push(box(r));
+      };
+      if (near(hero!.getBoundingClientRect())) {
+        for (const el of hero!.querySelectorAll<HTMLElement>("[data-obstacle]")) if (!el.hidden) lines(el);
       }
-      content = [];
       if (roam) {
-        for (const sec of document.querySelectorAll<HTMLElement>("#main > section:not([data-hero])")) {
-          const r = sec.getBoundingClientRect();
-          if (r.bottom < -h || r.top > 2 * h) continue;
-          content.push(box(r));
+        for (const t of texts) {
+          const parent = t.parentElement?.getBoundingClientRect();
+          if (parent && near(parent)) lines(t);
         }
-        columns = content.length > 0 && (w - (content[0]!.x1 - content[0]!.x0)) / 2 >= MIN_GUTTER;
+        for (const el of solids) {
+          const r = el.getBoundingClientRect();
+          if (near(r)) out.push(box(r));
+        }
       }
       obstacles = out;
     }
 
-    // While the flock has a goal it may cross the section columns to get
-    // there; otherwise it keeps out of them.
-    const avoiding = () => (columns && !(goal && pull > 0) ? obstacles.concat(content) : obstacles);
-
     const within = (x: number, y: number, r: Rect) => x > r.x0 && x < r.x1 && y > r.y0 && y < r.y1;
 
     const inside = (x: number, y: number, pad: number) =>
-      avoiding().some((o) => x > o.x0 - pad && x < o.x1 + pad && y > o.y0 - pad && y < o.y1 + pad);
+      obstacles.some((o) => x > o.x0 - pad && x < o.x1 + pad && y > o.y0 - pad && y < o.y1 + pad);
 
     function resize() {
       // Phones are 3x; drawing at 2x and upscaling left the agents soft.
@@ -288,6 +303,7 @@ import avatar from "@/assets/avatar.jpg";
       ARRIVE = BASE.arrive * scale;
       SLOW = BASE.slow * scale;
       count = Math.round(Math.min(44, Math.max(14, (w * h) / 28000)));
+      if (roam) scan();
       measure();
       fill();
     }
@@ -341,12 +357,12 @@ import avatar from "@/assets/avatar.jpg";
     }
 
     // The page scrolled by dy: everything drawn in page space moves the
-    // other way. The birds go with it, but no further than a screen and a
-    // bit away, so a long jump through the nav still brings them back soon.
+    // other way. The birds go with it, but no further than most of a screen
+    // away, so even a long jump through the nav brings them back in a
+    // couple of seconds.
     function scrolled(dy: number, now: number) {
-      for (const b of boids) b.y = Math.max(-1.2 * h, Math.min(2.2 * h, b.y - dy));
-      // a section column can be in both lists; move each rectangle once
-      for (const r of new Set([...obstacles, ...content])) {
+      for (const b of boids) b.y = Math.max(-0.8 * h, Math.min(1.8 * h, b.y - dy));
+      for (const r of obstacles) {
         r.y0 -= dy;
         r.y1 -= dy;
       }
@@ -374,7 +390,6 @@ import avatar from "@/assets/avatar.jpg";
       }
 
       let near = 0;
-      const avoid = avoiding();
       for (const b of boids) {
         let sepX = 0, sepY = 0;
         let aliX = 0, aliY = 0;
@@ -417,7 +432,11 @@ import avatar from "@/assets/avatar.jpg";
         let close = 0;
         const fx = b.x + b.vx * 12;
         const fy = b.y + b.vy * 12;
-        for (const o of avoid) {
+        // a bird still flying back from off screen ignores the obstacles: on
+        // a phone, full-width paragraphs would otherwise turn it away at the
+        // edge for good. Once it's on screen it steers around them again.
+        const homing = roam && (b.y < 0.04 * h || b.y > 0.96 * h);
+        for (const o of homing ? [] : obstacles) {
           const px = Math.max(o.x0, Math.min(fx, o.x1));
           const py = Math.max(o.y0, Math.min(fy, o.y1));
           const dx = fx - px;
@@ -475,8 +494,8 @@ import avatar from "@/assets/avatar.jpg";
         if (roam) {
           const out = b.y < 0.04 * h ? 0.04 * h - b.y : b.y > 0.96 * h ? 0.96 * h - b.y : 0;
           if (out !== 0) {
-            const fast = MAX_SPEED * (1 + Math.min(4, Math.abs(out) / (120 * scale)));
-            const [hx, hy] = limit(0, Math.sign(out) * fast - b.vy, MAX_FORCE * 3);
+            const fast = MAX_SPEED * (1 + Math.min(6, Math.abs(out) / (80 * scale)));
+            const [hx, hy] = limit(0, Math.sign(out) * fast - b.vy, MAX_FORCE * 5);
             ax += hx;
             ay += hy;
             top = Math.max(top, fast);
@@ -518,8 +537,9 @@ import avatar from "@/assets/avatar.jpg";
     function draw(now: number) {
       ctx.clearRect(0, 0, w, h);
 
-      // over a section's text, a bird is drawn at well under half strength
-      const ink = boids.map((b) => (content.some((r) => within(b.x, b.y, r)) ? 0.4 : 1));
+      // a bird caught over text or a card, on its way out, is drawn at well
+      // under half strength so it never competes with what's there
+      const ink = boids.map((b) => (obstacles.some((r) => within(b.x, b.y, r)) ? 0.4 : 1));
 
       // faint connection lines between close neighbours
       ctx.lineWidth = 1;
@@ -611,6 +631,19 @@ import avatar from "@/assets/avatar.jpg";
 
     resize();
 
+    // When the page's content changes (the live GitHub list arriving, the
+    // chapters' notes changing), look for obstacles again, once it settles.
+    if (roam) {
+      let rescan = 0;
+      new MutationObserver(() => {
+        clearTimeout(rescan);
+        rescan = window.setTimeout(() => {
+          scan();
+          measure();
+        }, 400);
+      }).observe(document.getElementById("main")!, { childList: true, subtree: true, characterData: true });
+    }
+
     if (reduceMotion) {
       // static formation for reduced-motion users; no goal to chase
       step(performance.now());
@@ -648,7 +681,6 @@ import avatar from "@/assets/avatar.jpg";
           (r) => x >= r.left - 2 && x <= r.right + 2 && y >= r.top - 2 && y <= r.bottom + 2,
         );
       };
-      const transparent = (c: string) => c === "transparent" || c === "rgba(0, 0, 0, 0)";
       const isFree = (target: Element, x: number, y: number) => {
         if (target.closest(CONTROLS) || overText(x, y)) return false;
         for (let el: Element | null = target; el && el.id !== "main"; el = el.parentElement) {
