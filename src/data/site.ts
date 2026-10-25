@@ -36,6 +36,7 @@ export const site = {
 
 export const nav = [
   { label: "background", href: "/#about" },
+  { label: "agentic era", href: "/#agentic" },
   { label: "experiences", href: "/#experience" },
   { label: "systems", href: "/#systems" },
   { label: "projects", href: "/#projects" },
@@ -74,6 +75,66 @@ export const about = {
     "Agents / MCP / RAG",
     "Docker / CI / RobotOps",
     "Scrum / PI Planning",
+  ],
+} as const;
+
+/**
+ * "Adapting to the agentic era" — how I lead teams now that AI writes a lot
+ * of the code: as a tool that raises output without lowering the bar, with a
+ * harness around it so the quality holds as usage grows.
+ */
+export const agentic = {
+  intro: [
+    `AI changes how software gets built, and robotics is no exception. I treat
+     it as a tool that lets a team ship more without lowering the bar, not as a
+     replacement for the people on it.`,
+    `The real work is the harness around it: reviews, checks and habits that
+     keep quality where it was while AI does more of the typing. AI use is only
+     going to grow, and the harness is what makes that growth sustainable.`,
+  ],
+  /** The path every change takes, drawn as an animated strip. */
+  harness: [
+    { step: "draft", note: "written by a person or an AI" },
+    { step: "AI review", note: "self-hosted, on every change" },
+    { step: "checks", note: "tests, lint, the usual" },
+    { step: "quiz", note: "can you explain your diff?" },
+    { step: "human review", note: "a teammate signs off" },
+    { step: "ship", note: "with an owner who understands it" },
+  ],
+  harnessCaption: "The idea: every change takes the same path, whoever or whatever wrote it.",
+  led: [
+    {
+      tag: "led",
+      title: "A company brain in Slack",
+      body: "An AI assistant that lives where people already talk. Employees ask it about the codebase, how the organization works, or how to handle a management question, and it answers from sources and rules each team can set up.",
+    },
+    {
+      tag: "led",
+      title: "Self-hosted code and quality reviews",
+      body: "Automated reviews on every change, run by tools we built and host in-house. They cost less than paid services, don't lower the bar, and the code stays on our own machines.",
+    },
+    {
+      tag: "open source",
+      title: "grip",
+      body: "A git hook that quizzes you on your own diff before a commit goes through, and grades the answers. AI can write the code; someone still has to understand it.",
+      link: "https://github.com/guilyx/grip",
+    },
+    {
+      tag: "on the robots",
+      title: "Agents in the loop, not in charge",
+      body: "Agents read the fleet's fault timeline, tell a flaky link from a dying node, and propose the repair. Deterministic rules still own the actuators.",
+    },
+    {
+      tag: "Unchained Labs",
+      title: "Local-first AI for companies",
+      body: "Agent systems that run on a company's own models, data and infrastructure, for teams that can't send everything to someone else's API.",
+      link: "https://unchainedlabs.dev/",
+    },
+  ],
+  rollout: [
+    "Start with the boring work: docs, tests, first-pass reviews.",
+    "Keep a person accountable for every change that ships.",
+    "Grow AI use only as fast as the checks around it.",
   ],
 } as const;
 

@@ -1,0 +1,259 @@
+---
+import Section from "@/components/Section.astro";
+import Icon from "@/components/Icon.astro";
+import { agentic } from "@/data/site";
+
+/**
+ * Adapting to the agentic era — between Background and the timeline. The
+ * harness strip is the point of the section in one picture: a change moves
+ * through the same gates whoever (or whatever) wrote it, and each gate lights
+ * as it passes. Horizontal on wide screens, vertical on phones; reduced
+ * motion gets every gate lit and no moving pulse.
+ */
+const n = agentic.harness.length;
+---
+
+<Section id="agentic" title="Adapting to the agentic era">
+  <div class="max-w-2xl space-y-4" data-reveal>
+    {agentic.intro.map((p) => <p>{p.replace(/\s+/g, " ")}</p>)}
+  </div>
+
+  <figure class="mt-12" data-reveal>
+    <p class="font-mono text-faint mb-5 text-xs">the harness</p>
+    <div class="harness" style={`--n: ${n}`}>
+      <span class="harness-line" aria-hidden="true">
+        <span class="harness-pulse"></span>
+      </span>
+      <ol class="harness-steps" aria-label="The path every change takes">
+        {
+          agentic.harness.map((h, i) => (
+            <li class="harness-step" style={`--i: ${i}`}>
+              <span class="harness-dot" aria-hidden="true" />
+              <span class="harness-text">
+                <span class="harness-name font-mono">{h.step}</span>
+                <span class="harness-note">{h.note}</span>
+              </span>
+            </li>
+          ))
+        }
+      </ol>
+    </div>
+    <figcaption class="text-muted mt-6 text-sm">{agentic.harnessCaption}</figcaption>
+  </figure>
+
+  <div class="mt-14" data-reveal>
+    <h3 class="label">what I've led and built</h3>
+    <ul class="mt-5 grid gap-4 sm:grid-cols-2">
+      {
+        agentic.led.map((item, i) => (
+          <li class:list={["border-line relative flex flex-col rounded-lg border p-5", { "sm:col-span-2": i === 0 }]}>
+            <p class="font-mono text-accent text-[0.68rem]">{item.tag}</p>
+            <h4 class="text-heading mt-1 text-[0.98rem] font-medium">
+              {"link" in item ? (
+                <a
+                  href={item.link}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="hover:text-accent inline-flex items-center gap-1.5 transition-colors"
+                >
+                  {item.title}
+                  <Icon name="external" size={13} />
+                </a>
+              ) : (
+                item.title
+              )}
+            </h4>
+            <p class="text-muted mt-2 text-sm">{item.body}</p>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+
+  <div class="mt-12" data-reveal>
+    <h3 class="label">how I roll it out</h3>
+    <ol class="mt-4 space-y-2">
+      {
+        agentic.rollout.map((r, i) => (
+          <li class="flex gap-3 text-[0.95rem]">
+            <span class="font-mono text-accent shrink-0 text-xs leading-7">0{i + 1}</span>
+            <span>{r}</span>
+          </li>
+        ))
+      }
+    </ol>
+  </div>
+</Section>
+
+<style>
+  /* Scoped, so it wins over the global heading font and colour. */
+  .label {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    font-weight: 400;
+    letter-spacing: normal;
+    color: var(--color-faint);
+  }
+
+  /* One cycle: the pulse crosses in 6s, then rests; gate i lights at i × 1.2s. */
+  .harness {
+    --cycle: 7.2s;
+    --step: 1.2s;
+    --dot: 0.75rem;
+    /* On phones every step is one row of fixed height, so the track can run
+       exactly from the first dot to the last. */
+    --row: 2.9rem;
+    --gap: 1rem;
+    position: relative;
+  }
+  .harness-steps {
+    display: flex;
+    flex-direction: column;
+    gap: var(--gap);
+  }
+  .harness-step {
+    position: relative;
+    display: flex;
+    align-items: flex-start;
+    gap: 0.9rem;
+    height: var(--row);
+  }
+  .harness-dot {
+    flex: none;
+    width: var(--dot);
+    height: var(--dot);
+    margin-top: 0.3rem;
+    border: 1px solid var(--color-line);
+    border-radius: 50%;
+    background: var(--color-bg);
+    animation: harness-gate var(--cycle) var(--ease-swift) infinite;
+    animation-delay: calc(var(--i) * var(--step));
+  }
+  .harness-text {
+    display: flex;
+    flex-direction: column;
+    gap: 0.1rem;
+  }
+  .harness-name {
+    font-size: 0.8rem;
+    color: var(--color-heading);
+  }
+  .harness-note {
+    font-size: 0.85rem;
+    color: var(--color-muted);
+  }
+
+  /* The track joins the first and last dots: vertical on phones. */
+  .harness-line {
+    position: absolute;
+    top: calc(0.3rem + var(--dot) / 2);
+    left: calc(var(--dot) / 2 - 0.5px);
+    width: 1px;
+    height: calc((var(--n) - 1) * (var(--row) + var(--gap)));
+    background: var(--color-line);
+  }
+  .harness-pulse {
+    position: absolute;
+    left: -3.5px;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--color-accent);
+    box-shadow: 0 0 0 4px color-mix(in srgb, var(--color-accent) 22%, transparent);
+    animation: harness-down var(--cycle) linear infinite;
+  }
+
+  @keyframes harness-gate {
+    0%,
+    100% {
+      border-color: var(--color-line);
+      background: var(--color-bg);
+    }
+    3% {
+      border-color: var(--color-accent);
+      background: color-mix(in srgb, var(--color-accent) 70%, var(--color-bg));
+    }
+    20% {
+      border-color: var(--color-accent);
+      background: color-mix(in srgb, var(--color-accent) 25%, var(--color-bg));
+    }
+    60% {
+      border-color: color-mix(in srgb, var(--color-accent) 50%, var(--color-line));
+      background: var(--color-bg);
+    }
+  }
+  @keyframes harness-down {
+    0% {
+      top: -4px;
+      opacity: 1;
+    }
+    83.33% {
+      top: calc(100% - 4px);
+      opacity: 1;
+    }
+    100% {
+      top: calc(100% - 4px);
+      opacity: 0;
+    }
+  }
+  @keyframes harness-across {
+    0% {
+      left: -4px;
+      opacity: 1;
+    }
+    83.33% {
+      left: calc(100% - 4px);
+      opacity: 1;
+    }
+    100% {
+      left: calc(100% - 4px);
+      opacity: 0;
+    }
+  }
+
+  /* From tablets up, the gates sit in a row with the track running across. */
+  @media (min-width: 768px) {
+    .harness-steps {
+      display: grid;
+      grid-template-columns: repeat(var(--n), minmax(0, 1fr));
+      gap: 1rem;
+    }
+    .harness-step {
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 0.7rem;
+      height: auto;
+    }
+    .harness-dot {
+      margin-top: 0;
+    }
+    .harness-text {
+      align-items: center;
+    }
+    .harness-line {
+      top: calc(var(--dot) / 2 - 0.5px);
+      /* half a column in from each side; the columns share 1rem gaps */
+      left: calc((100% - (var(--n) - 1) * 1rem) / var(--n) / 2);
+      right: calc((100% - (var(--n) - 1) * 1rem) / var(--n) / 2);
+      width: auto;
+      height: 1px;
+    }
+    .harness-pulse {
+      top: -3.5px;
+      left: -4px;
+      animation-name: harness-across;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .harness-dot {
+      animation: none;
+      border-color: var(--color-accent);
+      background: color-mix(in srgb, var(--color-accent) 25%, var(--color-bg));
+    }
+    .harness-pulse {
+      display: none;
+    }
+  }
+</style>

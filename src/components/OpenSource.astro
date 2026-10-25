@@ -44,7 +44,7 @@ const label = (p: Project) =>
                 <span class="text-faint font-normal">{u.name.split("/")[0]}/</span><wbr />{u.name.split("/")[1]}
               </a>
               <p class="text-muted text-sm">{u.what}</p>
-              <a href={u.prs} target="_blank" rel="noopener noreferrer" class="link font-mono text-xs">
+              <a href={u.prs} target="_blank" rel="noopener noreferrer" class="link font-mono -my-1.5 py-1.5 text-xs">
                 my merged pull requests →
               </a>
             </li>
@@ -88,7 +88,7 @@ const label = (p: Project) =>
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label={`${p.title} site`}
-                  class="text-muted hover:text-accent transition-colors"
+                  class="text-muted hover:text-accent -m-1.5 p-1.5 transition-colors"
                 >
                   <Icon name="external" size={15} />
                 </a>
@@ -243,7 +243,7 @@ const label = (p: Project) =>
       prs.href = `${r.url}/pulls?q=${encodeURIComponent(`is:pr author:${user} is:merged`)}`;
       prs.target = "_blank";
       prs.rel = "noopener noreferrer";
-      prs.className = "link";
+      prs.className = "link -my-1.5 py-1.5";
       prs.textContent = `${r.prs} merged PR${r.prs === 1 ? "" : "s"} →`;
       meta.append(prs);
 
