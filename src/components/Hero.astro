@@ -133,9 +133,13 @@ import avatar from "@/assets/avatar.jpg";
   // ---------------------------------------------------------------------
   // Boids — a tiny decentralized flocking simulation (Reynolds, 1987).
   // Each bird steers by three local rules: separation, alignment,
-  // cohesion. No leader, no global state. Two additions make it a toy:
-  // a click or tap gives the flock a goal to fly to, and the hero's text
-  // is a set of obstacles it flies around.
+  // cohesion. No leader, no global state. A few additions make it a toy:
+  // a click or tap in the hero gives the flock a goal to fly to, the
+  // hero's text is a set of obstacles it flies around, and the flock
+  // follows you down the page: when you scroll, the birds drift away with
+  // the content, then fly back into view. On wide screens they keep to
+  // the margins beside each section; where there's no margin to speak of,
+  // they fly faintly behind the text instead.
   // ---------------------------------------------------------------------
   const canvas = document.getElementById("boids") as HTMLCanvasElement | null;
   const hero = document.querySelector<HTMLElement>("[data-hero]");
@@ -143,6 +147,11 @@ import avatar from "@/assets/avatar.jpg";
   if (canvas && hero) {
     const ctx = canvas.getContext("2d")!;
     const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    // With motion, the canvas leaves the hero and covers the viewport, so
+    // the flock can follow the page. Reduced motion keeps the still frame
+    // in the hero, where it was drawn.
+    const roam = !reduceMotion;
+    if (roam) canvas.className = "pointer-events-none fixed inset-0 -z-[1] h-lvh w-screen";
 
     // The flock is texture, not decoration — it takes its colour from the
     // --color-agent token so the palette stays in one place.
@@ -204,6 +213,10 @@ import avatar from "@/assets/avatar.jpg";
 
     const boids: Boid[] = [];
     let obstacles: Rect[] = [];
+    /** Section columns, where a bird is drawn faintly so it never competes with text. */
+    let content: Rect[] = [];
+    /** Below this much margin beside a section, birds fly behind it instead of around it. */
+    const MIN_GUTTER = 80;
     let goal: Goal | null = null;
     /** Seek strength, 0..1, so a released goal lets go gradually. */
     let pull = 0;
@@ -212,20 +225,37 @@ import avatar from "@/assets/avatar.jpg";
 
     // Text as obstacles: one rectangle per line box, not per element, so a
     // ragged paragraph doesn't wall off the space beside its short lines.
+    // Past the hero, each section's column is one obstacle (on wide screens)
+    // so the flock keeps to the margins. Everything is in canvas space.
     function measure() {
       const c = canvas!.getBoundingClientRect();
+      const box = (r: DOMRect): Rect => ({ x0: r.left - c.left, y0: r.top - c.top, x1: r.right - c.left, y1: r.bottom - c.top });
       const out: Rect[] = [];
-      const range = document.createRange();
-      for (const el of hero!.querySelectorAll<HTMLElement>("[data-obstacle]")) {
-        if (el.hidden) continue;
-        range.selectNodeContents(el);
-        for (const r of range.getClientRects()) {
-          if (r.width < 1 || r.height < 1) continue;
-          out.push({ x0: r.left - c.left, y0: r.top - c.top, x1: r.right - c.left, y1: r.bottom - c.top });
+      const hr = hero!.getBoundingClientRect();
+      if (hr.bottom > c.top && hr.top < c.bottom) {
+        const range = document.createRange();
+        for (const el of hero!.querySelectorAll<HTMLElement>("[data-obstacle]")) {
+          if (el.hidden) continue;
+          range.selectNodeContents(el);
+          for (const r of range.getClientRects()) {
+            if (r.width < 1 || r.height < 1) continue;
+            out.push(box(r));
+          }
         }
+      }
+      content = [];
+      if (roam) {
+        for (const sec of document.querySelectorAll<HTMLElement>("#main > section:not([data-hero])")) {
+          const r = sec.getBoundingClientRect();
+          if (r.bottom < -h || r.top > 2 * h) continue;
+          content.push(box(r));
+        }
+        if (content.length && (w - (content[0]!.x1 - content[0]!.x0)) / 2 >= MIN_GUTTER) out.push(...content);
       }
       obstacles = out;
     }
+
+    const within = (x: number, y: number, r: Rect) => x > r.x0 && x < r.x1 && y > r.y0 && y < r.y1;
 
     const inside = (x: number, y: number, pad: number) =>
       obstacles.some((o) => x > o.x0 - pad && x < o.x1 + pad && y > o.y0 - pad && y < o.y1 + pad);
@@ -300,6 +330,25 @@ import avatar from "@/assets/avatar.jpg";
       }
       goal = { x, y, born: now, reached: null };
       ripples.push({ x, y, born: now });
+    }
+
+    // The page scrolled by dy: everything drawn in page space moves the
+    // other way. The birds go with it, but no further than a screen and a
+    // bit away, so a long jump through the nav still brings them back soon.
+    function scrolled(dy: number, now: number) {
+      for (const b of boids) b.y = Math.max(-1.2 * h, Math.min(2.2 * h, b.y - dy));
+      // a section column can be in both lists; move each rectangle once
+      for (const r of new Set([...obstacles, ...content])) {
+        r.y0 -= dy;
+        r.y1 -= dy;
+      }
+      for (const r of ripples) r.y -= dy;
+      if (goal) {
+        goal.y -= dy;
+        // a goal scrolled out of view lets the flock go
+        if ((goal.y < -0.2 * h || goal.y > 1.2 * h) && (goal.reached === null || goal.reached > now - HOLD_MS))
+          goal.reached = now - HOLD_MS;
+      }
     }
 
     function step(now: number) {
@@ -406,10 +455,26 @@ import avatar from "@/assets/avatar.jpg";
         ax = ax * (1 - 0.6 * close) + skX * (1 - close) + avX;
         ay = ay * (1 - 0.6 * close) + skY * (1 - close) + avY;
 
+        // migrate: a bird left above or below the screen by a scroll flies
+        // back, faster the further away it is
+        let top = MAX_SPEED * (1 + 0.6 * pull);
+        if (roam) {
+          const out = b.y < 0.04 * h ? 0.04 * h - b.y : b.y > 0.96 * h ? 0.96 * h - b.y : 0;
+          if (out !== 0) {
+            const fast = MAX_SPEED * (1 + Math.min(4, Math.abs(out) / (120 * scale)));
+            const [hx, hy] = limit(0, Math.sign(out) * fast - b.vy, MAX_FORCE * 3);
+            ax += hx;
+            ay += hy;
+            top = Math.max(top, fast);
+          }
+          // and one caught over a section's column gets out of it quickly
+          if (close === 1) top = Math.max(top, MAX_SPEED * 2.5);
+        }
+
         b.vx += ax;
         b.vy += ay;
         // a flock with somewhere to be flies a little faster
-        [b.vx, b.vy] = limit(b.vx, b.vy, MAX_SPEED * (1 + 0.6 * pull));
+        [b.vx, b.vy] = limit(b.vx, b.vy, top);
         // keep a minimum cruise speed so nobody stalls
         const sp = Math.hypot(b.vx, b.vy);
         const minSpeed = 0.4 * scale;
@@ -422,11 +487,14 @@ import avatar from "@/assets/avatar.jpg";
         // wingbeat speeds up with airspeed
         b.wing += 0.12 + 0.14 * (Math.hypot(b.vx, b.vy) / MAX_SPEED);
 
-        // toroidal wrap
+        // wrap around the sides; top and bottom only when the flock lives in
+        // the hero, since a roaming one flies back instead
         if (b.x < -10) b.x = w + 10;
         if (b.x > w + 10) b.x = -10;
-        if (b.y < -10) b.y = h + 10;
-        if (b.y > h + 10) b.y = -10;
+        if (!roam) {
+          if (b.y < -10) b.y = h + 10;
+          if (b.y > h + 10) b.y = -10;
+        }
       }
 
       // most of the flock is there: hold, then let go
@@ -436,6 +504,9 @@ import avatar from "@/assets/avatar.jpg";
     function draw(now: number) {
       ctx.clearRect(0, 0, w, h);
 
+      // over a section's text, a bird is drawn at well under half strength
+      const ink = boids.map((b) => (content.some((r) => within(b.x, b.y, r)) ? 0.4 : 1));
+
       // faint connection lines between close neighbours
       ctx.lineWidth = 1;
       for (let i = 0; i < boids.length; i++) {
@@ -444,7 +515,7 @@ import avatar from "@/assets/avatar.jpg";
           const o = boids[j]!;
           const d = Math.hypot(a.x - o.x, a.y - o.y);
           if (d < LINK) {
-            ctx.strokeStyle = `rgba(${ACCENT}, ${0.06 * (1 - d / LINK)})`;
+            ctx.strokeStyle = `rgba(${ACCENT}, ${0.06 * (1 - d / LINK) * Math.min(ink[i]!, ink[j]!)})`;
             ctx.beginPath();
             ctx.moveTo(a.x, a.y);
             ctx.lineTo(o.x, o.y);
@@ -491,11 +562,11 @@ import avatar from "@/assets/avatar.jpg";
       // meeting at the body, always upright, beating up and down. Turned to
       // face their heading they read as brackets next to the text; upright
       // they read as birds, and the flock's motion shows where it's going.
-      ctx.strokeStyle = `rgba(${ACCENT}, 0.45)`;
       ctx.lineWidth = 1.3;
       ctx.lineCap = "round";
       ctx.lineJoin = "round";
-      for (const b of boids) {
+      boids.forEach((b, i) => {
+        ctx.strokeStyle = `rgba(${ACCENT}, ${0.45 * ink[i]!})`;
         const beat = Math.sin(b.wing);
         const s = 4.4 * scale;
         const tipY = (0.4 + 1.6 * beat) * scale;
@@ -505,12 +576,17 @@ import avatar from "@/assets/avatar.jpg";
         ctx.quadraticCurveTo(b.x - s * 0.45, b.y + arch, b.x, b.y);
         ctx.quadraticCurveTo(b.x + s * 0.45, b.y + arch, b.x + s, b.y + tipY);
         ctx.stroke();
-      }
+      });
     }
 
     let raf = 0;
     let frame = 0;
+    let lastY = window.scrollY;
     function loop(now: number) {
+      if (roam && window.scrollY !== lastY) {
+        scrolled(window.scrollY - lastY, now);
+        lastY = window.scrollY;
+      }
       // the copy settles in after the reveal, and fonts can swap late:
       // re-read the obstacles every half second rather than trust one pass
       if (frame++ % 30 === 0) measure();
@@ -537,13 +613,14 @@ import avatar from "@/assets/avatar.jpg";
       });
 
       // A click or tap anywhere in the hero, except on a link, a button or
-      // the nav, becomes the flock's goal. The canvas bleeds past the
-      // section, so the hit test is the canvas's band, not the section.
+      // the nav, becomes the flock's goal. The hit test is the hero's band
+      // across the full width, since the canvas runs edge to edge.
       document.addEventListener("click", (e) => {
         if ((e.target as Element).closest("a, button, input, label, header, nav")) return;
         if (String(window.getSelection() ?? "").length > 0) return;
+        const band = hero.getBoundingClientRect();
+        if (e.clientY < band.top || e.clientY > band.bottom) return;
         const c = canvas.getBoundingClientRect();
-        if (e.clientY < c.top || e.clientY > c.bottom) return;
         setGoal(e.clientX - c.left, e.clientY - c.top, performance.now());
       });
 

@@ -7,7 +7,7 @@ export const site = {
   name: "Erwin Lejeune",
   handle: "guilyx",
   role: "Head of Robotics",
-  tagline: "Robot autonomy that keeps working outside the lab.",
+  tagline: "Leading robotics software teams across orchestration, navigation and fault management.",
   description:
     "Erwin Lejeune is Head of Robotics at SIRB.AI in Abu Dhabi. He builds robot autonomy (planning, swarms, sensor fusion) and has led robotics teams since 2021. ROS 2, C++, Python, Go.",
   url: "https://v4.elejeune.me",
@@ -560,34 +560,35 @@ export const featured: Project[] = [
 
 /**
  * Open Source — its own section: why it matters, where it went upstream,
- * and the repos of my own. `prs` links are GitHub searches for my pull
- * requests in that repo, so they stay current without a list to maintain.
+ * and the repos of my own. The upstream list is live: visitors' browsers ask
+ * GitHub for my merged pull requests outside my own repos and orgs, and
+ * show the three biggest projects by stars. `upstream` is what shows until
+ * then, or if GitHub can't be reached. `prs` links are GitHub searches for
+ * my merged pull requests in that repo, so they stay current on their own.
  */
 export const openSource = {
   since: 2018,
+  github: "guilyx",
+  /** Repos under these owners are mine, so they don't count as upstream. */
+  ownOrgs: ["guilyx", "APLA-Toolbox", "Clanker-Labs", "Unchained-Labs"],
+  /** "Decently sized": fewer stars than this and a project isn't listed. */
+  minStars: 50,
   paragraphs: [
     `My first open-source contribution was in 2018, and I've kept going since.
      Robotics runs on shared code: ROS and the thousands of packages around it
      only exist because people published their work, so I try to give back.
      It has also taught me a lot about writing code other people can read and
      build on.`,
-    `Upstream, I've contributed to navigation2, the ROS 2 navigation stack, and
-     tf2, the transform library almost every ROS robot uses. The rest is my
-     own: tools for problems I kept running into, published so the next person
-     doesn't start from scratch.`,
+    `Upstream, that includes navigation2, the ROS 2 navigation stack. The rest
+     is my own: tools for problems I kept running into, published so the next
+     person doesn't start from scratch.`,
   ],
   upstream: [
     {
       name: "navigation2",
       what: "the ROS 2 navigation stack",
       repo: "https://github.com/ros-navigation/navigation2",
-      prs: "https://github.com/ros-navigation/navigation2/pulls?q=is%3Apr+author%3Aguilyx",
-    },
-    {
-      name: "tf2",
-      what: "ROS 2 coordinate transforms",
-      repo: "https://github.com/ros2/geometry2",
-      prs: "https://github.com/ros2/geometry2/pulls?q=is%3Apr+author%3Aguilyx",
+      prs: "https://github.com/ros-navigation/navigation2/pulls?q=is%3Apr+author%3Aguilyx+is%3Amerged",
     },
   ],
 } as const;
@@ -859,8 +860,8 @@ export const archive: ArchiveEntry[] = [
  * above it or the spec block beside it; the Background section right after
  * tells the rest.
  */
-export const heroSummary = `Eight years of it, from a supermarket robot in
-  Denmark to drone swarms in the UAE.`;
+export const heroSummary = `Eight years in robotics, from a supermarket robot
+  in Denmark to drone swarms in the UAE.`;
 
 export const spec = [
   { key: "role", value: "head of robotics @ sirb.ai" },
