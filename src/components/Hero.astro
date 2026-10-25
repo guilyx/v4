@@ -1,5 +1,9 @@
 ---
+import { Image } from "astro:assets";
 import { site, spec, heroSummary } from "@/data/site";
+// The GitHub avatar (github.com/guilyx.png), committed so the build doesn't
+// depend on GitHub being reachable. Re-download it there if it changes.
+import avatar from "@/assets/avatar.jpg";
 ---
 
 {/*
@@ -8,7 +12,8 @@ import { site, spec, heroSummary } from "@/data/site";
   its top — the name — pushed up under the nav. `svh` measures the smallest
   visible viewport, and the top padding clears the fixed header outright.
 
-  Everything marked `data-obstacle` is text the flock flies around.
+  Everything marked `data-obstacle` is something the flock flies around: the
+  text, and the portrait.
 */}
 <section
   class="relative flex min-h-svh flex-col justify-center pt-28 pb-16 sm:pt-24 md:py-0"
@@ -20,53 +25,75 @@ import { site, spec, heroSummary } from "@/data/site";
     class="pointer-events-none absolute top-0 left-1/2 -z-[1] h-full w-screen -translate-x-1/2"
     aria-hidden="true"></canvas>
 
-  <div class="max-w-3xl">
-    <h1
-      class="text-3xl font-semibold sm:text-5xl md:text-6xl"
-      data-reveal
-      data-obstacle
-      style="--reveal-delay: 100ms"
-    >
-      {site.name}
-    </h1>
-    <h2
-      class="text-muted mt-2 max-w-2xl text-2xl font-semibold sm:text-4xl"
-      data-reveal
-      data-obstacle
-      style="--reveal-delay: 200ms"
-    >
-      {site.tagline}
-    </h2>
+  {/* The portrait sits above the name until there's room beside it: on wide
+      screens it moves to the right, with the offset accent ring as its frame. */}
+  <div class="flex flex-col gap-7 xl:flex-row-reverse xl:items-center xl:justify-between xl:gap-16">
+    <div class="w-20 shrink-0 sm:w-24 xl:w-72" data-reveal data-obstacle>
+      <div class="group relative">
+        <div
+          class="border-accent absolute inset-0 translate-x-1.5 translate-y-1.5 rounded-full border transition-transform duration-300 group-hover:translate-x-1 group-hover:translate-y-1 xl:translate-x-4 xl:translate-y-4 xl:group-hover:translate-x-2 xl:group-hover:translate-y-2"
+          aria-hidden="true"
+        >
+        </div>
+        <Image
+          src={avatar}
+          alt={site.name}
+          widths={[192, 384, 720]}
+          sizes="(min-width: 1280px) 346px, 106px"
+          loading="eager"
+          class="relative aspect-square w-full rounded-full object-cover"
+        />
+      </div>
+    </div>
 
-    {/* Spec block — Erwin introduces himself as a YAML doc on GitHub; the
-        site borrows that register rather than a greeting. */}
-    <dl class="mt-8 grid max-w-lg gap-y-2 sm:mt-9 sm:gap-y-1.5" data-reveal style="--reveal-delay: 350ms">
-      {
-        spec.map((row) => (
-          <div class="font-mono text-[0.78rem] leading-relaxed sm:flex sm:gap-4">
-            <dt class="text-faint sm:w-20 sm:shrink-0" data-obstacle>
-              {row.key}
-            </dt>
-            <dd class="text-body m-0" data-obstacle>
-              {row.value}
-            </dd>
-          </div>
-        ))
-      }
-    </dl>
+    <div class="max-w-3xl min-w-0">
+      <h1
+        class="text-3xl font-semibold sm:text-5xl md:text-6xl"
+        data-reveal
+        data-obstacle
+        style="--reveal-delay: 100ms"
+      >
+        {site.name}
+      </h1>
+      <h2
+        class="text-muted mt-2 max-w-2xl text-2xl font-semibold sm:text-4xl"
+        data-reveal
+        data-obstacle
+        style="--reveal-delay: 200ms"
+      >
+        {site.tagline}
+      </h2>
 
-    <p
-      class="text-body mt-8 max-w-xl text-[0.95rem] leading-relaxed"
-      data-reveal
-      data-obstacle
-      style="--reveal-delay: 500ms"
-    >
-      {heroSummary.replace(/\s+/g, " ")}
-    </p>
+      {/* Spec block — Erwin introduces himself as a YAML doc on GitHub; the
+          site borrows that register rather than a greeting. */}
+      <dl class="mt-8 grid max-w-lg gap-y-2 sm:mt-9 sm:gap-y-1.5" data-reveal style="--reveal-delay: 350ms">
+        {
+          spec.map((row) => (
+            <div class="font-mono text-[0.78rem] leading-relaxed sm:flex sm:gap-4">
+              <dt class="text-faint sm:w-20 sm:shrink-0" data-obstacle>
+                {row.key}
+              </dt>
+              <dd class="text-body m-0" data-obstacle>
+                {row.value}
+              </dd>
+            </div>
+          ))
+        }
+      </dl>
 
-    <div class="mt-9 flex flex-wrap items-center gap-5" data-reveal style="--reveal-delay: 600ms">
-      <a href="/#projects" class="btn" data-obstacle>See the work</a>
-      <a href={`mailto:${site.email}`} class="link font-mono text-sm" data-obstacle>{site.email}</a>
+      <p
+        class="text-body mt-8 max-w-xl text-[0.95rem] leading-relaxed"
+        data-reveal
+        data-obstacle
+        style="--reveal-delay: 500ms"
+      >
+        {heroSummary.replace(/\s+/g, " ")}
+      </p>
+
+      <div class="mt-9 flex flex-wrap items-center gap-5" data-reveal style="--reveal-delay: 600ms">
+        <a href="/#projects" class="btn" data-obstacle>See the work</a>
+        <a href={`mailto:${site.email}`} class="link font-mono -my-1.5 py-1.5 text-sm" data-obstacle>{site.email}</a>
+      </div>
     </div>
   </div>
 
@@ -106,9 +133,14 @@ import { site, spec, heroSummary } from "@/data/site";
   // ---------------------------------------------------------------------
   // Boids — a tiny decentralized flocking simulation (Reynolds, 1987).
   // Each bird steers by three local rules: separation, alignment,
-  // cohesion. No leader, no global state. Two additions make it a toy:
-  // a click or tap gives the flock a goal to fly to, and the hero's text
-  // is a set of obstacles it flies around.
+  // cohesion. No leader, no global state. A few additions make it a toy:
+  // a click or tap in the hero gives the flock a goal to fly to, the
+  // hero's text is a set of obstacles it flies around (a click on any
+  // empty space further down works too), and the flock
+  // follows you down the page: when you scroll, the birds drift away with
+  // the content, then fly back into view. Every section is an obstacle
+  // course like the hero: they fly around each line of text and each
+  // solid block, through the margins and the gaps between.
   // ---------------------------------------------------------------------
   const canvas = document.getElementById("boids") as HTMLCanvasElement | null;
   const hero = document.querySelector<HTMLElement>("[data-hero]");
@@ -116,6 +148,11 @@ import { site, spec, heroSummary } from "@/data/site";
   if (canvas && hero) {
     const ctx = canvas.getContext("2d")!;
     const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    // With motion, the canvas leaves the hero and covers the viewport, so
+    // the flock can follow the page. Reduced motion keeps the still frame
+    // in the hero, where it was drawn.
+    const roam = !reduceMotion;
+    if (roam) canvas.className = "pointer-events-none fixed inset-0 -z-[1] h-lvh w-screen";
 
     // The flock is texture, not decoration — it takes its colour from the
     // --color-agent token so the palette stays in one place.
@@ -183,22 +220,65 @@ import { site, spec, heroSummary } from "@/data/site";
     /** Expanding rings where the clicks landed. */
     const ripples: { x: number; y: number; born: number }[] = [];
 
+    const transparent = (c: string) => c === "transparent" || c === "rgba(0, 0, 0, 0)";
+
+    // Past the hero, what to fly around: every text node, and every solid
+    // element (images, video, canvases, and anything with its own
+    // background or a border on both sides, like cards and buttons).
+    // Finding them means a computed style per element, so it's done once
+    // and again when the page's content changes, not on every measure.
+    let texts: Text[] = [];
+    let solids: Element[] = [];
+    function scan() {
+      texts = [];
+      solids = [];
+      for (const sec of document.querySelectorAll("#main > section:not([data-hero]), #main > footer")) {
+        const walk = document.createTreeWalker(sec, NodeFilter.SHOW_TEXT);
+        while (walk.nextNode()) if (walk.currentNode.textContent?.trim()) texts.push(walk.currentNode as Text);
+        for (const el of sec.querySelectorAll("*")) {
+          if (el.closest("svg") && el.tagName.toLowerCase() !== "svg") continue;
+          if (el.matches("img, video, canvas, svg")) {
+            solids.push(el);
+            continue;
+          }
+          const st = getComputedStyle(el);
+          if (!transparent(st.backgroundColor) || (parseFloat(st.borderLeftWidth) > 0 && parseFloat(st.borderRightWidth) > 0))
+            solids.push(el);
+        }
+      }
+    }
+
     // Text as obstacles: one rectangle per line box, not per element, so a
     // ragged paragraph doesn't wall off the space beside its short lines.
+    // Only what's on screen or near it counts. Everything is in canvas space.
     function measure() {
       const c = canvas!.getBoundingClientRect();
+      const box = (r: DOMRect): Rect => ({ x0: r.left - c.left, y0: r.top - c.top, x1: r.right - c.left, y1: r.bottom - c.top });
+      const near = (r: DOMRect) =>
+        r.width >= 1 && r.height >= 1 && r.bottom > c.top - 0.5 * h && r.top < c.bottom + 0.5 * h && r.right > c.left - 50 && r.left < c.right + 50;
       const out: Rect[] = [];
       const range = document.createRange();
-      for (const el of hero!.querySelectorAll<HTMLElement>("[data-obstacle]")) {
-        if (el.hidden) continue;
-        range.selectNodeContents(el);
-        for (const r of range.getClientRects()) {
-          if (r.width < 1 || r.height < 1) continue;
-          out.push({ x0: r.left - c.left, y0: r.top - c.top, x1: r.right - c.left, y1: r.bottom - c.top });
+      const lines = (node: Node) => {
+        range.selectNodeContents(node);
+        for (const r of range.getClientRects()) if (near(r)) out.push(box(r));
+      };
+      if (near(hero!.getBoundingClientRect())) {
+        for (const el of hero!.querySelectorAll<HTMLElement>("[data-obstacle]")) if (!el.hidden) lines(el);
+      }
+      if (roam) {
+        for (const t of texts) {
+          const parent = t.parentElement?.getBoundingClientRect();
+          if (parent && near(parent)) lines(t);
+        }
+        for (const el of solids) {
+          const r = el.getBoundingClientRect();
+          if (near(r)) out.push(box(r));
         }
       }
       obstacles = out;
     }
+
+    const within = (x: number, y: number, r: Rect) => x > r.x0 && x < r.x1 && y > r.y0 && y < r.y1;
 
     const inside = (x: number, y: number, pad: number) =>
       obstacles.some((o) => x > o.x0 - pad && x < o.x1 + pad && y > o.y0 - pad && y < o.y1 + pad);
@@ -223,6 +303,7 @@ import { site, spec, heroSummary } from "@/data/site";
       ARRIVE = BASE.arrive * scale;
       SLOW = BASE.slow * scale;
       count = Math.round(Math.min(44, Math.max(14, (w * h) / 28000)));
+      if (roam) scan();
       measure();
       fill();
     }
@@ -273,6 +354,25 @@ import { site, spec, heroSummary } from "@/data/site";
       }
       goal = { x, y, born: now, reached: null };
       ripples.push({ x, y, born: now });
+    }
+
+    // The page scrolled by dy: everything drawn in page space moves the
+    // other way. The birds go with it, but no further than most of a screen
+    // away, so even a long jump through the nav brings them back in a
+    // couple of seconds.
+    function scrolled(dy: number, now: number) {
+      for (const b of boids) b.y = Math.max(-0.8 * h, Math.min(1.8 * h, b.y - dy));
+      for (const r of obstacles) {
+        r.y0 -= dy;
+        r.y1 -= dy;
+      }
+      for (const r of ripples) r.y -= dy;
+      if (goal) {
+        goal.y -= dy;
+        // a goal scrolled out of view lets the flock go
+        if ((goal.y < -0.2 * h || goal.y > 1.2 * h) && (goal.reached === null || goal.reached > now - HOLD_MS))
+          goal.reached = now - HOLD_MS;
+      }
     }
 
     function step(now: number) {
@@ -332,7 +432,11 @@ import { site, spec, heroSummary } from "@/data/site";
         let close = 0;
         const fx = b.x + b.vx * 12;
         const fy = b.y + b.vy * 12;
-        for (const o of obstacles) {
+        // a bird still flying back from off screen ignores the obstacles: on
+        // a phone, full-width paragraphs would otherwise turn it away at the
+        // edge for good. Once it's on screen it steers around them again.
+        const homing = roam && (b.y < 0.04 * h || b.y > 0.96 * h);
+        for (const o of homing ? [] : obstacles) {
           const px = Math.max(o.x0, Math.min(fx, o.x1));
           const py = Math.max(o.y0, Math.min(fy, o.y1));
           const dx = fx - px;
@@ -358,6 +462,7 @@ import { site, spec, heroSummary } from "@/data/site";
         // in, hold a ring around it and go round, the way a swarm loiters
         // over a target instead of piling onto one point
         let skX = 0, skY = 0;
+        let seekTop = 0;
         if (goal && pull > 0) {
           const gx = goal.x - b.x;
           const gy = goal.y - b.y;
@@ -367,7 +472,11 @@ import { site, spec, heroSummary } from "@/data/site";
             const ring = ARRIVE * 0.6;
             const inward = Math.max(-0.6, Math.min(1, (gd - ring) / SLOW));
             const around = 1 - Math.min(1, gd / SLOW);
-            const fast = MAX_SPEED * (1 + 0.6 * pull);
+            // far from the goal, fly up to three times as fast, easing off on
+            // the way in, so a goal across the page is reached in seconds
+            const far = 1 + Math.min(2, Math.max(0, gd - SLOW) / (250 * scale));
+            const fast = MAX_SPEED * (1 + 0.6 * pull) * far;
+            seekTop = fast * pull;
             const dvx = (gx / gd) * fast * inward + (-gy / gd) * MAX_SPEED * 0.9 * around;
             const dvy = (gy / gd) * fast * inward + (gx / gd) * MAX_SPEED * 0.9 * around;
             [skX, skY] = limit(dvx - b.vx, dvy - b.vy, MAX_FORCE * 1.8);
@@ -379,10 +488,26 @@ import { site, spec, heroSummary } from "@/data/site";
         ax = ax * (1 - 0.6 * close) + skX * (1 - close) + avX;
         ay = ay * (1 - 0.6 * close) + skY * (1 - close) + avY;
 
+        // migrate: a bird left above or below the screen by a scroll flies
+        // back, faster the further away it is
+        let top = Math.max(MAX_SPEED * (1 + 0.6 * pull), seekTop);
+        if (roam) {
+          const out = b.y < 0.04 * h ? 0.04 * h - b.y : b.y > 0.96 * h ? 0.96 * h - b.y : 0;
+          if (out !== 0) {
+            const fast = MAX_SPEED * (1 + Math.min(6, Math.abs(out) / (80 * scale)));
+            const [hx, hy] = limit(0, Math.sign(out) * fast - b.vy, MAX_FORCE * 5);
+            ax += hx;
+            ay += hy;
+            top = Math.max(top, fast);
+          }
+          // and one caught over a section's column gets out of it quickly
+          if (close === 1) top = Math.max(top, MAX_SPEED * 2.5);
+        }
+
         b.vx += ax;
         b.vy += ay;
         // a flock with somewhere to be flies a little faster
-        [b.vx, b.vy] = limit(b.vx, b.vy, MAX_SPEED * (1 + 0.6 * pull));
+        [b.vx, b.vy] = limit(b.vx, b.vy, top);
         // keep a minimum cruise speed so nobody stalls
         const sp = Math.hypot(b.vx, b.vy);
         const minSpeed = 0.4 * scale;
@@ -395,11 +520,14 @@ import { site, spec, heroSummary } from "@/data/site";
         // wingbeat speeds up with airspeed
         b.wing += 0.12 + 0.14 * (Math.hypot(b.vx, b.vy) / MAX_SPEED);
 
-        // toroidal wrap
+        // wrap around the sides; top and bottom only when the flock lives in
+        // the hero, since a roaming one flies back instead
         if (b.x < -10) b.x = w + 10;
         if (b.x > w + 10) b.x = -10;
-        if (b.y < -10) b.y = h + 10;
-        if (b.y > h + 10) b.y = -10;
+        if (!roam) {
+          if (b.y < -10) b.y = h + 10;
+          if (b.y > h + 10) b.y = -10;
+        }
       }
 
       // most of the flock is there: hold, then let go
@@ -409,6 +537,10 @@ import { site, spec, heroSummary } from "@/data/site";
     function draw(now: number) {
       ctx.clearRect(0, 0, w, h);
 
+      // a bird caught over text or a card, on its way out, is drawn at well
+      // under half strength so it never competes with what's there
+      const ink = boids.map((b) => (obstacles.some((r) => within(b.x, b.y, r)) ? 0.4 : 1));
+
       // faint connection lines between close neighbours
       ctx.lineWidth = 1;
       for (let i = 0; i < boids.length; i++) {
@@ -417,7 +549,7 @@ import { site, spec, heroSummary } from "@/data/site";
           const o = boids[j]!;
           const d = Math.hypot(a.x - o.x, a.y - o.y);
           if (d < LINK) {
-            ctx.strokeStyle = `rgba(${ACCENT}, ${0.06 * (1 - d / LINK)})`;
+            ctx.strokeStyle = `rgba(${ACCENT}, ${0.06 * (1 - d / LINK) * Math.min(ink[i]!, ink[j]!)})`;
             ctx.beginPath();
             ctx.moveTo(a.x, a.y);
             ctx.lineTo(o.x, o.y);
@@ -464,11 +596,11 @@ import { site, spec, heroSummary } from "@/data/site";
       // meeting at the body, always upright, beating up and down. Turned to
       // face their heading they read as brackets next to the text; upright
       // they read as birds, and the flock's motion shows where it's going.
-      ctx.strokeStyle = `rgba(${ACCENT}, 0.45)`;
       ctx.lineWidth = 1.3;
       ctx.lineCap = "round";
       ctx.lineJoin = "round";
-      for (const b of boids) {
+      boids.forEach((b, i) => {
+        ctx.strokeStyle = `rgba(${ACCENT}, ${0.45 * ink[i]!})`;
         const beat = Math.sin(b.wing);
         const s = 4.4 * scale;
         const tipY = (0.4 + 1.6 * beat) * scale;
@@ -478,12 +610,17 @@ import { site, spec, heroSummary } from "@/data/site";
         ctx.quadraticCurveTo(b.x - s * 0.45, b.y + arch, b.x, b.y);
         ctx.quadraticCurveTo(b.x + s * 0.45, b.y + arch, b.x + s, b.y + tipY);
         ctx.stroke();
-      }
+      });
     }
 
     let raf = 0;
     let frame = 0;
+    let lastY = window.scrollY;
     function loop(now: number) {
+      if (roam && window.scrollY !== lastY) {
+        scrolled(window.scrollY - lastY, now);
+        lastY = window.scrollY;
+      }
       // the copy settles in after the reveal, and fonts can swap late:
       // re-read the obstacles every half second rather than trust one pass
       if (frame++ % 30 === 0) measure();
@@ -493,6 +630,19 @@ import { site, spec, heroSummary } from "@/data/site";
     }
 
     resize();
+
+    // When the page's content changes (the live GitHub list arriving, the
+    // chapters' notes changing), look for obstacles again, once it settles.
+    if (roam) {
+      let rescan = 0;
+      new MutationObserver(() => {
+        clearTimeout(rescan);
+        rescan = window.setTimeout(() => {
+          scan();
+          measure();
+        }, 400);
+      }).observe(document.getElementById("main")!, { childList: true, subtree: true, characterData: true });
+    }
 
     if (reduceMotion) {
       // static formation for reduced-motion users; no goal to chase
@@ -509,21 +659,74 @@ import { site, spec, heroSummary } from "@/data/site";
         }
       });
 
-      // A click or tap anywhere in the hero, except on a link, a button or
-      // the nav, becomes the flock's goal. The canvas bleeds past the
-      // section, so the hit test is the canvas's band, not the section.
+      // A click or tap becomes the flock's goal: anywhere in the hero
+      // (except a link, a button or the nav), and on any empty space further
+      // down. Empty means the background itself: not text, not a control or
+      // an image, not inside a card or panel.
+      const CONTROLS =
+        "a, button, input, textarea, select, label, summary, img, video, iframe, canvas:not(#boids), [role=tab], [tabindex], header, nav";
+      const caretDoc = document as Document & {
+        caretPositionFromPoint?: (x: number, y: number) => { offsetNode: Node } | null;
+        caretRangeFromPoint?: (x: number, y: number) => Range | null;
+      };
+      const overText = (x: number, y: number) => {
+        const node = caretDoc.caretPositionFromPoint
+          ? caretDoc.caretPositionFromPoint(x, y)?.offsetNode
+          : caretDoc.caretRangeFromPoint?.(x, y)?.startContainer;
+        if (!node || node.nodeType !== Node.TEXT_NODE || !node.textContent?.trim()) return false;
+        // the caret snaps to the nearest text, so check the text is really there
+        const range = document.createRange();
+        range.selectNodeContents(node);
+        return Array.from(range.getClientRects()).some(
+          (r) => x >= r.left - 2 && x <= r.right + 2 && y >= r.top - 2 && y <= r.bottom + 2,
+        );
+      };
+      const isFree = (target: Element, x: number, y: number) => {
+        if (target.closest(CONTROLS) || overText(x, y)) return false;
+        for (let el: Element | null = target; el && el.id !== "main"; el = el.parentElement) {
+          if (el.matches("#main > section")) break;
+          const st = getComputedStyle(el);
+          // a card or panel: its own background, or a border on both sides
+          if (!transparent(st.backgroundColor)) return false;
+          if (parseFloat(st.borderLeftWidth) > 0 && parseFloat(st.borderRightWidth) > 0) return false;
+        }
+        return true;
+      };
+      const inHero = (y: number) => {
+        const band = hero.getBoundingClientRect();
+        return y >= band.top && y <= band.bottom;
+      };
+
       document.addEventListener("click", (e) => {
-        if ((e.target as Element).closest("a, button, input, label, header, nav")) return;
+        const target = e.target as Element;
         if (String(window.getSelection() ?? "").length > 0) return;
+        const ok = inHero(e.clientY) ? !target.closest("a, button, input, label, header, nav") : isFree(target, e.clientX, e.clientY);
+        if (!ok) return;
         const c = canvas.getBoundingClientRect();
-        if (e.clientY < c.top || e.clientY > c.bottom) return;
         setGoal(e.clientX - c.left, e.clientY - c.top, performance.now());
       });
+
+      // With a mouse, the cursor turns to a crosshair wherever a click would
+      // land: all of the hero, and empty space everywhere else.
+      let pending = false;
+      document.addEventListener(
+        "pointermove",
+        (e) => {
+          if (e.pointerType !== "mouse" || pending) return;
+          pending = true;
+          requestAnimationFrame(() => {
+            pending = false;
+            const free = !inHero(e.clientY) && isFree(e.target as Element, e.clientX, e.clientY);
+            document.documentElement.style.cursor = free ? "crosshair" : "";
+          });
+        },
+        { passive: true },
+      );
 
       const hint = hero.querySelector<HTMLElement>("[data-boids-hint]");
       if (hint) {
         const verb = window.matchMedia("(pointer: coarse)").matches ? "tap" : "click";
-        hint.textContent = `${verb} anywhere to give the flock a goal`;
+        hint.textContent = `${verb} any empty space to give the flock a goal`;
         hint.hidden = false;
       }
       hero.style.cursor = "crosshair";

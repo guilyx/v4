@@ -59,8 +59,8 @@ const flat = groupsIndexed.flatMap((g) => g.jobs);
 <Section id="experience" title="Experiences">
   <div data-reveal>
     <p class="text-muted mb-8 max-w-xl text-sm">
-      Eight years, four countries, one thread running through it: what should
-      this system do next. Select a bar for the detail.
+      Where I've worked since 2018. Some roles overlap, so each company has its
+      own row. Pick a bar to see what I did there.
     </p>
 
     <div class="scroller -mx-2 overflow-x-auto px-2 pb-2">
@@ -69,7 +69,7 @@ const flat = groupsIndexed.flatMap((g) => g.jobs);
           was otherwise clipped by the scroller. */}
       <div class="min-w-[260px] pr-5">
         {/* Year axis, offset to sit over the track only */}
-        <div class="grid grid-cols-[76px_1fr] items-end" aria-hidden="true">
+        <div class="grid grid-cols-[96px_1fr] items-end gap-2" aria-hidden="true">
           <span></span>
           <div class="border-line relative h-5 border-b">
             {
@@ -89,8 +89,11 @@ const flat = groupsIndexed.flatMap((g) => g.jobs);
         <div role="tablist" aria-label="Roles" class="mt-2 flex flex-col gap-1" id="tl">
           {
             groupsIndexed.map((group) => (
-              <div class="grid w-full grid-cols-[76px_1fr] items-center gap-2 py-1">
-                <span class="tl-label font-mono flex items-center gap-1 truncate pl-1 text-[0.65rem]">
+              <div class="grid w-full grid-cols-[96px_1fr] items-center gap-2 py-1">
+                <span
+                  class="tl-label font-mono flex cursor-pointer items-center gap-1 truncate pl-1 text-[0.7rem]"
+                  data-latest={group.jobs[group.jobs.length - 1]!.index}
+                >
                   <span
                     class="tl-icon border-line bg-bg relative inline-flex size-4 shrink-0 items-center justify-center overflow-hidden rounded-[3px] border text-[0.5rem] leading-none"
                     aria-hidden="true"
@@ -228,6 +231,18 @@ const flat = groupsIndexed.flatMap((g) => g.jobs);
   .tl-label {
     color: var(--color-muted);
   }
+  /* The bar is 10px tall and can be a few px wide: on a phone that's no
+     target at all. An invisible area around it takes the tap instead, at
+     least 28px wide and 30px tall, without moving anything on screen. */
+  .tl-bar::before {
+    content: "";
+    position: absolute;
+    top: -10px;
+    bottom: -10px;
+    left: 50%;
+    width: max(100%, 28px);
+    transform: translateX(-50%);
+  }
   .tl-bar:hover .tl-fill {
     background: color-mix(in srgb, var(--color-accent) 55%, var(--color-line));
   }
@@ -276,6 +291,12 @@ const flat = groupsIndexed.flatMap((g) => g.jobs);
       p.hidden = i !== index;
     });
   }
+
+  // Tapping a company's name picks its latest role, which beats aiming for
+  // a thin bar on a phone.
+  document.querySelectorAll<HTMLElement>(".tl-label[data-latest]").forEach((label) => {
+    label.addEventListener("click", () => select(Number(label.dataset.latest)));
+  });
 
   tabs.forEach((tab, i) => {
     tab.addEventListener("click", () => select(i));

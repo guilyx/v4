@@ -35,7 +35,7 @@ const sortable = [
   <div class="mx-auto max-w-4xl pt-36 pb-24">
     <a
       href="/#projects"
-      class="font-mono text-muted hover:text-accent inline-flex items-center gap-2 text-xs transition-colors"
+      class="font-mono text-muted hover:text-accent -my-1.5 inline-flex items-center gap-2 py-1.5 text-xs transition-colors"
     >
       <Icon name="arrow" size={14} class="rotate-180" /> all projects
     </a>
@@ -204,7 +204,10 @@ const sortable = [
     outline: none;
   }
 
+  /* Padding without layout shift gives a phone-sized target. */
   .sort-btn {
+    margin-block: -0.4rem;
+    padding-block: 0.4rem;
     cursor: pointer;
     transition: color 0.2s var(--ease-swift);
   }

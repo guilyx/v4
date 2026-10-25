@@ -88,6 +88,78 @@ const ogImage = new URL("/og.png", Astro.site);
       } else {
         els.forEach((el) => el.classList.add("is-visible"));
       }
+
+      // Section snapping, on the home page only. CSS scroll snapping was
+      // either too loose (proximity: it only snapped when a scroll happened
+      // to stop near a section) or too sticky (mandatory: a short scroll,
+      // like one mouse-wheel notch, snapped straight back to where it
+      // started). This goes by direction instead: when a scroll comes to
+      // rest, glide on to the next section's start (or back to this one's)
+      // if the section fits on screen, or once that start is in the near
+      // half of the screen. Inside a taller section the page scrolls freely.
+      if (
+        document.documentElement.classList.contains("snap-sections") &&
+        !window.matchMedia("(prefers-reduced-motion: reduce)").matches
+      ) {
+        const stops = () => {
+          const max = document.documentElement.scrollHeight - innerHeight;
+          const ys = Array.from(document.querySelectorAll<HTMLElement>("#main > section"), (s) => {
+            return s.getBoundingClientRect().top + scrollY - parseFloat(getComputedStyle(s).scrollMarginTop);
+          });
+          ys.push(max); // the footer
+          return ys.map((y) => Math.round(Math.max(0, Math.min(max, y)))).sort((a, b) => a - b);
+        };
+
+        let rest = scrollY; // where the last scroll came to rest
+        let gliding = false; // the scroll in progress is ours
+        let focusedAt = 0;
+        let touching = false;
+
+        const settle = () => {
+          const y = scrollY;
+          if (gliding) {
+            gliding = false;
+            rest = y;
+            return;
+          }
+          // a scroll that brought a focused element into view stays put
+          const dir = Math.sign(y - rest);
+          if (!dir || performance.now() - focusedAt < 600) {
+            rest = y;
+            return;
+          }
+          const vh = innerHeight;
+          const s = stops();
+          const prev = s.filter((p) => p <= y + 1).pop() ?? 0;
+          const next = s.find((p) => p > y + 1);
+          const fits = next !== undefined && next - prev <= vh + 2;
+          let to: number | null = null;
+          if (dir > 0 && next !== undefined && (fits || next - y <= vh / 2)) to = next;
+          if (dir < 0 && (fits || y - prev <= vh / 2)) to = prev;
+          if (to === null || Math.abs(to - y) < 2) {
+            rest = y;
+            return;
+          }
+          gliding = true;
+          window.scrollTo({ top: to, behavior: "smooth" });
+        };
+
+        document.addEventListener("focusin", () => (focusedAt = performance.now()));
+        if ("onscrollend" in window) {
+          window.addEventListener("scrollend", settle);
+        } else {
+          // Older Safari: call it settled 150ms after the last scroll event,
+          // and never while a finger is still on the screen.
+          let timer = 0;
+          const later = () => {
+            clearTimeout(timer);
+            timer = window.setTimeout(() => !touching && settle(), 150);
+          };
+          window.addEventListener("scroll", later, { passive: true });
+          window.addEventListener("touchstart", () => (touching = true), { passive: true });
+          window.addEventListener("touchend", () => ((touching = false), later()), { passive: true });
+        }
+      }
     </script>
   </body>
 </html>

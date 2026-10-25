@@ -6,10 +6,10 @@
 export const site = {
   name: "Erwin Lejeune",
   handle: "guilyx",
-  role: "Team Lead — Robotics Software",
-  tagline: "Building the layer that decides what happens next.",
+  role: "Head of Robotics",
+  tagline: "Leading robotics software teams across orchestration, navigation and fault management.",
   description:
-    "Erwin Lejeune — Team Lead, Robotics Software, in Abu Dhabi. Hands-on ROS 2 developer: behavior, task and path planning, sensor fusion, multi-agent planning and agentic AI orchestration. C++, Python, Go.",
+    "Erwin Lejeune is Head of Robotics at SIRB.AI in Abu Dhabi. He builds robot autonomy (planning, swarms, sensor fusion) and has led robotics teams since 2021. ROS 2, C++, Python, Go.",
   url: "https://v4.elejeune.me",
   email: "erwin.lejeune15@gmail.com",
   location: "Abu Dhabi, UAE",
@@ -36,6 +36,7 @@ export const site = {
 
 export const nav = [
   { label: "background", href: "/#about" },
+  { label: "agentic era", href: "/#agentic" },
   { label: "experiences", href: "/#experience" },
   { label: "systems", href: "/#systems" },
   { label: "projects", href: "/#projects" },
@@ -47,29 +48,19 @@ export const nav = [
 
 export const about = {
   paragraphs: [
-    `Hello! I'm Erwin — a robotics software team lead who still writes the
-     code. I've spent 8+ years taking autonomy from research to real-world
-     deployment: behavior, task and path planning, sensor fusion, motion
-     control, and the system design that keeps robots reliable outside the
-     lab. ROS 2 is home.`,
-    `Today I'm Head of Robotics at [SIRB.AI](https://sirb.ai/), on the founding
-     team that took its swarm autonomy stack from prototype to public launch
-     at UMEX 2026. Until then I led a team of 9 robotics engineers at the
-     [Technology Innovation Institute](https://www.tii.ae/) — autonomy,
-     infrastructure and platform integration for drone fleets. I've been
-     leading teams for 2+ years, from product roadmaps through PI planning to
-     sprints, while staying hands-on in the stack. Before drones, I built the
-     navigation stack of a robot working the aisles of a supermarket in
-     Odense, Denmark, at [Coalescent Mobile Robotics](https://cm-robotics.com/).`,
-    `On the side I run [Unchained Labs](https://unchainedlabs.dev/), building
-     local-first agentic systems for companies, and
-     [Clanker Labs](https://clanker-labs.github.io/clanker-labs-public/), the
-     same idea pointed at my own home: one self-hosted stack, with an agent
-     running it. I bring both back to robotics: agentic tooling that turns
-     robot data into diagnostics, and self-healing autonomy that detects and
-     recovers from failures in the field. When I'm not shipping autonomy
-     stacks I'm playing basketball, watching films, or chasing ranked
-     ladders.`,
+    `I'm Erwin. I run robotics at [SIRB.AI](https://sirb.ai/), and I still
+     write code. Before that I led the robotics software team at
+     [TII](https://www.tii.ae/), built the navigation for a supermarket robot at
+     [Coalescent](https://cm-robotics.com/) in Denmark, and started my own
+     company, [Unchained Labs](https://unchainedlabs.dev/).`,
+    `I started out on microcontrollers, then simulated them, then pivoted to
+     building a platform for electronics logistics in Go at
+     [Hiventive](https://www.hiventive.com/en/). That range is my main
+     strength: I can bring ideas from other fields into robotics, for problems
+     most roboticists aren't familiar with.`,
+    `Off the clock: basketball, films, and
+     [Clanker Labs](https://clanker-labs.github.io/clanker-labs-public/), my
+     self-hosted home with an agent running it.`,
   ],
   technologies: [
     "ROS 2",
@@ -80,12 +71,183 @@ export const about = {
     "PDDL",
     "Sensor Fusion",
     "Motion Control",
-    "Agent Orchestration",
-    "MCP / RAG",
-    "Docker / CI",
+    "Embedded / Real-time",
+    "Agents / MCP / RAG",
+    "Docker / CI / RobotOps",
     "Scrum / PI Planning",
   ],
 } as const;
+
+/**
+ * "Adapting to the agentic era" — how I lead teams now that AI writes a lot
+ * of the code: as a tool that raises output without lowering the bar, with a
+ * harness around it so the quality holds as usage grows.
+ */
+export const agentic = {
+  intro: [
+    `AI changes how software gets built, and robotics is no exception. I treat
+     it as a tool that lets a team ship more without lowering the bar, not as a
+     replacement for the people on it.`,
+    `The real work is the harness around it: reviews, checks and habits that
+     keep quality where it was while AI does more of the typing. AI use is only
+     going to grow, and the harness is what makes that growth sustainable.`,
+  ],
+  /** The path every change takes, drawn as an animated strip. */
+  harness: [
+    { step: "draft", note: "written by a person or an AI" },
+    { step: "AI review", note: "self-hosted, on every change" },
+    { step: "checks", note: "tests, lint, the usual" },
+    { step: "quiz", note: "can you explain your diff?" },
+    { step: "human review", note: "a teammate signs off" },
+    { step: "ship", note: "with an owner who understands it" },
+  ],
+  harnessCaption: "The idea: every change takes the same path, whoever or whatever wrote it.",
+  led: [
+    {
+      tag: "led",
+      title: "A company brain in Slack",
+      body: "An AI assistant that lives where people already talk. Employees ask it about the codebase, how the organization works, or how to handle a management question, and it answers from sources and rules each team can set up.",
+    },
+    {
+      tag: "led",
+      title: "Self-hosted code and quality reviews",
+      body: "Automated reviews on every change, run by tools we built and host in-house. They cost less than paid services, don't lower the bar, and the code stays on our own machines.",
+    },
+    {
+      tag: "open source",
+      title: "grip",
+      body: "A git hook that quizzes you on your own diff before a commit goes through, and grades the answers. AI can write the code; someone still has to understand it.",
+      link: "https://github.com/guilyx/grip",
+    },
+    {
+      tag: "on the robots",
+      title: "Agents in the loop, not in charge",
+      body: "Agents read the fleet's fault timeline, tell a flaky link from a dying node, and propose the repair. Deterministic rules still own the actuators.",
+    },
+    {
+      tag: "Unchained Labs",
+      title: "Local-first AI for companies",
+      body: "Agent systems that run on a company's own models, data and infrastructure, for teams that can't send everything to someone else's API.",
+      link: "https://unchainedlabs.dev/",
+    },
+  ],
+  rollout: [
+    "Start with the boring work: docs, tests, first-pass reviews.",
+    "Keep a person accountable for every change that ships.",
+    "Grow AI use only as fast as the checks around it.",
+  ],
+} as const;
+
+/**
+ * "How I got here" — the animated chapters in the Background section. Each
+ * one says what I built, what I led and what I took with me, and lights the
+ * layers of the "scope" stack it worked on, from silicon at the bottom up to
+ * a whole company. The role-by-role detail lives in the timeline below.
+ */
+export const scopeLayers = ["silicon", "software", "robot", "fleet", "team", "company"] as const;
+export type ScopeLayer = (typeof scopeLayers)[number];
+
+export interface Chapter {
+  /** One word for the tab. */
+  tab: string;
+  years: string;
+  /** Where it happened: companies, sometimes a city. */
+  where: string;
+  title: string;
+  built: string;
+  led?: string;
+  kept?: string;
+  /** What this chapter did on each layer it reached. */
+  scope: Partial<Record<ScopeLayer, string>>;
+}
+
+export const chapters: Chapter[] = [
+  {
+    tab: "metal",
+    years: "2018 — 2019",
+    where: "Hiventive, Ingeniarius",
+    title: "Close to the metal",
+    built:
+      "A virtual STM32 in SystemC/TLM, with its timers, I2C, CAN, GPIO and USART running under QEMU. Then small robots with ROS, which won both maze competitions.",
+    kept: "Treat time, memory and bandwidth as a budget, and test against a model of the hardware first.",
+    scope: { silicon: "STM32 virtual prototype", robot: "maze robots, won both runs" },
+  },
+  {
+    tab: "research",
+    years: "2020 — 2021",
+    where: "Centrale Nantes, Hiventive",
+    title: "Research, and the web",
+    built: "A platform for electronics logistics in Go, with PostgreSQL and Docker, alongside my research.",
+    led: "Four research projects: multi-agent pathfinding, PDDL planning, real-time ROS on Xenomai, and ROS 2 latency. Two papers came out of them.",
+    kept: "CI, containers and code review as habits. And a soft spot for planning problems.",
+    scope: {
+      software: "Go services · Docker · CI",
+      robot: "real-time ROS control",
+      fleet: "multi-agent pathfinding",
+    },
+  },
+  {
+    tab: "field",
+    years: "2021 — 2022",
+    where: "Coalescent, Odense",
+    title: "First robot in a real store",
+    built:
+      "The navigation stack of a robot working supermarket aisles: path planning, motion control and localization, plus some perception.",
+    led: "When the CTO left, I took over navigation and trolley detection. I hired and trained interns and a junior, ran planning, and turned the CEO's requests into sprints.",
+    kept: "A real store changes your priorities fast.",
+    scope: { robot: "supermarket nav stack", team: "first hires · sprints" },
+  },
+  {
+    tab: "swarm",
+    years: "2022 — 2024",
+    where: "TII, Abu Dhabi",
+    title: "One robot to many",
+    built:
+      "Multi-robot orchestration and new swarm behaviors, including a bird-inspired flocking method we published at IROS 2024.",
+    led: "The R&D on those parts, and the live demos for partners, which brought in USD 3M in contracts.",
+    kept: "In a swarm every wasted byte gets multiplied. The embedded habits paid off.",
+    scope: { fleet: "swarm orchestration" },
+  },
+  {
+    tab: "team",
+    years: "2024 — 2026",
+    where: "TII, Abu Dhabi",
+    title: "Leading the team",
+    built: "A rework of the swarm autonomy stack that cut onboard CPU by 74% and bandwidth by 52%.",
+    led: "A team of 9 across autonomy, infrastructure and platform integration, from roadmap to sprints. Also a joint program with Caltech, and demos that led to USD 10M+ in contracts.",
+    kept: "Standards only stick when they're the easy option.",
+    scope: {
+      software: "RobotOps · AI tooling",
+      fleet: "−74% CPU · −52% bandwidth",
+      team: "9 engineers · roadmap",
+    },
+  },
+  {
+    tab: "company",
+    years: "2024 — now",
+    where: "Unchained Labs",
+    title: "Starting a company",
+    built:
+      "Local-first AI agents that run on a client's own models and data, and Kymatics, a graph-based agent orchestrator.",
+    led: "All of it: the vision, finding clients, setting up the company, and building and deploying the SaaS.",
+    kept: "Selling and scoping are part of the engineering.",
+    scope: { software: "agent orchestration", company: "vision · clients · SaaS" },
+  },
+  {
+    tab: "now",
+    years: "2026 — now",
+    where: "SIRB.AI, Abu Dhabi",
+    title: "Head of Robotics",
+    built:
+      "The robotics architecture, and a self-healing layer: fleet-wide fault recording, agents that catch and recover from failures, and ML scoring of missions before launch.",
+    led: "The autonomy roadmap, from prototype to the public launch at UMEX 2026.",
+    scope: {
+      fleet: "self-healing swarm autonomy",
+      team: "head of robotics",
+      company: "founding team · UMEX 2026",
+    },
+  },
+];
 
 export interface Job {
   company: string;
@@ -163,6 +325,7 @@ export const experience: Job[] = [
     start: 2024,
     end: null,
     bullets: [
+      "Set the vision, found clients, set up the company, and build and deploy its SaaS.",
       "Build AI brains for companies: local-first agentic systems that run on their own models, data and infrastructure.",
       "Design graph-based agent orchestration (Kymatics) and open-source the tooling to run it reliably.",
     ],
@@ -179,6 +342,7 @@ export const experience: Job[] = [
     bullets: [
       "Founding core technical team that delivered the first working in-store robot system, supporting company milestones across pre-seed and seed rounds.",
       "Led development of the navigation stack — path planning, motion control and localization — and contributed to perception: detection, filtering, tracking.",
+      "After the CTO left, led the team on autonomous navigation and trolley detection: recruited and trained interns and a junior engineer, ran planning, and turned the CEO's product requirements into technical sprints.",
     ],
   },
   {
@@ -252,8 +416,9 @@ export interface System {
   caption: string;
 }
 
-export const systemsIntro = `Solutions I've engineered for companies, sketched
-  conceptually: how each one works, not the code or the client behind it.`;
+export const systemsIntro = `Systems I've built at the companies I've worked
+  for. These are sketches of how they work; the code and the clients stay
+  private.`;
 
 export const systems: System[] = [
   {
@@ -265,7 +430,7 @@ export const systems: System[] = [
       "**Fly in formation, links in view.** The flock holds its slots behind a virtual leader, a safety barrier underneath keeps every vehicle clear of the boundary, and link strength across the mesh is part of the picture.",
       "**Cover, then localize.** In the task zone the formation breaks into a Voronoi partition and each vehicle sweeps its own cell. When one gets a contact, the others take bearings and triangulate it.",
     ],
-    note: "Change the vehicle, change a plugin: every motion algorithm became a tracker behind the same contract.",
+    note: "Switching vehicles only means switching a plugin: every motion algorithm sits behind the same tracker interface.",
     caption: "plan → formation transit → Voronoi coverage → triangulation",
   },
   {
@@ -289,7 +454,7 @@ export const systems: System[] = [
       "**One place decides.** Policies match patterns and actuate. Restarts go through the dependency graph, so dependents come back in the right order.",
       "**The agent reads windows, not events.** It tells a link flap from a dying node, suppresses the noise and proposes the repair. It never owns the actuator: the deterministic rules stay underneath.",
     ],
-    note: "This is most of the distance between a demo and a product: autonomy that doesn't need a person on the link.",
+    note: "This is a big part of what separates a demo from a product: autonomy that keeps working without someone watching the link.",
     caption: "report → one timeline → read the window → repair",
   },
 ];
@@ -342,9 +507,9 @@ export interface ArchiveEntry {
 }
 
 /** The framing for the Featured Projects section: side projects only. */
-export const projectsIntro = `Side projects, built on my own time and in the
-  open: planning toolboxes, robotics tooling, and the two orgs where most of it
-  lives now, Clanker Labs and Unchained Labs.`;
+export const projectsIntro = `Things I've built on my own time, all open
+  source: planning toolboxes, robotics tools, and the two orgs where most of my
+  side work lives now.`;
 
 /**
  * Featured projects — the carousel. Every slide has a real demo clip recorded
@@ -456,34 +621,48 @@ export const featured: Project[] = [
 
 /**
  * Open Source — its own section: why it matters, where it went upstream,
- * and the repos of my own. `prs` links are GitHub searches for my pull
- * requests in that repo, so they stay current without a list to maintain.
+ * and the repos of my own. The upstream list is live: visitors' browsers ask
+ * GitHub for my merged pull requests outside my own repos and orgs, and
+ * show the three biggest projects by stars. `upstream` is what shows until
+ * then, or if GitHub can't be reached. `prs` links are GitHub searches for
+ * my merged pull requests in that repo, so they stay current on their own.
  */
 export const openSource = {
   since: 2018,
+  github: "guilyx",
+  /** Repos under these owners are mine, so they don't count as upstream. */
+  ownOrgs: ["guilyx", "APLA-Toolbox", "Clanker-Labs", "Unchained-Labs"],
+  /** "Decently sized": fewer stars than this and a project isn't listed. */
+  minStars: 50,
   paragraphs: [
-    `I made my first open-source contribution in 2018 and haven't stopped
-     since. Robotics runs on shared code: ROS and the thousands of packages
-     around it exist because people chose to publish their work. Contributing
-     back is how I pay that forward, and nothing has taught me more about
-     writing code that strangers can read, review and build on.`,
-    `Upstream, that's meant projects like navigation2, the ROS 2 navigation
-     stack, and tf2, the transform library nearly every ROS robot leans on.
-     The rest is my own: tools for problems I kept running into, published so
-     the next person doesn't have to start from zero.`,
+    `My first open-source contribution was in 2018, and I've kept going since.
+     Robotics runs on shared code: ROS and the thousands of packages around it
+     only exist because people published their work, so I try to give back.
+     It has also taught me a lot about writing code other people can read and
+     build on.`,
+    `Upstream, that's meant graph search algorithms for PythonRobotics and
+     TheAlgorithms, and work on navigation2, the ROS 2 navigation stack. The
+     rest is my own: tools for problems I kept running into, published so the
+     next person doesn't start from scratch.`,
   ],
   upstream: [
     {
-      name: "navigation2",
-      what: "the ROS 2 navigation stack",
-      repo: "https://github.com/ros-navigation/navigation2",
-      prs: "https://github.com/ros-navigation/navigation2/pulls?q=is%3Apr+author%3Aguilyx",
+      name: "TheAlgorithms/Python",
+      what: "every algorithm, implemented in Python",
+      repo: "https://github.com/TheAlgorithms/Python",
+      prs: "https://github.com/TheAlgorithms/Python/pulls?q=is%3Apr+author%3Aguilyx+is%3Amerged",
     },
     {
-      name: "tf2",
-      what: "ROS 2 coordinate transforms",
-      repo: "https://github.com/ros2/geometry2",
-      prs: "https://github.com/ros2/geometry2/pulls?q=is%3Apr+author%3Aguilyx",
+      name: "AtsushiSakai/PythonRobotics",
+      what: "robotics algorithms in Python, with animations",
+      repo: "https://github.com/AtsushiSakai/PythonRobotics",
+      prs: "https://github.com/AtsushiSakai/PythonRobotics/pulls?q=is%3Apr+author%3Aguilyx+is%3Amerged",
+    },
+    {
+      name: "ros-navigation/navigation2",
+      what: "the ROS 2 navigation stack",
+      repo: "https://github.com/ros-navigation/navigation2",
+      prs: "https://github.com/ros-navigation/navigation2/pulls?q=is%3Apr+author%3Aguilyx+is%3Amerged",
     },
   ],
 } as const;
@@ -751,26 +930,24 @@ export const archive: ArchiveEntry[] = [
  * profile README, which introduces him as a YAML document.
  */
 /**
- * The hero's one-paragraph answer to "who is this and what do they do."
- * Deliberately does not restate the tagline above it or the spec block
- * beside it — this is the part that carries the story.
+ * The hero's one line of story. Deliberately doesn't restate the tagline
+ * above it or the spec block beside it; the Background section right after
+ * tells the rest.
  */
-export const heroSummary = `Head of Robotics at SIRB.AI, after leading a robotics
-  software team at the Technology Innovation Institute, and still hands-on in
-  the code. Two-plus years running teams from product roadmaps through PI
-  planning to sprints; eight years taking autonomy from research to real-world
-  deployment — from a supermarket robot in Denmark to drone fleets in the UAE.`;
+export const heroSummary = `Eight years in robotics, from a supermarket robot
+  in Denmark to drone swarms in the UAE.`;
 
 export const spec = [
-  { key: "role", value: "team lead · robotics software" },
+  { key: "role", value: "head of robotics @ sirb.ai" },
   { key: "based", value: "abu dhabi, uae" },
-  { key: "domain", value: "behavior, task & path planning, sensor fusion" },
-  { key: "hands-on", value: "ros 2 · c++ · python" },
+  { key: "leading", value: "teams since 2021" },
+  { key: "hands-on", value: "ros 2 · c++ · python · go" },
+  { key: "standards", value: "from embedded & web" },
 ] as const;
 
 export const contact = {
   title: "Open Channel",
-  body: `I'm not actively looking, but the inbox stays open — a question
-   about multi-agent planning, an open-source idea, or just to say hi. I'll
-   get back to you.`,
+  body: `I'm not looking for a new role, but my inbox is open. A question
+   about multi-agent planning, an open-source idea, or just a hello are all
+   welcome, and I'll reply.`,
 } as const;

@@ -23,22 +23,37 @@ const label = (p: Project) =>
       <p class="font-mono text-accent text-4xl leading-none tabular-nums">{openSource.since}</p>
       <p class="font-mono text-faint mt-2 text-xs">first contribution</p>
 
-      <p class="font-mono text-faint mt-8 text-xs">upstream</p>
-      <ul class="mt-3 space-y-4">
+      <p class="font-mono text-faint mt-8 text-xs">merged upstream</p>
+      {/* Replaced by the live top 3 once GitHub answers; see the script below. */}
+      <ul
+        class="mt-3 space-y-4"
+        data-upstream
+        data-user={openSource.github}
+        data-own={openSource.ownOrgs.join(",")}
+        data-min-stars={openSource.minStars}
+      >
         {
           openSource.upstream.map((u) => (
             <li>
-              <a href={u.repo} target="_blank" rel="noopener noreferrer" class="link text-heading text-[0.95rem] font-medium">
-                {u.name}
+              <a
+                href={u.repo}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="link text-heading max-w-full text-[0.95rem] font-medium [overflow-wrap:anywhere]"
+              >
+                <span class="text-faint font-normal">{u.name.split("/")[0]}/</span><wbr />{u.name.split("/")[1]}
               </a>
               <p class="text-muted text-sm">{u.what}</p>
-              <a href={u.prs} target="_blank" rel="noopener noreferrer" class="link font-mono text-xs">
-                my pull requests →
+              <a href={u.prs} target="_blank" rel="noopener noreferrer" class="link font-mono -my-1.5 py-1.5 text-xs">
+                my merged pull requests →
               </a>
             </li>
           ))
         }
       </ul>
+      <p class="font-mono text-faint mt-4 text-[0.65rem]" data-upstream-note hidden>
+        live from GitHub · biggest by stars
+      </p>
     </aside>
   </div>
 
@@ -73,7 +88,7 @@ const label = (p: Project) =>
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label={`${p.title} site`}
-                  class="text-muted hover:text-accent transition-colors"
+                  class="text-muted hover:text-accent -m-1.5 p-1.5 transition-colors"
                 >
                   <Icon name="external" size={15} />
                 </a>
@@ -103,3 +118,170 @@ const label = (p: Project) =>
     border-color: color-mix(in srgb, var(--color-accent) 40%, var(--color-line));
   }
 </style>
+
+<script>
+  /**
+   * The live "merged upstream" list. The visitor's browser asks GitHub's
+   * search API for my merged pull requests outside my own repos and orgs,
+   * then for those repos' star counts, and shows the three biggest. At most
+   * ten unauthenticated search calls (GitHub's per-minute limit), cached for
+   * a day; if they fail, the list written into the page stays as it is.
+   *
+   * It reads up to 400 PRs, not just the latest 100: years of work PRs
+   * would otherwise push older contributions (PythonRobotics, TheAlgorithms)
+   * out of the first page. "Mine" is the owners in `data-own`, plus any repo
+   * where GitHub marks me as its owner or a member of the org behind it.
+   * awesome-* lists are skipped too: a merged PR there is usually a line
+   * added to a list, not code.
+   */
+  type Upstream = { name: string; url: string; what: string; stars: number; prs: number };
+  type Cache = { at: number; repos: Upstream[] };
+
+  const KEY = "gh-upstream:v2";
+  const TTL = 24 * 60 * 60 * 1000;
+  const API = "https://api.github.com/search";
+  // GitHub caps a search query at 256 characters.
+  const MAX_QUERY = 250;
+  // Pages of PRs, then star lookups: together within ten search calls.
+  const MAX_PR_PAGES = 4;
+  const MAX_STAR_QUERIES = 6;
+  const OWN = new Set(["OWNER", "MEMBER"]);
+
+  const list = document.querySelector<HTMLElement>("[data-upstream]");
+  const note = document.querySelector<HTMLElement>("[data-upstream-note]");
+
+  const compact = (n: number) =>
+    n < 1000 ? String(n) : `${(n / 1000).toFixed(n < 10000 ? 1 : 0).replace(/\.0$/, "")}k`;
+
+  async function search<T>(kind: "issues" | "repositories", q: string, page = 1) {
+    const res = await fetch(`${API}/${kind}?q=${encodeURIComponent(q)}&per_page=100&page=${page}`, {
+      headers: { Accept: "application/vnd.github+json" },
+    });
+    if (!res.ok) throw new Error(`GitHub ${kind} search: ${res.status}`);
+    return (await res.json()) as { total_count: number; items: T[] };
+  }
+
+  type PR = { repository_url: string; author_association: string };
+
+  async function fetchUpstream(user: string, own: string[], minStars: number): Promise<Upstream[]> {
+    const q = [`type:pr`, `author:${user}`, `is:merged`, ...own.map((o) => `-user:${o}`)].join(" ");
+    const first = await search<PR>("issues", q);
+    const pages = Math.min(MAX_PR_PAGES, Math.ceil(first.total_count / 100));
+    const rest = await Promise.all(
+      // a later page that fails just leaves those PRs out
+      Array.from({ length: Math.max(0, pages - 1) }, (_, i) =>
+        search<PR>("issues", q, i + 2).then((r) => r.items, () => [] as PR[]),
+      ),
+    );
+    // Merged PRs per repo, keyed case-insensitively, leaving out repos that
+    // are mine or my org's.
+    const counts = new Map<string, number>();
+    for (const pr of [first.items, ...rest].flat()) {
+      if (OWN.has(pr.author_association)) continue;
+      const name = pr.repository_url.replace("https://api.github.com/repos/", "").toLowerCase();
+      counts.set(name, (counts.get(name) ?? 0) + 1);
+    }
+    // Star counts, a few repos per query to stay under the length cap,
+    // busiest repos first.
+    const names = [...counts.keys()].sort((a, b) => counts.get(b)! - counts.get(a)!);
+    const queries: string[] = [];
+    for (const name of names) {
+      const part = `repo:${name}`;
+      const last = queries.length - 1;
+      if (last >= 0 && queries[last].length + part.length + 1 <= MAX_QUERY) queries[last] += ` ${part}`;
+      else if (queries.length < MAX_STAR_QUERIES) queries.push(part);
+    }
+    type Repo = {
+      full_name: string;
+      html_url: string;
+      description: string | null;
+      stargazers_count: number;
+      fork: boolean;
+      topics?: string[];
+    };
+    const repos = (await Promise.all(queries.map((rq) => search<Repo>("repositories", rq)))).flatMap((r) => r.items);
+    return repos
+      .filter((r) => !r.fork && r.stargazers_count >= minStars)
+      .filter((r) => !/^awesome/i.test(r.full_name.split("/")[1] ?? "") && !r.topics?.includes("awesome-list"))
+      .map((r) => ({
+        name: r.full_name,
+        url: r.html_url,
+        what: r.description ?? "",
+        stars: r.stargazers_count,
+        prs: counts.get(r.full_name.toLowerCase()) ?? 0,
+      }))
+      .sort((a, b) => b.stars - a.stars)
+      .slice(0, 3);
+  }
+
+  function render(repos: Upstream[], user: string) {
+    if (!list || !repos.length) return;
+    const items = repos.map((r) => {
+      const li = document.createElement("li");
+
+      const name = document.createElement("a");
+      name.href = r.url;
+      name.target = "_blank";
+      name.rel = "noopener noreferrer";
+      name.className = "link text-heading max-w-full text-[0.95rem] font-medium [overflow-wrap:anywhere]";
+      // owner/ faint, then the repo ("Python" alone says nothing); a long
+      // name wraps after the slash
+      const [owner, repo] = r.name.split("/");
+      const ownerPart = document.createElement("span");
+      ownerPart.className = "text-faint font-normal";
+      ownerPart.textContent = `${owner}/`;
+      name.append(ownerPart, document.createElement("wbr"), repo ?? "");
+
+      const what = document.createElement("p");
+      what.className = "text-muted line-clamp-2 text-sm [overflow-wrap:anywhere]";
+      what.textContent = r.what;
+
+      const meta = document.createElement("p");
+      meta.className = "font-mono text-faint mt-0.5 text-xs";
+      meta.append(`★ ${compact(r.stars)} · `);
+      const prs = document.createElement("a");
+      prs.href = `${r.url}/pulls?q=${encodeURIComponent(`is:pr author:${user} is:merged`)}`;
+      prs.target = "_blank";
+      prs.rel = "noopener noreferrer";
+      prs.className = "link -my-1.5 py-1.5";
+      prs.textContent = `${r.prs} merged PR${r.prs === 1 ? "" : "s"} →`;
+      meta.append(prs);
+
+      li.append(name, ...(r.what ? [what] : []), meta);
+      return li;
+    });
+    list.replaceChildren(...items);
+    if (note) note.hidden = false;
+  }
+
+  if (list) {
+    const user = list.dataset.user!;
+    const own = list.dataset.own!.split(",");
+    const minStars = Number(list.dataset.minStars);
+
+    let cached: Cache | null = null;
+    try {
+      const raw = localStorage.getItem(KEY);
+      if (raw) cached = JSON.parse(raw) as Cache;
+    } catch {
+      // private mode or blocked storage: run uncached
+    }
+
+    if (cached && Date.now() - cached.at < TTL) {
+      render(cached.repos, user);
+    } else {
+      fetchUpstream(user, own, minStars)
+        .then((repos) => {
+          render(repos, user);
+          try {
+            localStorage.setItem(KEY, JSON.stringify({ at: Date.now(), repos } satisfies Cache));
+          } catch {
+            // ignore
+          }
+        })
+        .catch(() => {
+          // offline or rate-limited: the list written into the page stays
+        });
+    }
+  }
+</script>

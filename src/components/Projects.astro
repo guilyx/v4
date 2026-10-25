@@ -68,7 +68,7 @@ const label = (p: Project) =>
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label={`${p.title} on GitHub`}
-                  class="text-muted hover:text-accent transition-colors"
+                  class="text-muted hover:text-accent -m-1.5 p-1.5 transition-colors"
                 >
                   <Icon name="github" size={18} />
                 </a>
@@ -78,7 +78,7 @@ const label = (p: Project) =>
                   href={p.external}
                   target="_blank"
                   rel="noopener noreferrer"
-                  class="font-mono text-muted hover:text-accent inline-flex items-center gap-2 text-xs transition-colors"
+                  class="font-mono text-muted hover:text-accent -my-1.5 inline-flex items-center gap-2 py-1.5 text-xs transition-colors"
                 >
                   {p.externalLabel ?? "Visit"}
                   <Icon name="external" size={13} />
