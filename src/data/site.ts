@@ -52,10 +52,11 @@ export const about = {
      [TII](https://www.tii.ae/), built the navigation for a supermarket robot at
      [Coalescent](https://cm-robotics.com/) in Denmark, and started my own
      company, [Unchained Labs](https://unchainedlabs.dev/).`,
-    `I started in embedded software and spent some time on web backends. From
-     the first I kept the habit of counting every millisecond and byte; from
-     the second, CI and code review on everything. I've worked that way ever
-     since.`,
+    `I started out on microcontrollers, then simulated them, then pivoted to
+     building a platform for electronics logistics in Go at
+     [Hiventive](https://www.hiventive.com/en/). That range is my main
+     strength: I can bring ideas from other fields into robotics, for problems
+     most roboticists aren't familiar with.`,
     `Off the clock: basketball, films, and
      [Clanker Labs](https://clanker-labs.github.io/clanker-labs-public/), my
      self-hosted home with an agent running it.`,
@@ -115,7 +116,7 @@ export const chapters: Chapter[] = [
     years: "2020 — 2021",
     where: "Centrale Nantes, Hiventive",
     title: "Research, and the web",
-    built: "Go services with PostgreSQL and Docker for a production platform, alongside my research.",
+    built: "A platform for electronics logistics in Go, with PostgreSQL and Docker, alongside my research.",
     led: "Four research projects: multi-agent pathfinding, PDDL planning, real-time ROS on Xenomai, and ROS 2 latency. Two papers came out of them.",
     kept: "CI, containers and code review as habits. And a soft spot for planning problems.",
     scope: {
