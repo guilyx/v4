@@ -135,7 +135,8 @@ import avatar from "@/assets/avatar.jpg";
   // Each bird steers by three local rules: separation, alignment,
   // cohesion. No leader, no global state. A few additions make it a toy:
   // a click or tap in the hero gives the flock a goal to fly to, the
-  // hero's text is a set of obstacles it flies around, and the flock
+  // hero's text is a set of obstacles it flies around (a click on any
+  // empty space further down works too), and the flock
   // follows you down the page: when you scroll, the birds drift away with
   // the content, then fly back into view. On wide screens they keep to
   // the margins beside each section; where there's no margin to speak of,
@@ -217,6 +218,8 @@ import avatar from "@/assets/avatar.jpg";
     let content: Rect[] = [];
     /** Below this much margin beside a section, birds fly behind it instead of around it. */
     const MIN_GUTTER = 80;
+    /** Whether the section columns are obstacles right now (wide screens). */
+    let columns = false;
     let goal: Goal | null = null;
     /** Seek strength, 0..1, so a released goal lets go gradually. */
     let pull = 0;
@@ -225,8 +228,9 @@ import avatar from "@/assets/avatar.jpg";
 
     // Text as obstacles: one rectangle per line box, not per element, so a
     // ragged paragraph doesn't wall off the space beside its short lines.
-    // Past the hero, each section's column is one obstacle (on wide screens)
-    // so the flock keeps to the margins. Everything is in canvas space.
+    // Past the hero, each section's column is one obstacle too (on wide
+    // screens) so the flock keeps to the margins, unless it has a goal to
+    // reach. Everything is in canvas space.
     function measure() {
       const c = canvas!.getBoundingClientRect();
       const box = (r: DOMRect): Rect => ({ x0: r.left - c.left, y0: r.top - c.top, x1: r.right - c.left, y1: r.bottom - c.top });
@@ -250,15 +254,19 @@ import avatar from "@/assets/avatar.jpg";
           if (r.bottom < -h || r.top > 2 * h) continue;
           content.push(box(r));
         }
-        if (content.length && (w - (content[0]!.x1 - content[0]!.x0)) / 2 >= MIN_GUTTER) out.push(...content);
+        columns = content.length > 0 && (w - (content[0]!.x1 - content[0]!.x0)) / 2 >= MIN_GUTTER;
       }
       obstacles = out;
     }
 
+    // While the flock has a goal it may cross the section columns to get
+    // there; otherwise it keeps out of them.
+    const avoiding = () => (columns && !(goal && pull > 0) ? obstacles.concat(content) : obstacles);
+
     const within = (x: number, y: number, r: Rect) => x > r.x0 && x < r.x1 && y > r.y0 && y < r.y1;
 
     const inside = (x: number, y: number, pad: number) =>
-      obstacles.some((o) => x > o.x0 - pad && x < o.x1 + pad && y > o.y0 - pad && y < o.y1 + pad);
+      avoiding().some((o) => x > o.x0 - pad && x < o.x1 + pad && y > o.y0 - pad && y < o.y1 + pad);
 
     function resize() {
       // Phones are 3x; drawing at 2x and upscaling left the agents soft.
@@ -366,6 +374,7 @@ import avatar from "@/assets/avatar.jpg";
       }
 
       let near = 0;
+      const avoid = avoiding();
       for (const b of boids) {
         let sepX = 0, sepY = 0;
         let aliX = 0, aliY = 0;
@@ -408,7 +417,7 @@ import avatar from "@/assets/avatar.jpg";
         let close = 0;
         const fx = b.x + b.vx * 12;
         const fy = b.y + b.vy * 12;
-        for (const o of obstacles) {
+        for (const o of avoid) {
           const px = Math.max(o.x0, Math.min(fx, o.x1));
           const py = Math.max(o.y0, Math.min(fy, o.y1));
           const dx = fx - px;
@@ -434,6 +443,7 @@ import avatar from "@/assets/avatar.jpg";
         // in, hold a ring around it and go round, the way a swarm loiters
         // over a target instead of piling onto one point
         let skX = 0, skY = 0;
+        let seekTop = 0;
         if (goal && pull > 0) {
           const gx = goal.x - b.x;
           const gy = goal.y - b.y;
@@ -443,7 +453,11 @@ import avatar from "@/assets/avatar.jpg";
             const ring = ARRIVE * 0.6;
             const inward = Math.max(-0.6, Math.min(1, (gd - ring) / SLOW));
             const around = 1 - Math.min(1, gd / SLOW);
-            const fast = MAX_SPEED * (1 + 0.6 * pull);
+            // far from the goal, fly up to three times as fast, easing off on
+            // the way in, so a goal across the page is reached in seconds
+            const far = 1 + Math.min(2, Math.max(0, gd - SLOW) / (250 * scale));
+            const fast = MAX_SPEED * (1 + 0.6 * pull) * far;
+            seekTop = fast * pull;
             const dvx = (gx / gd) * fast * inward + (-gy / gd) * MAX_SPEED * 0.9 * around;
             const dvy = (gy / gd) * fast * inward + (gx / gd) * MAX_SPEED * 0.9 * around;
             [skX, skY] = limit(dvx - b.vx, dvy - b.vy, MAX_FORCE * 1.8);
@@ -457,7 +471,7 @@ import avatar from "@/assets/avatar.jpg";
 
         // migrate: a bird left above or below the screen by a scroll flies
         // back, faster the further away it is
-        let top = MAX_SPEED * (1 + 0.6 * pull);
+        let top = Math.max(MAX_SPEED * (1 + 0.6 * pull), seekTop);
         if (roam) {
           const out = b.y < 0.04 * h ? 0.04 * h - b.y : b.y > 0.96 * h ? 0.96 * h - b.y : 0;
           if (out !== 0) {
@@ -612,22 +626,75 @@ import avatar from "@/assets/avatar.jpg";
         }
       });
 
-      // A click or tap anywhere in the hero, except on a link, a button or
-      // the nav, becomes the flock's goal. The hit test is the hero's band
-      // across the full width, since the canvas runs edge to edge.
-      document.addEventListener("click", (e) => {
-        if ((e.target as Element).closest("a, button, input, label, header, nav")) return;
-        if (String(window.getSelection() ?? "").length > 0) return;
+      // A click or tap becomes the flock's goal: anywhere in the hero
+      // (except a link, a button or the nav), and on any empty space further
+      // down. Empty means the background itself: not text, not a control or
+      // an image, not inside a card or panel.
+      const CONTROLS =
+        "a, button, input, textarea, select, label, summary, img, video, iframe, canvas:not(#boids), [role=tab], [tabindex], header, nav";
+      const caretDoc = document as Document & {
+        caretPositionFromPoint?: (x: number, y: number) => { offsetNode: Node } | null;
+        caretRangeFromPoint?: (x: number, y: number) => Range | null;
+      };
+      const overText = (x: number, y: number) => {
+        const node = caretDoc.caretPositionFromPoint
+          ? caretDoc.caretPositionFromPoint(x, y)?.offsetNode
+          : caretDoc.caretRangeFromPoint?.(x, y)?.startContainer;
+        if (!node || node.nodeType !== Node.TEXT_NODE || !node.textContent?.trim()) return false;
+        // the caret snaps to the nearest text, so check the text is really there
+        const range = document.createRange();
+        range.selectNodeContents(node);
+        return Array.from(range.getClientRects()).some(
+          (r) => x >= r.left - 2 && x <= r.right + 2 && y >= r.top - 2 && y <= r.bottom + 2,
+        );
+      };
+      const transparent = (c: string) => c === "transparent" || c === "rgba(0, 0, 0, 0)";
+      const isFree = (target: Element, x: number, y: number) => {
+        if (target.closest(CONTROLS) || overText(x, y)) return false;
+        for (let el: Element | null = target; el && el.id !== "main"; el = el.parentElement) {
+          if (el.matches("#main > section")) break;
+          const st = getComputedStyle(el);
+          // a card or panel: its own background, or a border on both sides
+          if (!transparent(st.backgroundColor)) return false;
+          if (parseFloat(st.borderLeftWidth) > 0 && parseFloat(st.borderRightWidth) > 0) return false;
+        }
+        return true;
+      };
+      const inHero = (y: number) => {
         const band = hero.getBoundingClientRect();
-        if (e.clientY < band.top || e.clientY > band.bottom) return;
+        return y >= band.top && y <= band.bottom;
+      };
+
+      document.addEventListener("click", (e) => {
+        const target = e.target as Element;
+        if (String(window.getSelection() ?? "").length > 0) return;
+        const ok = inHero(e.clientY) ? !target.closest("a, button, input, label, header, nav") : isFree(target, e.clientX, e.clientY);
+        if (!ok) return;
         const c = canvas.getBoundingClientRect();
         setGoal(e.clientX - c.left, e.clientY - c.top, performance.now());
       });
 
+      // With a mouse, the cursor turns to a crosshair wherever a click would
+      // land: all of the hero, and empty space everywhere else.
+      let pending = false;
+      document.addEventListener(
+        "pointermove",
+        (e) => {
+          if (e.pointerType !== "mouse" || pending) return;
+          pending = true;
+          requestAnimationFrame(() => {
+            pending = false;
+            const free = !inHero(e.clientY) && isFree(e.target as Element, e.clientX, e.clientY);
+            document.documentElement.style.cursor = free ? "crosshair" : "";
+          });
+        },
+        { passive: true },
+      );
+
       const hint = hero.querySelector<HTMLElement>("[data-boids-hint]");
       if (hint) {
         const verb = window.matchMedia("(pointer: coarse)").matches ? "tap" : "click";
-        hint.textContent = `${verb} anywhere to give the flock a goal`;
+        hint.textContent = `${verb} any empty space to give the flock a goal`;
         hint.hidden = false;
       }
       hero.style.cursor = "crosshair";
