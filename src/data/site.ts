@@ -7,7 +7,7 @@ export const site = {
   name: "Erwin Lejeune",
   handle: "guilyx",
   role: "Head of Robotics",
-  tagline: "I build robot autonomy and lead the teams behind it.",
+  tagline: "Robot autonomy that keeps working outside the lab.",
   description:
     "Erwin Lejeune is Head of Robotics at SIRB.AI in Abu Dhabi. He builds robot autonomy (planning, swarms, sensor fusion) and has led robotics teams since 2021. ROS 2, C++, Python, Go.",
   url: "https://v4.elejeune.me",
@@ -858,8 +858,8 @@ export const archive: ArchiveEntry[] = [
  * above it or the spec block beside it; the Background section right after
  * tells the rest.
  */
-export const heroSummary = `Eight years taking robots from the lab to the
-  real world, from a supermarket in Denmark to drone swarms in the UAE.`;
+export const heroSummary = `Eight years of it, from a supermarket robot in
+  Denmark to drone swarms in the UAE.`;
 
 export const spec = [
   { key: "role", value: "head of robotics @ sirb.ai" },
