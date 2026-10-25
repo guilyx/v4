@@ -1,10 +1,7 @@
 ---
-import { Image } from "astro:assets";
 import Section from "@/components/Section.astro";
-import { about, site } from "@/data/site";
-// The GitHub avatar (github.com/guilyx.png), committed so the build doesn't
-// depend on GitHub being reachable. Re-download it there if it changes.
-import avatar from "@/assets/avatar.jpg";
+import Evolution from "@/components/Evolution.astro";
+import { about } from "@/data/site";
 
 /**
  * Tiny markdown-link renderer for the about paragraphs. Links are
@@ -19,43 +16,32 @@ function md(text: string): string {
 }
 ---
 
+{/* A few lines about me, then the chapters that got me here. The photo is in
+    the hero now. */}
 <Section id="about" title="Background">
-  <div class="grid gap-12 md:grid-cols-[3fr_2fr]">
-    <div class="space-y-4" data-reveal>
-      {about.paragraphs.map((p) => <p set:html={md(p)} />)}
+  <div class="max-w-2xl space-y-4" data-reveal>
+    {about.paragraphs.map((p) => <p set:html={md(p)} />)}
+  </div>
 
-      <p class="pt-2">Here are a few technologies I've been working with recently:</p>
-      <ul class="grid grid-cols-2 gap-x-4 gap-y-2 sm:grid-cols-3">
-        {
-          about.technologies.map((t) => (
-            <li class="font-mono text-muted flex items-baseline gap-2 text-[0.8rem]">
-              <span class="text-accent" aria-hidden="true">
-                ▸
-              </span>
-              {t}
-            </li>
-          ))
-        }
-      </ul>
-    </div>
+  <div class="mt-14">
+    <Evolution />
+  </div>
 
-    {/* Portrait: the photo cropped to a circle, with the offset accent ring
-        behind it as the only frame. */}
-    <div class="mx-auto w-full max-w-[260px]" data-reveal style="--reveal-delay: 150ms">
-      <div class="group relative">
-        <div
-          class="border-accent absolute inset-0 translate-x-4 translate-y-4 rounded-full border transition-transform duration-300 group-hover:translate-x-2 group-hover:translate-y-2"
-          aria-hidden="true"
-        >
-        </div>
-        <Image
-          src={avatar}
-          alt={site.name}
-          widths={[260, 460]}
-          sizes="(min-width: 768px) 260px, 60vw"
-          class="relative aspect-square w-full rounded-full object-cover"
-        />
-      </div>
-    </div>
+  <div class="border-line mt-14 border-t pt-8" data-reveal>
+    <p class="font-mono text-faint mb-4 text-xs">what I work with</p>
+    <ul class="flex flex-wrap gap-2">
+      {about.technologies.map((t) => <li class="tech">{t}</li>)}
+    </ul>
   </div>
 </Section>
+
+<style>
+  .tech {
+    padding: 0.2rem 0.6rem;
+    border: 1px solid var(--color-line);
+    border-radius: 999px;
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    color: var(--color-muted);
+  }
+</style>

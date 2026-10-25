@@ -1,5 +1,9 @@
 ---
+import { Image } from "astro:assets";
 import { site, spec, heroSummary } from "@/data/site";
+// The GitHub avatar (github.com/guilyx.png), committed so the build doesn't
+// depend on GitHub being reachable. Re-download it there if it changes.
+import avatar from "@/assets/avatar.jpg";
 ---
 
 {/*
@@ -8,7 +12,8 @@ import { site, spec, heroSummary } from "@/data/site";
   its top — the name — pushed up under the nav. `svh` measures the smallest
   visible viewport, and the top padding clears the fixed header outright.
 
-  Everything marked `data-obstacle` is text the flock flies around.
+  Everything marked `data-obstacle` is something the flock flies around: the
+  text, and the portrait.
 */}
 <section
   class="relative flex min-h-svh flex-col justify-center pt-28 pb-16 sm:pt-24 md:py-0"
@@ -20,53 +25,75 @@ import { site, spec, heroSummary } from "@/data/site";
     class="pointer-events-none absolute top-0 left-1/2 -z-[1] h-full w-screen -translate-x-1/2"
     aria-hidden="true"></canvas>
 
-  <div class="max-w-3xl">
-    <h1
-      class="text-3xl font-semibold sm:text-5xl md:text-6xl"
-      data-reveal
-      data-obstacle
-      style="--reveal-delay: 100ms"
-    >
-      {site.name}
-    </h1>
-    <h2
-      class="text-muted mt-2 max-w-2xl text-2xl font-semibold sm:text-4xl"
-      data-reveal
-      data-obstacle
-      style="--reveal-delay: 200ms"
-    >
-      {site.tagline}
-    </h2>
+  {/* The portrait sits above the name until there's room beside it: on wide
+      screens it moves to the right, with the offset accent ring as its frame. */}
+  <div class="flex flex-col gap-7 xl:flex-row-reverse xl:items-center xl:justify-between xl:gap-16">
+    <div class="w-20 shrink-0 sm:w-24 xl:w-72" data-reveal data-obstacle>
+      <div class="group relative">
+        <div
+          class="border-accent absolute inset-0 translate-x-1.5 translate-y-1.5 rounded-full border transition-transform duration-300 group-hover:translate-x-1 group-hover:translate-y-1 xl:translate-x-4 xl:translate-y-4 xl:group-hover:translate-x-2 xl:group-hover:translate-y-2"
+          aria-hidden="true"
+        >
+        </div>
+        <Image
+          src={avatar}
+          alt={site.name}
+          widths={[192, 384, 720]}
+          sizes="(min-width: 1280px) 346px, 106px"
+          loading="eager"
+          class="relative aspect-square w-full rounded-full object-cover"
+        />
+      </div>
+    </div>
 
-    {/* Spec block — Erwin introduces himself as a YAML doc on GitHub; the
-        site borrows that register rather than a greeting. */}
-    <dl class="mt-8 grid max-w-lg gap-y-2 sm:mt-9 sm:gap-y-1.5" data-reveal style="--reveal-delay: 350ms">
-      {
-        spec.map((row) => (
-          <div class="font-mono text-[0.78rem] leading-relaxed sm:flex sm:gap-4">
-            <dt class="text-faint sm:w-20 sm:shrink-0" data-obstacle>
-              {row.key}
-            </dt>
-            <dd class="text-body m-0" data-obstacle>
-              {row.value}
-            </dd>
-          </div>
-        ))
-      }
-    </dl>
+    <div class="max-w-3xl min-w-0">
+      <h1
+        class="text-3xl font-semibold sm:text-5xl md:text-6xl"
+        data-reveal
+        data-obstacle
+        style="--reveal-delay: 100ms"
+      >
+        {site.name}
+      </h1>
+      <h2
+        class="text-muted mt-2 max-w-2xl text-2xl font-semibold sm:text-4xl"
+        data-reveal
+        data-obstacle
+        style="--reveal-delay: 200ms"
+      >
+        {site.tagline}
+      </h2>
 
-    <p
-      class="text-body mt-8 max-w-xl text-[0.95rem] leading-relaxed"
-      data-reveal
-      data-obstacle
-      style="--reveal-delay: 500ms"
-    >
-      {heroSummary.replace(/\s+/g, " ")}
-    </p>
+      {/* Spec block — Erwin introduces himself as a YAML doc on GitHub; the
+          site borrows that register rather than a greeting. */}
+      <dl class="mt-8 grid max-w-lg gap-y-2 sm:mt-9 sm:gap-y-1.5" data-reveal style="--reveal-delay: 350ms">
+        {
+          spec.map((row) => (
+            <div class="font-mono text-[0.78rem] leading-relaxed sm:flex sm:gap-4">
+              <dt class="text-faint sm:w-20 sm:shrink-0" data-obstacle>
+                {row.key}
+              </dt>
+              <dd class="text-body m-0" data-obstacle>
+                {row.value}
+              </dd>
+            </div>
+          ))
+        }
+      </dl>
 
-    <div class="mt-9 flex flex-wrap items-center gap-5" data-reveal style="--reveal-delay: 600ms">
-      <a href="/#projects" class="btn" data-obstacle>See the work</a>
-      <a href={`mailto:${site.email}`} class="link font-mono text-sm" data-obstacle>{site.email}</a>
+      <p
+        class="text-body mt-8 max-w-xl text-[0.95rem] leading-relaxed"
+        data-reveal
+        data-obstacle
+        style="--reveal-delay: 500ms"
+      >
+        {heroSummary.replace(/\s+/g, " ")}
+      </p>
+
+      <div class="mt-9 flex flex-wrap items-center gap-5" data-reveal style="--reveal-delay: 600ms">
+        <a href="/#projects" class="btn" data-obstacle>See the work</a>
+        <a href={`mailto:${site.email}`} class="link font-mono text-sm" data-obstacle>{site.email}</a>
+      </div>
     </div>
   </div>
 

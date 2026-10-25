@@ -1,12 +1,12 @@
 ---
-import Section from "@/components/Section.astro";
-import { chapters, evolutionIntro, experience, scopeLayers } from "@/data/site";
+import { chapters, scopeLayers } from "@/data/site";
 
 /**
- * Evolution — the career as chapters rather than a timeline. A story-style
- * tab row plays through the chapters once when the section comes into view,
- * then settles on the present; hovering or focusing it pauses, and picking a
- * chapter (or tapping the story) hands over control for good.
+ * "How I got here" — the career as chapters, inside the Background section.
+ * A story-style tab row plays through the chapters once when it comes into
+ * view, then settles on the present; hovering or focusing it pauses, and
+ * picking a chapter (or tapping the story) hands over control for good. The
+ * role-by-role detail is in the Experiences timeline right after.
  *
  * Beside the story, a "scope" stack — silicon at the bottom, a whole company
  * at the top — lights the layers each chapter worked on and keeps the earlier
@@ -18,7 +18,7 @@ import { chapters, evolutionIntro, experience, scopeLayers } from "@/data/site";
  */
 
 /** Seconds each chapter holds while playing. */
-const DUR = 9;
+const DUR = 8;
 const last = chapters.length - 1;
 const pad = (n: number) => String(n).padStart(2, "0");
 
@@ -36,211 +36,141 @@ const stack = chapters.map((c, i) =>
 );
 // The highest layer reached so far, for the rail beside the stack.
 const reach = stack.map((layers) => layers.map((l) => l.state !== "off").lastIndexOf(true));
-
-const rolesOf = (id: string) => experience.filter((j) => j.chapter === id).sort((a, b) => a.start - b.start);
-
-/**
- * Company favicons from the same source resume.elejeune.me uses: Google's
- * faviconV2 on gstatic, given the *full* page URL rather than a bare domain.
- * Domain-only lookups downgrade to http:// and miss modern sites (sirb.ai
- * among them), and the older www.google.com/s2/favicons host sits on common
- * tracker blocklists, so it silently fails for anyone running a blocker.
- *
- * `size` is the requested pixel size — ask for 2x the rendered box. If it
- * fails anyway, `onerror` drops the image and the monogram behind shows.
- */
-const faviconFor = (url: string, size: number) =>
-  `https://t0.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=${encodeURIComponent(
-    url,
-  )}&size=${size}`;
 ---
 
-<Section id="experience" title="Evolution">
-  <div data-reveal>
-    <div class="mb-8 flex flex-wrap items-end justify-between gap-x-8 gap-y-3">
-      <p class="text-muted max-w-xl text-sm">{evolutionIntro.replace(/\s+/g, " ")}</p>
-      <button type="button" class="evo-play font-mono" data-evo-play hidden>
-        <svg class="evo-play-icon" viewBox="0 0 12 12" width="11" height="11" aria-hidden="true">
-          <path class="i-play" d="M3 1.5v9l7.5-4.5z" fill="currentColor"></path>
-          <path class="i-pause" d="M2.5 1.5h2.5v9H2.5zM7 1.5h2.5v9H7z" fill="currentColor"></path>
-          <path
-            class="i-replay"
-            d="M2.2 6a3.8 3.8 0 1 0 1.1-2.7M2.2 1.6v2.2h2.2"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="1.4"
-            stroke-linecap="round"
-            stroke-linejoin="round"></path>
-        </svg>
-        <span data-evo-play-label>play</span>
-      </button>
+<div data-reveal>
+  <div class="mb-6 flex items-center justify-between gap-6">
+    <h3 class="evo-heading">how I got here</h3>
+    <button type="button" class="evo-play font-mono" data-evo-play hidden>
+      <svg class="evo-play-icon" viewBox="0 0 12 12" width="11" height="11" aria-hidden="true">
+        <path class="i-play" d="M3 1.5v9l7.5-4.5z" fill="currentColor"></path>
+        <path class="i-pause" d="M2.5 1.5h2.5v9H2.5zM7 1.5h2.5v9H7z" fill="currentColor"></path>
+        <path
+          class="i-replay"
+          d="M2.2 6a3.8 3.8 0 1 0 1.1-2.7M2.2 1.6v2.2h2.2"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.4"
+          stroke-linecap="round"
+          stroke-linejoin="round"></path>
+      </svg>
+      <span data-evo-play-label>play</span>
+    </button>
+  </div>
+
+  <div
+    class="evo"
+    data-evo
+    data-mode="manual"
+    data-stack={JSON.stringify(stack)}
+    data-reach={JSON.stringify(reach)}
+    style={`--evo-dur: ${DUR}s`}
+  >
+    <div role="tablist" aria-label="Chapters" class="grid grid-cols-7 gap-1.5 sm:gap-2.5">
+      {
+        chapters.map((c, i) => (
+          <button
+            role="tab"
+            id={`evo-tab-${i}`}
+            aria-controls={`evo-panel-${i}`}
+            aria-selected={i === last ? "true" : "false"}
+            aria-label={`${c.years}: ${c.title}`}
+            tabindex={i === last ? 0 : -1}
+            data-state={i === last ? "active" : "done"}
+            class="evo-tab"
+          >
+            <span class="evo-track" aria-hidden="true">
+              <span class="evo-fill" />
+            </span>
+            <span class="evo-num font-mono" aria-hidden="true">
+              {pad(i + 1)}
+            </span>
+            <span class="evo-year font-mono" aria-hidden="true">
+              {c.years.slice(0, 4)}
+            </span>
+            <span class="evo-label hidden sm:block" aria-hidden="true">
+              {c.tab}
+            </span>
+          </button>
+        ))
+      }
     </div>
 
-    <div
-      class="evo"
-      data-evo
-      data-mode="manual"
-      data-stack={JSON.stringify(stack)}
-      data-reach={JSON.stringify(reach)}
-      style={`--evo-dur: ${DUR}s`}
-    >
-      <div role="tablist" aria-label="Chapters" class="grid grid-cols-7 gap-1.5 sm:gap-2.5">
+    <div class="mt-8 grid gap-8 lg:grid-cols-[3fr_2fr] lg:gap-12">
+      <figure class="evo-stack lg:order-2" aria-hidden="true" style={`--reach: ${reach[last]}`}>
+        <p class="font-mono text-faint mb-3 text-[0.65rem]">scope</p>
+        <div class="relative">
+          <span class="evo-rail">
+            <span class="evo-rail-fill" />
+          </span>
+          <ol class="evo-layers">
+            {
+              scopeLayers.map((layer, li) => (
+                <li class="evo-layer" data-state={stack[last][li].state} style={`--inset: ${(5 - li) * 1.25}%`}>
+                  <span class="evo-layer-name font-mono">{layer}</span>
+                  <span class="evo-layer-note font-mono">{stack[last][li].note}</span>
+                </li>
+              ))
+            }
+          </ol>
+        </div>
+        <figcaption class="font-mono text-faint mt-3 flex flex-wrap gap-x-4 gap-y-1 text-[0.62rem]">
+          <span><span class="evo-key evo-key-now" /> this chapter</span>
+          <span><span class="evo-key evo-key-kept" /> carried forward</span>
+        </figcaption>
+      </figure>
+
+      <div class="evo-panels lg:order-1" data-evo-panels>
         {
           chapters.map((c, i) => (
-            <button
-              role="tab"
-              id={`evo-tab-${i}`}
-              aria-controls={`evo-panel-${i}`}
-              aria-selected={i === last ? "true" : "false"}
-              aria-label={`${c.years}: ${c.title}`}
-              tabindex={i === last ? 0 : -1}
-              data-state={i === last ? "active" : "done"}
-              class="evo-tab"
+            <article
+              role="tabpanel"
+              id={`evo-panel-${i}`}
+              aria-labelledby={`evo-tab-${i}`}
+              class:list={["evo-panel", { "is-active": i === last }]}
+              inert={i !== last}
             >
-              <span class="evo-track" aria-hidden="true">
-                <span class="evo-fill" />
-              </span>
-              <span class="evo-num font-mono" aria-hidden="true">
-                {pad(i + 1)}
-              </span>
-              <span class="evo-year font-mono" aria-hidden="true">
-                {c.years.slice(0, 4)}
-              </span>
-              <span class="evo-label hidden sm:block" aria-hidden="true">
-                {c.tab}
-              </span>
-            </button>
+              <p class="font-mono text-muted text-xs">
+                {c.years}
+                <span class="text-faint"> · {c.where}</span>
+              </p>
+              <h4 class="mt-1 text-lg font-medium sm:text-xl">{c.title}</h4>
+
+              <dl class="mt-5 space-y-4">
+                <div>
+                  <dt class="evo-dt">built</dt>
+                  <dd class="evo-dd">{c.built}</dd>
+                </div>
+                {c.led && (
+                  <div>
+                    <dt class="evo-dt">led</dt>
+                    <dd class="evo-dd">{c.led}</dd>
+                  </div>
+                )}
+                {c.kept && (
+                  <div>
+                    <dt class="evo-dt">took with me</dt>
+                    <dd class="evo-dd">{c.kept}</dd>
+                  </div>
+                )}
+              </dl>
+            </article>
           ))
         }
       </div>
-
-      <div class="mt-8 grid gap-8 lg:grid-cols-[3fr_2fr] lg:gap-12">
-        <figure class="evo-stack lg:order-2" aria-hidden="true" style={`--reach: ${reach[last]}`}>
-          <p class="font-mono text-faint mb-3 text-[0.65rem]">scope</p>
-          <div class="relative">
-            <span class="evo-rail">
-              <span class="evo-rail-fill" />
-            </span>
-            <ol class="evo-layers">
-              {
-                scopeLayers.map((layer, li) => (
-                  <li class="evo-layer" data-state={stack[last][li].state} style={`--inset: ${(5 - li) * 1.25}%`}>
-                    <span class="evo-layer-name font-mono">{layer}</span>
-                    <span class="evo-layer-note font-mono">{stack[last][li].note}</span>
-                  </li>
-                ))
-              }
-            </ol>
-          </div>
-          <figcaption class="font-mono text-faint mt-3 flex flex-wrap gap-x-4 gap-y-1 text-[0.62rem]">
-            <span><span class="evo-key evo-key-now" /> this chapter</span>
-            <span><span class="evo-key evo-key-kept" /> carried forward</span>
-          </figcaption>
-        </figure>
-
-        <div class="evo-panels lg:order-1" data-evo-panels>
-          {
-            chapters.map((c, i) => (
-              <article
-                role="tabpanel"
-                id={`evo-panel-${i}`}
-                aria-labelledby={`evo-tab-${i}`}
-                class:list={["evo-panel", { "is-active": i === last }]}
-                inert={i !== last}
-              >
-                <p class="font-mono text-muted text-xs">
-                  {c.years}
-                  <span class="text-faint"> · {c.where}</span>
-                </p>
-                <h3 class="mt-1 text-lg font-medium sm:text-xl">{c.title}</h3>
-                <p class="text-muted mt-2 text-[0.95rem]">{c.shift}</p>
-
-                <dl class="mt-6 space-y-4">
-                  <div>
-                    <dt class="evo-dt">built</dt>
-                    <dd class="evo-dd">{c.built}</dd>
-                  </div>
-                  {c.led && (
-                    <div>
-                      <dt class="evo-dt">led</dt>
-                      <dd class="evo-dd">{c.led}</dd>
-                    </div>
-                  )}
-                  <div>
-                    <dt class="evo-dt">{(c.keptLabel ?? "Took with me").toLowerCase()}</dt>
-                    <dd class="evo-dd">{c.kept}</dd>
-                  </div>
-                </dl>
-
-                <div class="border-line mt-7 space-y-1 border-t pt-4">
-                  {rolesOf(c.id).map((job) => (
-                    <details class="evo-role group">
-                      <summary class="flex cursor-pointer list-none items-start gap-2.5 py-1.5">
-                        <span
-                          class="border-line bg-bg font-mono relative mt-0.5 inline-flex size-5 shrink-0 items-center justify-center overflow-hidden rounded-[3px] border text-[0.55rem]"
-                          aria-hidden="true"
-                        >
-                          {job.company.charAt(0)}
-                          <img
-                            src={faviconFor(job.url, 32)}
-                            alt=""
-                            width="14"
-                            height="14"
-                            loading="lazy"
-                            decoding="async"
-                            class="absolute inset-0 m-auto size-3.5"
-                            onerror="this.remove()"
-                          />
-                        </span>
-                        <span class="min-w-0 flex-1">
-                          <span class="text-heading block text-[0.9rem] leading-snug">
-                            {job.role} <span class="text-accent">@ {job.company}</span>
-                          </span>
-                          <span class="font-mono text-faint block text-[0.68rem]">
-                            {job.period}
-                            {job.location && <> · {job.location}</>}
-                          </span>
-                        </span>
-                        <span
-                          class="evo-chev font-mono text-faint mt-0.5 shrink-0 text-xs transition-transform duration-200 group-open:rotate-90"
-                          aria-hidden="true"
-                        >
-                          ›
-                        </span>
-                      </summary>
-                      <ul class="mt-2 mb-3 space-y-2 pl-7.5">
-                        {job.bullets.map((b) => (
-                          <li class="flex gap-3 text-[0.88rem]">
-                            <span class="text-accent mt-0.5 shrink-0" aria-hidden="true">
-                              ▸
-                            </span>
-                            <span>{b}</span>
-                          </li>
-                        ))}
-                        <li class="pt-1">
-                          <a
-                            href={job.url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            class="link font-mono text-xs"
-                          >
-                            {new URL(job.url).hostname.replace(/^www\./, "")} ↗
-                          </a>
-                        </li>
-                      </ul>
-                    </details>
-                  ))}
-                </div>
-              </article>
-            ))
-          }
-        </div>
-      </div>
     </div>
   </div>
-</Section>
+</div>
 
 <style>
+  /* Scoped, so it wins over the global heading font. */
+  .evo-heading {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    font-weight: 400;
+    color: var(--color-faint);
+  }
+
   /* ---- Tabs: story-style bars that fill while a chapter plays ---- */
   .evo-tab {
     display: flex;
@@ -377,13 +307,6 @@ const faviconFor = (url: string, size: number) =>
   .evo-dd {
     margin: 0.15rem 0 0;
     font-size: 0.95rem;
-  }
-  .evo-role summary::-webkit-details-marker {
-    display: none;
-  }
-  .evo-role summary:hover .evo-chev,
-  .evo-role summary:focus-visible .evo-chev {
-    color: var(--color-accent);
   }
 
   /* ---- Scope stack: an upward-widening stack, silicon at the bottom ---- */
