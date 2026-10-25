@@ -579,13 +579,26 @@ export const openSource = {
      only exist because people published their work, so I try to give back.
      It has also taught me a lot about writing code other people can read and
      build on.`,
-    `Upstream, that includes navigation2, the ROS 2 navigation stack. The rest
-     is my own: tools for problems I kept running into, published so the next
-     person doesn't start from scratch.`,
+    `Upstream, that's meant graph search algorithms for PythonRobotics and
+     TheAlgorithms, and work on navigation2, the ROS 2 navigation stack. The
+     rest is my own: tools for problems I kept running into, published so the
+     next person doesn't start from scratch.`,
   ],
   upstream: [
     {
-      name: "navigation2",
+      name: "TheAlgorithms/Python",
+      what: "every algorithm, implemented in Python",
+      repo: "https://github.com/TheAlgorithms/Python",
+      prs: "https://github.com/TheAlgorithms/Python/pulls?q=is%3Apr+author%3Aguilyx+is%3Amerged",
+    },
+    {
+      name: "AtsushiSakai/PythonRobotics",
+      what: "robotics algorithms in Python, with animations",
+      repo: "https://github.com/AtsushiSakai/PythonRobotics",
+      prs: "https://github.com/AtsushiSakai/PythonRobotics/pulls?q=is%3Apr+author%3Aguilyx+is%3Amerged",
+    },
+    {
+      name: "ros-navigation/navigation2",
       what: "the ROS 2 navigation stack",
       repo: "https://github.com/ros-navigation/navigation2",
       prs: "https://github.com/ros-navigation/navigation2/pulls?q=is%3Apr+author%3Aguilyx+is%3Amerged",

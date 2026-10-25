@@ -35,8 +35,13 @@ const label = (p: Project) =>
         {
           openSource.upstream.map((u) => (
             <li>
-              <a href={u.repo} target="_blank" rel="noopener noreferrer" class="link text-heading text-[0.95rem] font-medium">
-                {u.name}
+              <a
+                href={u.repo}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="link text-heading max-w-full text-[0.95rem] font-medium [overflow-wrap:anywhere]"
+              >
+                <span class="text-faint font-normal">{u.name.split("/")[0]}/</span><wbr />{u.name.split("/")[1]}
               </a>
               <p class="text-muted text-sm">{u.what}</p>
               <a href={u.prs} target="_blank" rel="noopener noreferrer" class="link font-mono text-xs">
@@ -118,21 +123,29 @@ const label = (p: Project) =>
   /**
    * The live "merged upstream" list. The visitor's browser asks GitHub's
    * search API for my merged pull requests outside my own repos and orgs,
-   * then for those repos' star counts, and shows the three biggest. Two
-   * unauthenticated search calls, cached for a day; if either fails, the
-   * list written into the page stays as it is.
+   * then for those repos' star counts, and shows the three biggest. At most
+   * ten unauthenticated search calls (GitHub's per-minute limit), cached for
+   * a day; if they fail, the list written into the page stays as it is.
    *
-   * awesome-* lists are skipped: a merged PR there is usually a line added
-   * to a list, not code.
+   * It reads up to 400 PRs, not just the latest 100: years of work PRs
+   * would otherwise push older contributions (PythonRobotics, TheAlgorithms)
+   * out of the first page. "Mine" is the owners in `data-own`, plus any repo
+   * where GitHub marks me as its owner or a member of the org behind it.
+   * awesome-* lists are skipped too: a merged PR there is usually a line
+   * added to a list, not code.
    */
   type Upstream = { name: string; url: string; what: string; stars: number; prs: number };
   type Cache = { at: number; repos: Upstream[] };
 
-  const KEY = "gh-upstream:v1";
+  const KEY = "gh-upstream:v2";
   const TTL = 24 * 60 * 60 * 1000;
   const API = "https://api.github.com/search";
   // GitHub caps a search query at 256 characters.
   const MAX_QUERY = 250;
+  // Pages of PRs, then star lookups: together within ten search calls.
+  const MAX_PR_PAGES = 4;
+  const MAX_STAR_QUERIES = 6;
+  const OWN = new Set(["OWNER", "MEMBER"]);
 
   const list = document.querySelector<HTMLElement>("[data-upstream]");
   const note = document.querySelector<HTMLElement>("[data-upstream-note]");
@@ -140,34 +153,43 @@ const label = (p: Project) =>
   const compact = (n: number) =>
     n < 1000 ? String(n) : `${(n / 1000).toFixed(n < 10000 ? 1 : 0).replace(/\.0$/, "")}k`;
 
-  async function search<T>(kind: "issues" | "repositories", q: string): Promise<T[]> {
-    const res = await fetch(`${API}/${kind}?q=${encodeURIComponent(q)}&per_page=100`, {
+  async function search<T>(kind: "issues" | "repositories", q: string, page = 1) {
+    const res = await fetch(`${API}/${kind}?q=${encodeURIComponent(q)}&per_page=100&page=${page}`, {
       headers: { Accept: "application/vnd.github+json" },
     });
     if (!res.ok) throw new Error(`GitHub ${kind} search: ${res.status}`);
-    return ((await res.json()) as { items: T[] }).items;
+    return (await res.json()) as { total_count: number; items: T[] };
   }
 
+  type PR = { repository_url: string; author_association: string };
+
   async function fetchUpstream(user: string, own: string[], minStars: number): Promise<Upstream[]> {
-    const prs = await search<{ repository_url: string }>(
-      "issues",
-      [`type:pr`, `author:${user}`, `is:merged`, ...own.map((o) => `-user:${o}`)].join(" "),
+    const q = [`type:pr`, `author:${user}`, `is:merged`, ...own.map((o) => `-user:${o}`)].join(" ");
+    const first = await search<PR>("issues", q);
+    const pages = Math.min(MAX_PR_PAGES, Math.ceil(first.total_count / 100));
+    const rest = await Promise.all(
+      // a later page that fails just leaves those PRs out
+      Array.from({ length: Math.max(0, pages - 1) }, (_, i) =>
+        search<PR>("issues", q, i + 2).then((r) => r.items, () => [] as PR[]),
+      ),
     );
-    // Merged PRs per repo, keyed case-insensitively.
+    // Merged PRs per repo, keyed case-insensitively, leaving out repos that
+    // are mine or my org's.
     const counts = new Map<string, number>();
-    for (const pr of prs) {
+    for (const pr of [first.items, ...rest].flat()) {
+      if (OWN.has(pr.author_association)) continue;
       const name = pr.repository_url.replace("https://api.github.com/repos/", "").toLowerCase();
       counts.set(name, (counts.get(name) ?? 0) + 1);
     }
     // Star counts, a few repos per query to stay under the length cap,
-    // busiest repos first, at most three queries.
+    // busiest repos first.
     const names = [...counts.keys()].sort((a, b) => counts.get(b)! - counts.get(a)!);
     const queries: string[] = [];
     for (const name of names) {
       const part = `repo:${name}`;
       const last = queries.length - 1;
       if (last >= 0 && queries[last].length + part.length + 1 <= MAX_QUERY) queries[last] += ` ${part}`;
-      else if (queries.length < 3) queries.push(part);
+      else if (queries.length < MAX_STAR_QUERIES) queries.push(part);
     }
     type Repo = {
       full_name: string;
@@ -177,7 +199,7 @@ const label = (p: Project) =>
       fork: boolean;
       topics?: string[];
     };
-    const repos = (await Promise.all(queries.map((q) => search<Repo>("repositories", q)))).flat();
+    const repos = (await Promise.all(queries.map((rq) => search<Repo>("repositories", rq)))).flatMap((r) => r.items);
     return repos
       .filter((r) => !r.fork && r.stargazers_count >= minStars)
       .filter((r) => !/^awesome/i.test(r.full_name.split("/")[1] ?? "") && !r.topics?.includes("awesome-list"))
@@ -202,8 +224,13 @@ const label = (p: Project) =>
       name.target = "_blank";
       name.rel = "noopener noreferrer";
       name.className = "link text-heading max-w-full text-[0.95rem] font-medium [overflow-wrap:anywhere]";
-      name.textContent = r.name.split("/")[1] ?? r.name;
-      name.title = r.name;
+      // owner/ faint, then the repo ("Python" alone says nothing); a long
+      // name wraps after the slash
+      const [owner, repo] = r.name.split("/");
+      const ownerPart = document.createElement("span");
+      ownerPart.className = "text-faint font-normal";
+      ownerPart.textContent = `${owner}/`;
+      name.append(ownerPart, document.createElement("wbr"), repo ?? "");
 
       const what = document.createElement("p");
       what.className = "text-muted line-clamp-2 text-sm [overflow-wrap:anywhere]";
