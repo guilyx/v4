@@ -7,9 +7,9 @@ export const site = {
   name: "Erwin Lejeune",
   handle: "guilyx",
   role: "Head of Robotics",
-  tagline: "Leading robotics software teams across orchestration, navigation and fault management.",
+  tagline: "Leading robotics teams from the lab to the field.",
   description:
-    "Erwin Lejeune is Head of Robotics at SIRB.AI in Abu Dhabi. He builds robot autonomy (planning, swarms, sensor fusion) and has led robotics teams since 2021. ROS 2, C++, Python, Go.",
+    "Erwin Lejeune is Head of Robotics at SIRB.AI in Abu Dhabi: a technical lead across AMR navigation, fleet management and fault management, who has led robotics teams in the lab and in the field since 2021, and helps teams use AI responsibly. ROS 2, C++, Python, Go.",
   url: "https://v4.elejeune.me",
   email: "erwin.lejeune15@gmail.com",
   location: "Abu Dhabi, UAE",
@@ -48,16 +48,26 @@ export const nav = [
 
 export const about = {
   paragraphs: [
-    `I'm Erwin. I run robotics at [SIRB.AI](https://sirb.ai/), and I still
-     write code. Before that I led the robotics software team at
-     [TII](https://www.tii.ae/), built the navigation for a supermarket robot at
-     [Coalescent](https://cm-robotics.com/) in Denmark, and started my own
-     company, [Unchained Labs](https://unchainedlabs.dev/).`,
-    `I started out on microcontrollers, then simulated them, then pivoted to
-     building a platform for electronics logistics in Go at
-     [Hiventive](https://www.hiventive.com/en/). That range is my main
-     strength: I can bring ideas from other fields into robotics, for problems
-     most roboticists aren't familiar with.`,
+    `I'm Erwin, a technical lead in robotics. My work centers on navigation
+     for autonomous mobile robots, fleet management and fault management, and
+     I've led the teams building them both in the lab and in real
+     environments, from a supermarket in Denmark to drone fleets in the UAE.
+     Today I run robotics at [SIRB.AI](https://sirb.ai/); before that I led
+     the robotics software team at [TII](https://www.tii.ae/) and was a
+     founding engineer at [Coalescent](https://cm-robotics.com/).`,
+    `I wear two hats. As an engineer, I've shipped robotics products end to
+     end, from architecture to field deployment, and I stay in the code
+     through design and pull request reviews. As a manager, I build teams
+     from the ground up, run performance reviews, and deliver the product and
+     development roadmaps.`,
+    `More and more, that includes developer experience in the agentic era:
+     the workflows, automation and best practices that let everyone on a team
+     use AI responsibly and efficiently, so it actually helps them rather than
+     cutting corners.`,
+    `I started out on microcontrollers, then simulated them, then built a
+     platform for electronics logistics in Go at
+     [Hiventive](https://www.hiventive.com/en/). That range still pays off: I
+     often bring ideas from other fields to robotics problems.`,
     `Off the clock: basketball, films, and
      [Clanker Labs](https://clanker-labs.github.io/clanker-labs-public/), my
      self-hosted home with an agent running it.`,
@@ -930,12 +940,15 @@ export const archive: ArchiveEntry[] = [
  * profile README, which introduces him as a YAML document.
  */
 /**
- * The hero's one line of story. Deliberately doesn't restate the tagline
- * above it or the spec block beside it; the Background section right after
- * tells the rest.
+ * The hero's short description: what I work on, and both sides of the job.
+ * Deliberately doesn't restate the tagline above it or the spec block beside
+ * it; the Background section right after tells the rest.
  */
-export const heroSummary = `Eight years in robotics, from a supermarket robot
-  in Denmark to drone swarms in the UAE.`;
+export const heroSummary = `Technical lead across AMR navigation, fleet
+  management and fault management, with robotics products shipped end to end.
+  Just as at home building teams from scratch, running performance reviews and
+  roadmaps, reviewing pull requests, and setting up the AI workflows that make
+  a whole team faster without lowering the bar.`;
 
 export const spec = [
   { key: "role", value: "head of robotics @ sirb.ai" },
