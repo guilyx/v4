@@ -13,7 +13,8 @@ import { featured, layers, projectsIntro, type Project } from "@/data/site";
  *
  * Clips are muted, load nothing until their slide is on screen, and play only
  * while it stays there. Reduced-motion visitors get the poster and native
- * controls instead.
+ * controls instead. On wide screens blurbs stop at two lines and the tech
+ * tags step aside, so the section fits one screen.
  */
 const total = featured.length;
 const pad = (n: number) => String(n).padStart(2, "0");
@@ -22,7 +23,7 @@ const label = (p: Project) =>
 ---
 
 <Section id="projects" title="Featured Projects">
-  <p class="text-muted mb-10 max-w-xl text-sm" data-reveal>{projectsIntro.replace(/\s+/g, " ")}</p>
+  <p class="text-muted mb-6 max-w-xl text-sm lg:max-w-none" data-reveal>{projectsIntro.replace(/\s+/g, " ")}</p>
 
   <div class="bleed" data-reveal style="--reveal-delay: 100ms">
     <ul class="track" data-track tabindex="0" aria-label="Featured projects, scroll for more">
@@ -37,14 +38,14 @@ const label = (p: Project) =>
                 preload="none"
                 poster={p.videoPoster}
                 aria-label={`${p.title} demo`}
-                class="block aspect-[16/10] w-full object-cover object-top"
+                class="block aspect-[16/10] w-full object-cover object-top lg:aspect-[16/9]"
                 data-clip
               >
                 <source src={p.video} type={p.videoType ?? "video/mp4"} />
               </video>
             </div>
 
-            <p class="font-mono text-accent mt-5 text-[0.7rem]">{label(p)}</p>
+            <p class="font-mono text-accent mt-5 text-[0.7rem] lg:mt-3">{label(p)}</p>
             <h3 class="mt-1 text-xl font-semibold">
               <a
                 href={p.external ?? p.github}
@@ -55,13 +56,13 @@ const label = (p: Project) =>
                 {p.title}
               </a>
             </h3>
-            <p class="text-body mt-2 text-[0.92rem]">{p.blurb}</p>
-            <ul class="mt-4 flex flex-wrap gap-x-3 gap-y-1">
+            <p class="text-body mt-2 text-[0.92rem] lg:line-clamp-2">{p.blurb}</p>
+            <ul class="mt-4 flex flex-wrap gap-x-3 gap-y-1 lg:hidden">
               {p.tech.map((t) => (
                 <li class="chip">{t}</li>
               ))}
             </ul>
-            <div class="mt-auto flex flex-wrap items-center gap-x-4 gap-y-2 pt-4">
+            <div class="mt-auto flex flex-wrap items-center gap-x-4 gap-y-2 pt-4 lg:pt-3">
               {p.github && (
                 <a
                   href={p.github}
@@ -90,7 +91,7 @@ const label = (p: Project) =>
         ))
       }
     </ul>
-    <div class="mt-4 flex items-center gap-4">
+    <div class="mt-4 flex items-center gap-4 lg:mt-2">
       <div class="bg-line h-px flex-1" aria-hidden="true">
         <span class="bg-accent block h-px w-0 transition-[width] duration-200" data-progress></span>
       </div>

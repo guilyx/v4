@@ -476,8 +476,8 @@ export interface ArchiveEntry {
 
 /** The framing for the Featured Projects section: side projects only. */
 export const projectsIntro = `Things I've built on my own time, all open
-  source: planning toolboxes, robotics tools, and the two orgs where most of my
-  side work lives now.`;
+  source: planning toolboxes, robotics tools, and the two orgs where my side
+  work lives.`;
 
 /**
  * Featured projects — the carousel. Every slide has a real demo clip recorded
@@ -603,15 +603,9 @@ export const openSource = {
   /** "Decently sized": fewer stars than this and a project isn't listed. */
   minStars: 50,
   paragraphs: [
-    `My first open-source contribution was in 2018, and I've kept going since.
-     Robotics runs on shared code: ROS and the thousands of packages around it
-     only exist because people published their work, so I try to give back.
-     It has also taught me a lot about writing code other people can read and
-     build on.`,
-    `Upstream, that's meant graph search algorithms for PythonRobotics and
-     TheAlgorithms, and work on navigation2, the ROS 2 navigation stack. The
-     rest is my own: tools for problems I kept running into, published so the
-     next person doesn't start from scratch.`,
+    `I've contributed to open source since 2018. Robotics runs on shared code,
+     so I give back where I can: algorithms and fixes for the projects I rely
+     on, and tools of my own for problems I kept running into.`,
   ],
   upstream: [
     {
@@ -904,9 +898,9 @@ export const archive: ArchiveEntry[] = [
  */
 export const heroSummary = `Technical lead across AMR navigation, fleet
   management and fault management, with robotics products shipped end to end.
-  Just as at home building teams from scratch, running performance reviews and
-  roadmaps, reviewing pull requests, and setting up the AI workflows that make
-  a whole team faster without lowering the bar.`;
+  I build teams from scratch, run performance reviews and roadmaps, review pull
+  requests, and set up the AI workflows that make a whole team faster without
+  lowering the bar.`;
 
 export const spec = [
   { key: "role", value: "head of robotics @ sirb.ai" },

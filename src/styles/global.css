@@ -60,10 +60,15 @@ html {
   }
 }
 
-/* Home page section snapping lives in Base.astro's script, keyed on
-   html.snap-sections: it goes by scroll direction, which CSS snapping
-   can't. The sections' scroll-margin-top keeps a snapped heading clear
-   of the fixed nav. */
+/* Home page section paging lives in Base.astro's script, keyed on
+   html.snap-sections. Where it runs (desktops, motion allowed), every
+   section is at least a screen tall, so a page shows its own section and
+   never the start of the next one under it, however tall the window. */
+@media (pointer: fine) and (min-width: 1024px) and (min-height: 600px) and (prefers-reduced-motion: no-preference) {
+  html.snap-sections #main > section {
+    min-height: 100vh;
+  }
+}
 
 body {
   @apply bg-bg text-body font-sans antialiased;

@@ -127,19 +127,25 @@ const ogImage = new URL("/og.png", Astro.site);
         };
 
         // What a scroll of dy should do from here: glide to another page,
-        // stop at this page's edge, or nothing (let the browser scroll).
+        // glide or stop at this page's edge, or nothing (let the browser
+        // scroll). When the rest of a page is short (a section a little
+        // taller than the window), one gesture glides over all of it rather
+        // than taking two or three wheel notches to get there.
         const decide = (dy: number): { glide?: number; clamp?: number } | null => {
           const ps = pages();
           const y = scrollY;
+          const short = innerHeight / 3;
           let i = 0;
           for (let k = 0; k < ps.length; k++) if (ps[k].s <= y + 2) i = k;
           const p = ps[i];
           if (dy > 0) {
             if (y >= p.e - 2) return ps[i + 1] ? { glide: ps[i + 1].s } : null;
+            if (p.e - y <= short) return { glide: p.e };
             if (y + dy > p.e) return { clamp: p.e };
           } else if (dy < 0) {
             if (y > p.e + 2) return { glide: p.e };
             if (y <= p.s + 2) return ps[i - 1] ? { glide: ps[i - 1].e } : null;
+            if (y - p.s <= short) return { glide: p.s };
             if (y + dy < p.s) return { clamp: p.s };
           }
           return null;

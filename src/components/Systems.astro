@@ -9,12 +9,15 @@ import { systems, systemsIntro } from "@/data/site";
  *
  * Only the active tab's scene runs, only while the section is on screen.
  * Reduced-motion users get one representative still frame per scene.
+ *
+ * On wide screens the sketch and its explanation sit side by side, so the
+ * whole section fits one laptop screen; below that they stack.
  */
 const bold = (s: string) => s.replace(/\*\*([^*]+)\*\*/g, '<b class="text-heading font-medium">$1</b>');
 ---
 
 <Section id="systems" title="Built for Companies">
-  <p class="text-muted mb-10 max-w-xl text-sm" data-reveal>
+  <p class="text-muted mb-6 max-w-xl text-sm lg:max-w-none" data-reveal>
     {systemsIntro.replace(/\s+/g, " ")}
   </p>
 
@@ -29,7 +32,7 @@ const bold = (s: string) => s.replace(/\*\*([^*]+)\*\*/g, '<b class="text-headin
             aria-controls={`sys-panel-${s.id}`}
             aria-selected={i === 0 ? "true" : "false"}
             tabindex={i === 0 ? 0 : -1}
-            class="sys-tab border-line hover:text-heading text-muted flex items-baseline gap-3 rounded-md border px-4 py-3 text-left text-sm transition-colors"
+            class="sys-tab border-line hover:text-heading text-muted flex items-baseline gap-3 rounded-md border px-4 py-3 text-left text-sm transition-colors lg:py-2 lg:text-[0.8rem]"
           >
             <span class="font-mono text-accent text-[0.7rem]">{String(i + 1).padStart(2, "0")}</span>
             <span>{s.tab}</span>
@@ -45,21 +48,26 @@ const bold = (s: string) => s.replace(/\*\*([^*]+)\*\*/g, '<b class="text-headin
           id={`sys-panel-${s.id}`}
           aria-labelledby={`sys-tab-${s.id}`}
           hidden={i !== 0}
-          class="mt-6"
+          class="mt-5 lg:grid lg:grid-cols-2 lg:items-start lg:gap-10"
         >
-          <div class="border-line bg-bg-raised relative aspect-[3/4] overflow-hidden rounded-lg border sm:aspect-[16/9]">
-            <canvas data-scene={s.id} aria-hidden="true" class="absolute inset-0 h-full w-full" />
+          <div>
+            <div class="border-line bg-bg-raised relative aspect-[3/4] overflow-hidden rounded-lg border sm:aspect-[16/9]">
+              <canvas data-scene={s.id} aria-hidden="true" class="absolute inset-0 h-full w-full" />
+            </div>
+            {/* the sketch shows its own stages on wide screens, so the caption steps aside */}
+            <p class="font-mono text-faint mt-2 text-right text-[0.68rem] lg:hidden">{s.caption}</p>
+            {/* on wide screens the note sits under the sketch */}
+            <p class="border-accent text-body mt-3 hidden border-l-2 pl-4 text-sm lg:block">{s.note}</p>
           </div>
-          <p class="font-mono text-faint mt-2 text-right text-[0.68rem]">{s.caption}</p>
 
-          <div class="mt-8 grid gap-8 md:grid-cols-[2fr_3fr]">
+          <div class="mt-8 grid gap-8 md:grid-cols-[2fr_3fr] lg:mt-0 lg:block">
             <div>
               <h3 class="text-heading text-lg font-semibold">{s.headline}</h3>
-              <p class="border-accent text-body mt-4 border-l-2 pl-4 text-sm">{s.note}</p>
+              <p class="border-accent text-body mt-4 border-l-2 pl-4 text-sm lg:hidden">{s.note}</p>
             </div>
-            <ul class="space-y-3">
+            <ul class="space-y-3 lg:mt-4 lg:space-y-2.5">
               {s.points.map((p) => (
-                <li class="flex gap-3 text-[0.95rem]">
+                <li class="flex gap-3 text-[0.95rem] lg:text-[0.86rem]">
                   <span class="text-accent mt-1 shrink-0" aria-hidden="true">
                     ▸
                   </span>

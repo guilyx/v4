@@ -7,104 +7,121 @@ import { openSource, projects, archive, layers, type Project } from "@/data/site
 /**
  * Open Source — its own stop on the page, after Featured Projects: why it
  * matters to me, where my work went upstream, then the repos of my own and
- * the archive for everything else.
+ * the archive for everything else. On wide screens it's three bands, so the
+ * section fits one screen: the intro, the upstream work in a row, and my own
+ * repos four across.
  */
 const label = (p: Project) =>
   [p.isOrg ? "org" : (p.org ?? "personal"), p.layer && layers[p.layer]].filter(Boolean).join(" · ");
 ---
 
 <Section id="open-source" title="Open Source">
-  <div class="grid gap-10 md:grid-cols-[1fr_15rem] md:gap-14" data-reveal>
-    <div class="text-body space-y-4 text-[0.95rem] leading-relaxed">
+  <div class="grid gap-10 md:grid-cols-[1fr_15rem] md:gap-x-14 lg:grid-cols-1 lg:gap-y-7" data-reveal>
+    <div class="text-body space-y-4 text-[0.95rem] leading-relaxed md:col-start-1 md:row-start-1">
       {openSource.paragraphs.map((para) => <p>{para.replace(/\s+/g, " ")}</p>)}
     </div>
 
-    <aside class="border-line border-t pt-8 md:border-t-0 md:border-l md:pt-0 md:pl-8">
-      <p class="font-mono text-accent text-4xl leading-none tabular-nums">{openSource.since}</p>
-      <p class="font-mono text-faint mt-2 text-xs">first contribution</p>
+    <aside
+      class="border-line border-t pt-8 md:col-start-2 md:row-start-1 md:border-t-0 md:border-l md:pt-0 md:pl-8 lg:col-start-1 lg:row-start-2 lg:grid lg:grid-cols-[9rem_1fr] lg:gap-8 lg:border-t lg:border-l-0 lg:pt-6 lg:pl-0"
+    >
+      <div>
+        <p class="font-mono text-accent text-4xl leading-none tabular-nums">{openSource.since}</p>
+        <p class="font-mono text-faint mt-2 text-xs">first contribution</p>
+      </div>
 
-      <p class="font-mono text-faint mt-8 text-xs">merged upstream</p>
-      {/* Replaced by the live top 3 once GitHub answers; see the script below. */}
-      <ul
-        class="mt-3 space-y-4"
-        data-upstream
-        data-user={openSource.github}
-        data-own={openSource.ownOrgs.join(",")}
-        data-min-stars={openSource.minStars}
-      >
+      <div>
+        <p class="font-mono text-faint mt-8 text-xs lg:mt-0">merged upstream</p>
+        {/* Replaced by the live top 3 once GitHub answers; see the script below. */}
+        <ul
+          class="mt-3 space-y-4 lg:grid lg:grid-cols-3 lg:gap-6 lg:space-y-0"
+          data-upstream
+          data-user={openSource.github}
+          data-own={openSource.ownOrgs.join(",")}
+          data-min-stars={openSource.minStars}
+        >
+          {
+            openSource.upstream.map((u) => (
+              <li>
+                <a
+                  href={u.repo}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="link text-heading max-w-full text-[0.95rem] font-medium [overflow-wrap:anywhere]"
+                >
+                  <span class="text-faint font-normal">{u.name.split("/")[0]}/</span><wbr />{u.name.split("/")[1]}
+                </a>
+                <p class="text-muted text-sm">{u.what}</p>
+                <a href={u.prs} target="_blank" rel="noopener noreferrer" class="link font-mono -my-1.5 py-1.5 text-xs">
+                  my merged pull requests →
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+        <p class="font-mono text-faint mt-4 text-[0.65rem] lg:mt-3" data-upstream-note hidden>
+          live from GitHub · biggest by stars
+        </p>
+      </div>
+    </aside>
+
+    <div class="md:col-span-2 md:row-start-2 lg:col-span-1 lg:col-start-1 lg:row-start-3">
+      {/* On wide screens the archive link sits on the heading's line instead
+          of under the cards, which keeps the section to one screen. */}
+      <div class="flex items-baseline justify-between gap-6">
+        <h3 class="text-lg font-medium">My own</h3>
+        <a href="/archive" class="link font-mono hidden text-sm lg:inline">
+          all {archive.length} projects, sortable and filterable, in the archive →
+        </a>
+      </div>
+      <ul class="mt-6 grid gap-4 sm:grid-cols-2 lg:mt-4 lg:grid-cols-4 lg:gap-3">
         {
-          openSource.upstream.map((u) => (
-            <li>
-              <a
-                href={u.repo}
-                target="_blank"
-                rel="noopener noreferrer"
-                class="link text-heading max-w-full text-[0.95rem] font-medium [overflow-wrap:anywhere]"
-              >
-                <span class="text-faint font-normal">{u.name.split("/")[0]}/</span><wbr />{u.name.split("/")[1]}
-              </a>
-              <p class="text-muted text-sm">{u.what}</p>
-              <a href={u.prs} target="_blank" rel="noopener noreferrer" class="link font-mono -my-1.5 py-1.5 text-xs">
-                my merged pull requests →
-              </a>
+          projects.map((p) => (
+            <li class="card group border-line relative flex flex-col rounded-lg border p-5 lg:p-4">
+              <p class="font-mono text-faint text-[0.68rem]">{label(p)}</p>
+              <h4 class="text-heading mt-1 text-[0.95rem] font-medium break-words">
+                <a
+                  href={p.github ?? p.external}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="group-hover:text-accent transition-colors after:absolute after:inset-0"
+                >
+                  {p.title}
+                </a>
+              </h4>
+              <p class="text-muted mt-2 text-sm lg:mt-1 lg:line-clamp-2">{p.blurb}</p>
+              <div class="mt-auto flex flex-wrap items-center gap-x-4 gap-y-2 pt-4 lg:pt-2">
+                <ul class="flex flex-wrap gap-x-3 gap-y-1 lg:hidden">
+                  {p.tech.map((t) => (
+                    <li class="chip">{t}</li>
+                  ))}
+                </ul>
+                <div class="relative z-[1] ml-auto flex items-center gap-3">
+                  {p.github && <GhStats url={p.github} />}
+                  {p.github && p.external && (
+                    <a
+                      href={p.external}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label={`${p.title} site`}
+                      class="text-muted hover:text-accent -m-1.5 p-1.5 transition-colors"
+                    >
+                      <Icon name="external" size={15} />
+                    </a>
+                  )}
+                </div>
+              </div>
             </li>
           ))
         }
       </ul>
-      <p class="font-mono text-faint mt-4 text-[0.65rem]" data-upstream-note hidden>
-        live from GitHub · biggest by stars
+
+      <p class="mt-10 text-center lg:hidden">
+        <a href="/archive" class="link font-mono text-sm">
+          all {archive.length} projects, sortable and filterable, in the archive →
+        </a>
       </p>
-    </aside>
+    </div>
   </div>
-
-  <h3 class="mt-16 text-lg font-medium" data-reveal>My own</h3>
-  <ul class="mt-6 grid gap-4 sm:grid-cols-2" data-reveal>
-    {
-      projects.map((p) => (
-        <li class="card group border-line relative flex flex-col rounded-lg border p-5">
-          <p class="font-mono text-faint text-[0.68rem]">{label(p)}</p>
-          <h4 class="text-heading mt-1 text-[0.95rem] font-medium break-words">
-            <a
-              href={p.github ?? p.external}
-              target="_blank"
-              rel="noopener noreferrer"
-              class="group-hover:text-accent transition-colors after:absolute after:inset-0"
-            >
-              {p.title}
-            </a>
-          </h4>
-          <p class="text-muted mt-2 text-sm">{p.blurb}</p>
-          <div class="mt-auto flex flex-wrap items-center gap-x-4 gap-y-2 pt-4">
-            <ul class="flex flex-wrap gap-x-3 gap-y-1">
-              {p.tech.map((t) => (
-                <li class="chip">{t}</li>
-              ))}
-            </ul>
-            <div class="relative z-[1] ml-auto flex items-center gap-3">
-              {p.github && <GhStats url={p.github} />}
-              {p.github && p.external && (
-                <a
-                  href={p.external}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label={`${p.title} site`}
-                  class="text-muted hover:text-accent -m-1.5 p-1.5 transition-colors"
-                >
-                  <Icon name="external" size={15} />
-                </a>
-              )}
-            </div>
-          </div>
-        </li>
-      ))
-    }
-  </ul>
-
-  <p class="mt-10 text-center" data-reveal>
-    <a href="/archive" class="link font-mono text-sm">
-      all {archive.length} projects, sortable and filterable, in the archive →
-    </a>
-  </p>
 </Section>
 
 <style>
