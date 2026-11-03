@@ -105,20 +105,33 @@ const ogImage = new URL("/og.png", Astro.site);
         !window.matchMedia("(prefers-reduced-motion: reduce)").matches
       ) {
         type Page = { s: number; e: number };
-        // Each section is a page from s, where it lands (its heading just
-        // under the nav), to e, where its content's end, plus some air, meets
-        // the bottom of the window. A page that fits has e = s.
+        // Each section is a page from s, where it lands (its top at the top
+        // of the window, the content centred under the nav; see global.css),
+        // to e, where its bottom meets the bottom of the window. A section
+        // that fits is exactly one window tall, so its page has e = s.
+        const nav = document.getElementById("site-nav");
         const pages = (): Page[] => {
           const vh = innerHeight;
           const max = document.documentElement.scrollHeight - vh;
+          const navH = nav?.offsetHeight ?? 0;
           const list = Array.from(document.querySelectorAll<HTMLElement>("#main > section"), (el) => {
             const cs = getComputedStyle(el);
             const top = el.getBoundingClientRect().top + scrollY;
             const s = Math.max(0, top - parseFloat(cs.scrollMarginTop));
-            const end = top + el.offsetHeight - parseFloat(cs.paddingBottom) + 32;
-            // a page only a little too tall counts as fitting: no point
-            // spending a gesture on a few dozen pixels of air
-            return { s, e: end - vh - s < 64 ? s : end - vh };
+            const over = top + el.offsetHeight - vh - s;
+            if (over <= 0) return { s, e: s };
+            // A section over by no more than its air (the padding below the
+            // nav and at the bottom) still has room for all of its content
+            // between the nav and the bottom of the window: it lands a little
+            // lower, with what's left of the air split evenly above and
+            // below, rather than spending a gesture on a few pixels.
+            const airTop = Math.max(0, parseFloat(cs.paddingTop) - navH);
+            const airBottom = parseFloat(cs.paddingBottom);
+            if (over <= airTop + airBottom) {
+              const at = s + Math.min(over, Math.max(0, (over + airTop - airBottom) / 2));
+              return { s: at, e: at };
+            }
+            return { s, e: s + over };
           });
           // the last page runs to the bottom, footer included
           const last = list[list.length - 1];
@@ -133,10 +146,18 @@ const ogImage = new URL("/og.png", Astro.site);
         // than taking two or three wheel notches to get there.
         const decide = (dy: number): { glide?: number; clamp?: number } | null => {
           const ps = pages();
-          const y = scrollY;
+          let y = scrollY;
           const short = innerHeight / 3;
           let i = 0;
           for (let k = 0; k < ps.length; k++) if (ps[k].s <= y + 2) i = k;
+          // A menu link lands a section at its very top, a few pixels above
+          // where paging lands one that's only just too tall: that's still
+          // being on it, not on the page before.
+          const next = ps[i + 1];
+          if (next && next.s - y <= 20 && y >= ps[i].e - 2) {
+            i += 1;
+            y = next.s;
+          }
           const p = ps[i];
           if (dy > 0) {
             if (y >= p.e - 2) return ps[i + 1] ? { glide: ps[i + 1].s } : null;
