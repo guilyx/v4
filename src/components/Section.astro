@@ -12,8 +12,14 @@ interface Props {
 const { id, title, class: className = "" } = Astro.props;
 ---
 
-<section id={id} class={`mx-auto max-w-4xl scroll-mt-24 py-24 md:py-32 ${className}`}>
-  <header class="mb-10" data-reveal>
+{/* A snapped or linked-to section lands with its heading just under the
+    fixed nav (72px, plus a little air), not a whole padding further down: the
+    scroll margin takes the top padding back off. */}
+<section
+  id={id}
+  class={`mx-auto max-w-4xl scroll-mt-[calc(100px-6rem)] py-24 md:scroll-mt-[calc(100px-8rem)] md:py-32 ${className}`}
+>
+  <header class="mb-8" data-reveal>
     <p class="font-mono text-accent flex items-center gap-2.5 text-xs tracking-wide">
       <span class="bg-accent inline-block h-1 w-1 rotate-45" aria-hidden="true"></span>
       {id}
