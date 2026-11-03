@@ -1,6 +1,6 @@
 ---
 import Section from "@/components/Section.astro";
-import { experience, TIMELINE_START } from "@/data/site";
+import { about, experience, TIMELINE_START } from "@/data/site";
 
 /**
  * Experiences — a timeline rather than a tab list, because roles run
@@ -58,151 +58,165 @@ const flat = groupsIndexed.flatMap((g) => g.jobs);
 
 <Section id="experience" title="Experiences">
   <div data-reveal>
-    <p class="text-muted mb-8 max-w-xl text-sm">
-      Where I've worked since 2018. Some roles overlap, so each company has its
-      own row. Pick a bar to see what I did there.
+    <p class="text-muted mb-6 text-sm">
+      Where I've worked since 2018, one row per company. Pick a bar to see the role.
     </p>
 
-    <div class="scroller -mx-2 overflow-x-auto px-2 pb-2">
-      {/* pr-5 reserves room for the "still running" arrow, which sits just
-          past the right edge of a bar that runs to the present marker and
-          was otherwise clipped by the scroller. */}
-      <div class="min-w-[260px] pr-5">
-        {/* Year axis, offset to sit over the track only */}
-        <div class="grid grid-cols-[96px_1fr] items-end gap-2" aria-hidden="true">
-          <span></span>
-          <div class="border-line relative h-5 border-b">
-            {
-              ticks.map((t) => (
-                <span
-                  class="font-mono text-faint absolute top-0 text-[0.65rem]"
-                  style={`left: ${pct(t)}%; transform: translateX(${t === ticks[0] ? "0" : "-50%"})`}
-                >
-                  {t}
-                </span>
-              ))
-            }
+    {/* On wide screens the timeline and the role it's showing sit side by
+        side, so the section fits one laptop screen. */}
+    <div class="lg:grid lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)] lg:gap-x-10">
+      <div>
+        <div class="scroller -mx-2 overflow-x-auto px-2 pb-2">
+          {/* pr-5 reserves room for the "still running" arrow, which sits just
+              past the right edge of a bar that runs to the present marker and
+              was otherwise clipped by the scroller. */}
+          <div class="min-w-[260px] pr-5">
+            {/* Year axis, offset to sit over the track only */}
+            <div class="grid grid-cols-[104px_1fr] items-end gap-2 lg:grid-cols-[124px_1fr]" aria-hidden="true">
+              <span></span>
+              <div class="border-line relative h-5 border-b">
+                {
+                  ticks.map((t) => (
+                    <span
+                      class="font-mono text-faint absolute top-0 text-[0.65rem]"
+                      style={`left: ${pct(t)}%; transform: translateX(${t === ticks[0] ? "0" : "-50%"})`}
+                    >
+                      {t}
+                    </span>
+                  ))
+                }
+              </div>
+            </div>
+
+            {/* Rows: one per company, each with one bar per stint */}
+            <div role="tablist" aria-label="Roles" class="mt-2 flex flex-col gap-1" id="tl">
+              {
+                groupsIndexed.map((group) => (
+                  <div class="grid w-full grid-cols-[104px_1fr] items-center gap-2 py-1 lg:grid-cols-[124px_1fr]">
+                    <span
+                      class="tl-label font-mono flex cursor-pointer items-center gap-1 truncate pl-1 text-[0.7rem]"
+                      data-latest={group.jobs[group.jobs.length - 1]!.index}
+                    >
+                      <span
+                        class="tl-icon border-line bg-bg relative inline-flex size-4 shrink-0 items-center justify-center overflow-hidden rounded-[3px] border text-[0.5rem] leading-none"
+                        aria-hidden="true"
+                      >
+                        {group.company.charAt(0)}
+                        <img
+                          src={faviconFor(group.jobs[0]!.job.url, 32)}
+                          alt=""
+                          aria-hidden="true"
+                          width="12"
+                          height="12"
+                          loading="lazy"
+                          decoding="async"
+                          class="absolute inset-0 m-auto size-3"
+                          onerror="this.remove()"
+                        />
+                      </span>
+                      <span class="truncate">{group.jobs[0]!.job.shortName}</span>
+                    </span>
+                    <span class="relative block h-5">
+                      {
+                        group.jobs.map(({ job, index }) => {
+                          const left = pct(job.start);
+                          const right = pct(job.end ?? now);
+                          return (
+                            <button
+                              role="tab"
+                              id={`tl-tab-${index}`}
+                              aria-controls={`tl-panel-${index}`}
+                              aria-selected={index === 0 ? "true" : "false"}
+                              tabindex={index === 0 ? 0 : -1}
+                              aria-label={`${job.role} at ${job.company}, ${job.period}`}
+                              class="tl-bar absolute top-1/2 -translate-y-1/2 rounded-[2px]"
+                              style={`left: ${left}%; width: ${Math.max(right - left, 1.5)}%`}
+                            >
+                              <span class="tl-fill block h-2.5 rounded-[2px] transition-colors duration-200" />
+                              {job.end === null && (
+                                <span class="tl-live absolute top-1/2 -translate-y-1/2 text-[0.7rem] leading-none" style="left: calc(100% + 5px)">
+                                  →
+                                </span>
+                              )}
+                            </button>
+                          );
+                        })
+                      }
+                    </span>
+                  </div>
+                ))
+              }
+            </div>
           </div>
         </div>
+      </div>
 
-        {/* Rows: one per company, each with one bar per stint */}
-        <div role="tablist" aria-label="Roles" class="mt-2 flex flex-col gap-1" id="tl">
-          {
-            groupsIndexed.map((group) => (
-              <div class="grid w-full grid-cols-[96px_1fr] items-center gap-2 py-1">
+      {/* Detail panels: below the timeline on small screens, beside it on wide ones */}
+      <div
+        class="border-line mt-8 min-h-[260px] border-t pt-8 lg:mt-0 lg:min-h-0 lg:border-t-0 lg:border-l lg:pt-0 lg:pl-10"
+      >
+        {
+          flat.map(({ job, index }) => (
+            <div
+              role="tabpanel"
+              id={`tl-panel-${index}`}
+              aria-labelledby={`tl-tab-${index}`}
+              hidden={index !== 0}
+              class="tl-panel"
+            >
+              <h3 class="flex flex-wrap items-center gap-2.5 text-lg font-medium sm:text-xl lg:text-lg">
                 <span
-                  class="tl-label font-mono flex cursor-pointer items-center gap-1 truncate pl-1 text-[0.7rem]"
-                  data-latest={group.jobs[group.jobs.length - 1]!.index}
+                  class="border-line bg-bg relative inline-flex size-6 shrink-0 items-center justify-center overflow-hidden rounded border text-[0.6rem] font-mono"
+                  aria-hidden="true"
                 >
-                  <span
-                    class="tl-icon border-line bg-bg relative inline-flex size-4 shrink-0 items-center justify-center overflow-hidden rounded-[3px] border text-[0.5rem] leading-none"
+                  {job.company.charAt(0)}
+                  <img
+                    src={faviconFor(job.url, 48)}
+                    alt=""
                     aria-hidden="true"
-                  >
-                    {group.company.charAt(0)}
-                    <img
-                      src={faviconFor(group.jobs[0]!.job.url, 32)}
-                      alt=""
-                      aria-hidden="true"
-                      width="12"
-                      height="12"
-                      loading="lazy"
-                      decoding="async"
-                      class="absolute inset-0 m-auto size-3"
-                      onerror="this.remove()"
-                    />
+                    width="18"
+                    height="18"
+                    loading="lazy"
+                    decoding="async"
+                    class="absolute inset-0 m-auto size-[18px]"
+                    onerror="this.remove()"
+                  />
+                </span>
+                <span>
+                  {job.role}{" "}
+                  <span class="text-accent">
+                    @{" "}
+                    <a href={job.url} target="_blank" rel="noopener noreferrer" class="link">
+                      {job.company}
+                    </a>
                   </span>
-                  <span class="truncate">{group.jobs[0]!.job.shortName}</span>
                 </span>
-                <span class="relative block h-5">
-                  {
-                    group.jobs.map(({ job, index }) => {
-                      const left = pct(job.start);
-                      const right = pct(job.end ?? now);
-                      return (
-                        <button
-                          role="tab"
-                          id={`tl-tab-${index}`}
-                          aria-controls={`tl-panel-${index}`}
-                          aria-selected={index === 0 ? "true" : "false"}
-                          tabindex={index === 0 ? 0 : -1}
-                          aria-label={`${job.role} at ${job.company}, ${job.period}`}
-                          class="tl-bar absolute top-1/2 -translate-y-1/2 rounded-[2px]"
-                          style={`left: ${left}%; width: ${Math.max(right - left, 1.5)}%`}
-                        >
-                          <span class="tl-fill block h-2.5 rounded-[2px] transition-colors duration-200" />
-                          {job.end === null && (
-                            <span class="tl-live absolute top-1/2 -translate-y-1/2 text-[0.7rem] leading-none" style="left: calc(100% + 5px)">
-                              →
-                            </span>
-                          )}
-                        </button>
-                      );
-                    })
-                  }
-                </span>
-              </div>
-            ))
-          }
-        </div>
+              </h3>
+              <p class="font-mono text-muted mt-1 text-xs">
+                {job.period}
+                {job.location && <span class="text-faint"> · {job.location}</span>}
+              </p>
+              <ul class="mt-6 space-y-3 lg:mt-4 lg:space-y-2.5">
+                {job.bullets.map((b) => (
+                  <li class="flex gap-3 text-[0.95rem] lg:text-[0.88rem]">
+                    <span class="text-accent mt-1 shrink-0" aria-hidden="true">
+                      ▸
+                    </span>
+                    <span>{b}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))
+        }
       </div>
     </div>
 
-    {/* Detail panels */}
-    <div class="border-line mt-8 min-h-[260px] border-t pt-8">
-      {
-        flat.map(({ job, index }) => (
-          <div
-            role="tabpanel"
-            id={`tl-panel-${index}`}
-            aria-labelledby={`tl-tab-${index}`}
-            hidden={index !== 0}
-            class="tl-panel"
-          >
-            <h3 class="flex flex-wrap items-center gap-2.5 text-lg font-medium sm:text-xl">
-              <span
-                class="border-line bg-bg relative inline-flex size-6 shrink-0 items-center justify-center overflow-hidden rounded border text-[0.6rem] font-mono"
-                aria-hidden="true"
-              >
-                {job.company.charAt(0)}
-                <img
-                  src={faviconFor(job.url, 48)}
-                  alt=""
-                  aria-hidden="true"
-                  width="18"
-                  height="18"
-                  loading="lazy"
-                  decoding="async"
-                  class="absolute inset-0 m-auto size-[18px]"
-                  onerror="this.remove()"
-                />
-              </span>
-              <span>
-                {job.role}{" "}
-                <span class="text-accent">
-                  @{" "}
-                  <a href={job.url} target="_blank" rel="noopener noreferrer" class="link">
-                    {job.company}
-                  </a>
-                </span>
-              </span>
-            </h3>
-            <p class="font-mono text-muted mt-1 text-xs">
-              {job.period}
-              {job.location && <span class="text-faint"> · {job.location}</span>}
-            </p>
-            <ul class="mt-6 space-y-3">
-              {job.bullets.map((b) => (
-                <li class="flex gap-3 text-[0.95rem]">
-                  <span class="text-accent mt-1 shrink-0" aria-hidden="true">
-                    ▸
-                  </span>
-                  <span>{b}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-        ))
-      }
+    <div class="border-line mt-8 border-t pt-6">
+      <p class="font-mono text-faint mb-3 text-xs">what I work with</p>
+      <ul class="flex flex-wrap gap-2">
+        {about.technologies.map((t) => <li class="tech">{t}</li>)}
+      </ul>
     </div>
   </div>
 </Section>
@@ -227,6 +241,14 @@ const flat = groupsIndexed.flatMap((g) => g.jobs);
   }
   .tl-fill {
     background: var(--color-line);
+  }
+  .tech {
+    padding: 0.2rem 0.6rem;
+    border: 1px solid var(--color-line);
+    border-radius: 999px;
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    color: var(--color-muted);
   }
   .tl-label {
     color: var(--color-muted);

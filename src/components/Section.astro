@@ -12,13 +12,23 @@ interface Props {
 const { id, title, class: className = "" } = Astro.props;
 ---
 
-<section id={id} class={`mx-auto max-w-4xl scroll-mt-24 py-24 md:py-32 ${className}`}>
-  <header class="mb-10" data-reveal>
-    <p class="font-mono text-accent flex items-center gap-2.5 text-xs tracking-wide">
-      <span class="bg-accent inline-block h-1 w-1 rotate-45" aria-hidden="true"></span>
-      {id}
-    </p>
-    <h2 class="mt-2 text-xl font-semibold sm:text-2xl">{title}</h2>
-  </header>
-  <slot />
+{/* A linked-to section lands with its heading just under the fixed nav (72px,
+    plus a little air), not a whole padding further down: the scroll margin
+    takes the top padding back off. Where the home page pages by section
+    (desktops), global.css makes each section a full window instead, with its
+    content centred below the nav; the inner div is what gets centred. */}
+<section
+  id={id}
+  class={`mx-auto max-w-4xl scroll-mt-[calc(100px-6rem)] py-24 md:scroll-mt-[calc(100px-8rem)] md:py-32 ${className}`}
+>
+  <div>
+    <header class="mb-8" data-reveal>
+      <p class="font-mono text-accent flex items-center gap-2.5 text-xs tracking-wide">
+        <span class="bg-accent inline-block h-1 w-1 rotate-45" aria-hidden="true"></span>
+        {id}
+      </p>
+      <h2 class="mt-2 text-xl font-semibold sm:text-2xl">{title}</h2>
+    </header>
+    <slot />
+  </div>
 </section>

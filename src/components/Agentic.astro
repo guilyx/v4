@@ -1,6 +1,5 @@
 ---
 import Section from "@/components/Section.astro";
-import Icon from "@/components/Icon.astro";
 import { agentic } from "@/data/site";
 
 /**
@@ -14,12 +13,26 @@ const n = agentic.harness.length;
 ---
 
 <Section id="agentic" title="Adapting to the agentic era">
-  <div class="max-w-2xl space-y-4" data-reveal>
-    {agentic.intro.map((p) => <p>{p.replace(/\s+/g, " ")}</p>)}
+  {/* Sized to fit one laptop screen: the stance and the rollout rules side
+      by side, the harness, then three things I've led, in one row. */}
+  <div class="grid gap-8 lg:grid-cols-2 lg:gap-12" data-reveal>
+    <p>{agentic.intro.replace(/\s+/g, " ")}</p>
+    <div>
+      <h3 class="label">how I roll it out</h3>
+      <ol class="mt-3 space-y-1.5">
+        {
+          agentic.rollout.map((r, i) => (
+            <li class="flex gap-3 text-[0.92rem]">
+              <span class="font-mono text-accent shrink-0 text-xs leading-6">0{i + 1}</span>
+              <span>{r}</span>
+            </li>
+          ))
+        }
+      </ol>
+    </div>
   </div>
 
-  <figure class="mt-12" data-reveal>
-    <p class="font-mono text-faint mb-5 text-xs">the harness</p>
+  <figure class="mt-8" data-reveal>
     <div class="harness" style={`--n: ${n}`}>
       <span class="harness-line" aria-hidden="true">
         <span class="harness-pulse"></span>
@@ -30,7 +43,13 @@ const n = agentic.harness.length;
             <li class="harness-step" style={`--i: ${i}`}>
               <span class="harness-dot" aria-hidden="true" />
               <span class="harness-text">
-                <span class="harness-name font-mono">{h.step}</span>
+                {"link" in h ? (
+                  <a href={h.link} target="_blank" rel="noopener noreferrer" class="harness-name link font-mono -my-1 py-1">
+                    {h.step}
+                  </a>
+                ) : (
+                  <span class="harness-name font-mono">{h.step}</span>
+                )}
                 <span class="harness-note">{h.note}</span>
               </span>
             </li>
@@ -38,51 +57,20 @@ const n = agentic.harness.length;
         }
       </ol>
     </div>
-    <figcaption class="text-muted mt-6 text-sm">{agentic.harnessCaption}</figcaption>
+    <figcaption class="text-muted mt-4 text-sm">{agentic.harnessCaption}</figcaption>
   </figure>
 
-  <div class="mt-14" data-reveal>
-    <h3 class="label">what I've led and built</h3>
-    <ul class="mt-5 grid gap-4 sm:grid-cols-2">
-      {
-        agentic.led.map((item, i) => (
-          <li class:list={["border-line relative flex flex-col rounded-lg border p-5", { "sm:col-span-2": i === 0 }]}>
-            <p class="font-mono text-accent text-[0.68rem]">{item.tag}</p>
-            <h4 class="text-heading mt-1 text-[0.98rem] font-medium">
-              {"link" in item ? (
-                <a
-                  href={item.link}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  class="hover:text-accent inline-flex items-center gap-1.5 transition-colors"
-                >
-                  {item.title}
-                  <Icon name="external" size={13} />
-                </a>
-              ) : (
-                item.title
-              )}
-            </h4>
-            <p class="text-muted mt-2 text-sm">{item.body}</p>
-          </li>
-        ))
-      }
-    </ul>
-  </div>
-
-  <div class="mt-12" data-reveal>
-    <h3 class="label">how I roll it out</h3>
-    <ol class="mt-4 space-y-2">
-      {
-        agentic.rollout.map((r, i) => (
-          <li class="flex gap-3 text-[0.95rem]">
-            <span class="font-mono text-accent shrink-0 text-xs leading-7">0{i + 1}</span>
-            <span>{r}</span>
-          </li>
-        ))
-      }
-    </ol>
-  </div>
+  <ul class="mt-8 grid gap-4 md:grid-cols-3" aria-label="What I've led and built" data-reveal>
+    {
+      agentic.led.map((item) => (
+        <li class="border-line flex flex-col rounded-lg border p-4">
+          <p class="font-mono text-accent text-[0.68rem]">{item.tag}</p>
+          <h4 class="text-heading mt-1 text-[0.95rem] font-medium">{item.title}</h4>
+          <p class="text-muted mt-1.5 text-sm">{item.body}</p>
+        </li>
+      ))
+    }
+  </ul>
 </Section>
 
 <style>

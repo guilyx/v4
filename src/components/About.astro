@@ -16,32 +16,17 @@ function md(text: string): string {
 }
 ---
 
-{/* A few lines about me, then the chapters that got me here. The photo is in
-    the hero now. */}
+{/* A few lines about me, then the chapters that got me here, sized to fit one
+    screen on a laptop. The photo is in the hero; the tools list closes the
+    Experiences section. */}
 <Section id="about" title="Background">
-  <div class="max-w-2xl space-y-4" data-reveal>
+  {/* Two short paragraphs, side by side on wide screens: shorter, and an
+      easier line length than one paragraph across the whole column. */}
+  <div class="space-y-4 lg:grid lg:grid-cols-2 lg:gap-10 lg:space-y-0" data-reveal>
     {about.paragraphs.map((p) => <p set:html={md(p)} />)}
   </div>
 
-  <div class="mt-14">
+  <div class="mt-7">
     <Evolution />
   </div>
-
-  <div class="border-line mt-14 border-t pt-8" data-reveal>
-    <p class="font-mono text-faint mb-4 text-xs">what I work with</p>
-    <ul class="flex flex-wrap gap-2">
-      {about.technologies.map((t) => <li class="tech">{t}</li>)}
-    </ul>
-  </div>
 </Section>
-
-<style>
-  .tech {
-    padding: 0.2rem 0.6rem;
-    border: 1px solid var(--color-line);
-    border-radius: 999px;
-    font-family: var(--font-mono);
-    font-size: 0.72rem;
-    color: var(--color-muted);
-  }
-</style>

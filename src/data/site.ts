@@ -48,29 +48,15 @@ export const nav = [
 
 export const about = {
   paragraphs: [
-    `I'm Erwin, a technical lead in robotics. My work centers on navigation
-     for autonomous mobile robots, fleet management and fault management, and
-     I've led the teams building them both in the lab and in real
-     environments, from a supermarket in Denmark to drone fleets in the UAE.
-     Today I run robotics at [SIRB.AI](https://sirb.ai/); before that I led
-     the robotics software team at [TII](https://www.tii.ae/) and was a
-     founding engineer at [Coalescent](https://cm-robotics.com/).`,
-    `I wear two hats. As an engineer, I've shipped robotics products end to
-     end, from architecture to field deployment, and I stay in the code
-     through design and pull request reviews. As a manager, I build teams
-     from the ground up, run performance reviews, and deliver the product and
-     development roadmaps.`,
-    `More and more, that includes developer experience in the agentic era:
-     the workflows, automation and best practices that let everyone on a team
-     use AI responsibly and efficiently, so it actually helps them rather than
-     cutting corners.`,
-    `I started out on microcontrollers, then simulated them, then built a
-     platform for electronics logistics in Go at
-     [Hiventive](https://www.hiventive.com/en/). That range still pays off: I
-     often bring ideas from other fields to robotics problems.`,
-    `Off the clock: basketball, films, and
-     [Clanker Labs](https://clanker-labs.github.io/clanker-labs-public/), my
-     self-hosted home with an agent running it.`,
+    `I'm Erwin, a technical lead in robotics: navigation for autonomous mobile
+     robots, fleet management and fault management. I've led the teams building
+     them in the lab and in the field, now at [SIRB.AI](https://sirb.ai/),
+     before that at [TII](https://www.tii.ae/) and
+     [Coalescent](https://cm-robotics.com/).`,
+    `I wear two hats. As an engineer, I ship products end to end and stay in
+     the code through design and pull request reviews. As a manager, I build
+     teams, run performance reviews and roadmaps, and set up AI workflows the
+     whole team can rely on.`,
   ],
   technologies: [
     "ROS 2",
@@ -94,63 +80,47 @@ export const about = {
  * harness around it so the quality holds as usage grows.
  */
 export const agentic = {
-  intro: [
-    `AI changes how software gets built, and robotics is no exception. I treat
-     it as a tool that lets a team ship more without lowering the bar, not as a
-     replacement for the people on it.`,
-    `The real work is the harness around it: reviews, checks and habits that
-     keep quality where it was while AI does more of the typing. AI use is only
-     going to grow, and the harness is what makes that growth sustainable.`,
-  ],
+  intro: `AI changes how software gets built, robotics included. I treat it as a
+    tool that lets a team ship more without lowering the bar, never as a
+    replacement for the people on it. The real work is the harness around it,
+    so quality holds as AI use grows.`,
   /** The path every change takes, drawn as an animated strip. */
   harness: [
-    { step: "draft", note: "written by a person or an AI" },
-    { step: "AI review", note: "self-hosted, on every change" },
-    { step: "checks", note: "tests, lint, the usual" },
-    { step: "quiz", note: "can you explain your diff?" },
+    { step: "draft", note: "by a person or an AI" },
+    { step: "AI review", note: "self-hosted, always" },
+    { step: "checks", note: "tests and lint" },
+    { step: "grip quiz", note: "explain your diff", link: "https://github.com/guilyx/grip" },
     { step: "human review", note: "a teammate signs off" },
-    { step: "ship", note: "with an owner who understands it" },
+    { step: "ship", note: "with a clear owner" },
   ],
-  harnessCaption: "The idea: every change takes the same path, whoever or whatever wrote it.",
+  harnessCaption: "Every change takes the same path, whoever or whatever wrote it.",
   led: [
     {
       tag: "led",
       title: "A company brain in Slack",
-      body: "An AI assistant that lives where people already talk. Employees ask it about the codebase, how the organization works, or how to handle a management question, and it answers from sources and rules each team can set up.",
+      body: "Ask it about the codebase, the org or a management question; it answers from sources each team sets up.",
     },
     {
       tag: "led",
-      title: "Self-hosted code and quality reviews",
-      body: "Automated reviews on every change, run by tools we built and host in-house. They cost less than paid services, don't lower the bar, and the code stays on our own machines.",
-    },
-    {
-      tag: "open source",
-      title: "grip",
-      body: "A git hook that quizzes you on your own diff before a commit goes through, and grades the answers. AI can write the code; someone still has to understand it.",
-      link: "https://github.com/guilyx/grip",
+      title: "Self-hosted code reviews",
+      body: "Quality and code reviews on every change, built and hosted in-house: cheaper than paid tools, same bar.",
     },
     {
       tag: "on the robots",
       title: "Agents in the loop, not in charge",
-      body: "Agents read the fleet's fault timeline, tell a flaky link from a dying node, and propose the repair. Deterministic rules still own the actuators.",
-    },
-    {
-      tag: "Unchained Labs",
-      title: "Local-first AI for companies",
-      body: "Agent systems that run on a company's own models, data and infrastructure, for teams that can't send everything to someone else's API.",
-      link: "https://unchainedlabs.dev/",
+      body: "They read the fault timeline and propose the repair; deterministic rules still own the actuators.",
     },
   ],
   rollout: [
-    "Start with the boring work: docs, tests, first-pass reviews.",
-    "Keep a person accountable for every change that ships.",
-    "Grow AI use only as fast as the checks around it.",
+    "Boring work first: docs, tests, first-pass reviews.",
+    "A person owns every change that ships.",
+    "AI use grows only as fast as its checks.",
   ],
 } as const;
 
 /**
  * "How I got here" — the animated chapters in the Background section. Each
- * one says what I built, what I led and what I took with me, and lights the
+ * one says what I built and what I led, in a line or two, and lights the
  * layers of the "scope" stack it worked on, from silicon at the bottom up to
  * a whole company. The role-by-role detail lives in the timeline below.
  */
@@ -166,7 +136,6 @@ export interface Chapter {
   title: string;
   built: string;
   led?: string;
-  kept?: string;
   /** What this chapter did on each layer it reached. */
   scope: Partial<Record<ScopeLayer, string>>;
 }
@@ -177,9 +146,7 @@ export const chapters: Chapter[] = [
     years: "2018 — 2019",
     where: "Hiventive, Ingeniarius",
     title: "Close to the metal",
-    built:
-      "A virtual STM32 in SystemC/TLM, with its timers, I2C, CAN, GPIO and USART running under QEMU. Then small robots with ROS, which won both maze competitions.",
-    kept: "Treat time, memory and bandwidth as a budget, and test against a model of the hardware first.",
+    built: "A virtual STM32 in SystemC/TLM running under QEMU, then small ROS robots that won both maze competitions.",
     scope: { silicon: "STM32 virtual prototype", robot: "maze robots, won both runs" },
   },
   {
@@ -187,9 +154,8 @@ export const chapters: Chapter[] = [
     years: "2020 — 2021",
     where: "Centrale Nantes, Hiventive",
     title: "Research, and the web",
-    built: "A platform for electronics logistics in Go, with PostgreSQL and Docker, alongside my research.",
-    led: "Four research projects: multi-agent pathfinding, PDDL planning, real-time ROS on Xenomai, and ROS 2 latency. Two papers came out of them.",
-    kept: "CI, containers and code review as habits. And a soft spot for planning problems.",
+    built: "Go services with PostgreSQL and Docker for an electronics logistics platform.",
+    led: "Four research projects in multi-agent pathfinding, PDDL planning and real-time ROS, with two papers.",
     scope: {
       software: "Go services · Docker · CI",
       robot: "real-time ROS control",
@@ -201,10 +167,8 @@ export const chapters: Chapter[] = [
     years: "2021 — 2022",
     where: "Coalescent, Odense",
     title: "First robot in a real store",
-    built:
-      "The navigation stack of a robot working supermarket aisles: path planning, motion control and localization, plus some perception.",
-    led: "When the CTO left, I took over navigation and trolley detection. I hired and trained interns and a junior, ran planning, and turned the CEO's requests into sprints.",
-    kept: "A real store changes your priorities fast.",
+    built: "The navigation stack of a robot working supermarket aisles: planning, control and localization.",
+    led: "Navigation and trolley detection after the CTO left: hiring, training, and turning product asks into sprints.",
     scope: { robot: "supermarket nav stack", team: "first hires · sprints" },
   },
   {
@@ -212,10 +176,8 @@ export const chapters: Chapter[] = [
     years: "2022 — 2024",
     where: "TII, Abu Dhabi",
     title: "One robot to many",
-    built:
-      "Multi-robot orchestration and new swarm behaviors, including a bird-inspired flocking method we published at IROS 2024.",
-    led: "The R&D on those parts, and the live demos for partners, which brought in USD 3M in contracts.",
-    kept: "In a swarm every wasted byte gets multiplied. The embedded habits paid off.",
+    built: "Multi-robot orchestration and swarm behaviors, including bird-inspired flocking published at IROS 2024.",
+    led: "The R&D and the partner demos, which brought in USD 3M in contracts.",
     scope: { fleet: "swarm orchestration" },
   },
   {
@@ -223,9 +185,8 @@ export const chapters: Chapter[] = [
     years: "2024 — 2026",
     where: "TII, Abu Dhabi",
     title: "Leading the team",
-    built: "A rework of the swarm autonomy stack that cut onboard CPU by 74% and bandwidth by 52%.",
-    led: "A team of 9 across autonomy, infrastructure and platform integration, from roadmap to sprints. Also a joint program with Caltech, and demos that led to USD 10M+ in contracts.",
-    kept: "Standards only stick when they're the easy option.",
+    built: "A swarm autonomy rework that cut onboard CPU by 74% and bandwidth by 52%.",
+    led: "A team of 9 across autonomy, infrastructure and integration, and demos that led to USD 10M+ in contracts.",
     scope: {
       software: "RobotOps · AI tooling",
       fleet: "−74% CPU · −52% bandwidth",
@@ -237,10 +198,8 @@ export const chapters: Chapter[] = [
     years: "2024 — now",
     where: "Unchained Labs",
     title: "Starting a company",
-    built:
-      "Local-first AI agents that run on a client's own models and data, and Kymatics, a graph-based agent orchestrator.",
-    led: "All of it: the vision, finding clients, setting up the company, and building and deploying the SaaS.",
-    kept: "Selling and scoping are part of the engineering.",
+    built: "Local-first AI agents on clients' own models and data, and Kymatics, a graph-based agent orchestrator.",
+    led: "All of it: vision, clients, setting up the company, building and shipping the SaaS.",
     scope: { software: "agent orchestration", company: "vision · clients · SaaS" },
   },
   {
@@ -248,8 +207,7 @@ export const chapters: Chapter[] = [
     years: "2026 — now",
     where: "SIRB.AI, Abu Dhabi",
     title: "Head of Robotics",
-    built:
-      "The robotics architecture, and a self-healing layer: fleet-wide fault recording, agents that catch and recover from failures, and ML scoring of missions before launch.",
+    built: "The robotics architecture and a self-healing layer: fault recording, recovery agents, mission scoring.",
     led: "The autonomy roadmap, from prototype to the public launch at UMEX 2026.",
     scope: {
       fleet: "self-healing swarm autonomy",
@@ -518,8 +476,8 @@ export interface ArchiveEntry {
 
 /** The framing for the Featured Projects section: side projects only. */
 export const projectsIntro = `Things I've built on my own time, all open
-  source: planning toolboxes, robotics tools, and the two orgs where most of my
-  side work lives now.`;
+  source: planning toolboxes, robotics tools, and the two orgs where my side
+  work lives.`;
 
 /**
  * Featured projects — the carousel. Every slide has a real demo clip recorded
@@ -645,15 +603,9 @@ export const openSource = {
   /** "Decently sized": fewer stars than this and a project isn't listed. */
   minStars: 50,
   paragraphs: [
-    `My first open-source contribution was in 2018, and I've kept going since.
-     Robotics runs on shared code: ROS and the thousands of packages around it
-     only exist because people published their work, so I try to give back.
-     It has also taught me a lot about writing code other people can read and
-     build on.`,
-    `Upstream, that's meant graph search algorithms for PythonRobotics and
-     TheAlgorithms, and work on navigation2, the ROS 2 navigation stack. The
-     rest is my own: tools for problems I kept running into, published so the
-     next person doesn't start from scratch.`,
+    `I've contributed to open source since 2018. Robotics runs on shared code,
+     so I give back where I can: algorithms and fixes for the projects I rely
+     on, and tools of my own for problems I kept running into.`,
   ],
   upstream: [
     {
@@ -946,9 +898,9 @@ export const archive: ArchiveEntry[] = [
  */
 export const heroSummary = `Technical lead across AMR navigation, fleet
   management and fault management, with robotics products shipped end to end.
-  Just as at home building teams from scratch, running performance reviews and
-  roadmaps, reviewing pull requests, and setting up the AI workflows that make
-  a whole team faster without lowering the bar.`;
+  I build teams from scratch, run performance reviews and roadmaps, review pull
+  requests, and set up the AI workflows that make a whole team faster without
+  lowering the bar.`;
 
 export const spec = [
   { key: "role", value: "head of robotics @ sirb.ai" },

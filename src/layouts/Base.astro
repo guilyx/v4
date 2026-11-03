@@ -89,76 +89,164 @@ const ogImage = new URL("/og.png", Astro.site);
         els.forEach((el) => el.classList.add("is-visible"));
       }
 
-      // Section snapping, on the home page only. CSS scroll snapping was
-      // either too loose (proximity: it only snapped when a scroll happened
-      // to stop near a section) or too sticky (mandatory: a short scroll,
-      // like one mouse-wheel notch, snapped straight back to where it
-      // started). This goes by direction instead: when a scroll comes to
-      // rest, glide on to the next section's start (or back to this one's)
-      // if the section fits on screen, or once that start is in the near
-      // half of the screen. Inside a taller section the page scrolls freely.
+      // Section paging, on the home page, on desktops (a mouse or trackpad
+      // and a window of at least 1024×600), without reduced motion. One
+      // gesture moves one section, in one smooth glide: a wheel notch or a
+      // trackpad swipe at the end of a section takes you to the start of the
+      // next one, and back. A section taller than the window scrolls
+      // normally inside and stops at its end; the next gesture moves on. The
+      // rest of the gesture that started a glide (a trackpad's momentum, a
+      // wheel still spinning) is swallowed, so nothing skips a section.
+      // Phones and tablets keep their native scrolling: nothing fits one
+      // screen there, and paging would only get in the way.
       if (
         document.documentElement.classList.contains("snap-sections") &&
+        window.matchMedia("(pointer: fine) and (min-width: 1024px) and (min-height: 600px)").matches &&
         !window.matchMedia("(prefers-reduced-motion: reduce)").matches
       ) {
-        const stops = () => {
-          const max = document.documentElement.scrollHeight - innerHeight;
-          const ys = Array.from(document.querySelectorAll<HTMLElement>("#main > section"), (s) => {
-            return s.getBoundingClientRect().top + scrollY - parseFloat(getComputedStyle(s).scrollMarginTop);
-          });
-          ys.push(max); // the footer
-          return ys.map((y) => Math.round(Math.max(0, Math.min(max, y)))).sort((a, b) => a - b);
-        };
-
-        let rest = scrollY; // where the last scroll came to rest
-        let gliding = false; // the scroll in progress is ours
-        let focusedAt = 0;
-        let touching = false;
-
-        const settle = () => {
-          const y = scrollY;
-          if (gliding) {
-            gliding = false;
-            rest = y;
-            return;
-          }
-          // a scroll that brought a focused element into view stays put
-          const dir = Math.sign(y - rest);
-          if (!dir || performance.now() - focusedAt < 600) {
-            rest = y;
-            return;
-          }
+        type Page = { s: number; e: number };
+        // Each section is a page from s, where it lands (its top at the top
+        // of the window, the content centred under the nav; see global.css),
+        // to e, where its bottom meets the bottom of the window. A section
+        // that fits is exactly one window tall, so its page has e = s.
+        const nav = document.getElementById("site-nav");
+        const pages = (): Page[] => {
           const vh = innerHeight;
-          const s = stops();
-          const prev = s.filter((p) => p <= y + 1).pop() ?? 0;
-          const next = s.find((p) => p > y + 1);
-          const fits = next !== undefined && next - prev <= vh + 2;
-          let to: number | null = null;
-          if (dir > 0 && next !== undefined && (fits || next - y <= vh / 2)) to = next;
-          if (dir < 0 && (fits || y - prev <= vh / 2)) to = prev;
-          if (to === null || Math.abs(to - y) < 2) {
-            rest = y;
-            return;
-          }
-          gliding = true;
-          window.scrollTo({ top: to, behavior: "smooth" });
+          const max = document.documentElement.scrollHeight - vh;
+          const navH = nav?.offsetHeight ?? 0;
+          const list = Array.from(document.querySelectorAll<HTMLElement>("#main > section"), (el) => {
+            const cs = getComputedStyle(el);
+            const top = el.getBoundingClientRect().top + scrollY;
+            const s = Math.max(0, top - parseFloat(cs.scrollMarginTop));
+            const over = top + el.offsetHeight - vh - s;
+            if (over <= 0) return { s, e: s };
+            // A section over by no more than its air (the padding below the
+            // nav and at the bottom) still has room for all of its content
+            // between the nav and the bottom of the window: it lands a little
+            // lower, with what's left of the air split evenly above and
+            // below, rather than spending a gesture on a few pixels.
+            const airTop = Math.max(0, parseFloat(cs.paddingTop) - navH);
+            const airBottom = parseFloat(cs.paddingBottom);
+            if (over <= airTop + airBottom) {
+              const at = s + Math.min(over, Math.max(0, (over + airTop - airBottom) / 2));
+              return { s: at, e: at };
+            }
+            return { s, e: s + over };
+          });
+          // the last page runs to the bottom, footer included
+          const last = list[list.length - 1];
+          if (last) last.e = Math.max(last.s, max);
+          return list.map((p) => ({ s: Math.round(Math.min(p.s, max)), e: Math.round(Math.min(p.e, max)) }));
         };
 
-        document.addEventListener("focusin", () => (focusedAt = performance.now()));
-        if ("onscrollend" in window) {
-          window.addEventListener("scrollend", settle);
-        } else {
-          // Older Safari: call it settled 150ms after the last scroll event,
-          // and never while a finger is still on the screen.
-          let timer = 0;
-          const later = () => {
-            clearTimeout(timer);
-            timer = window.setTimeout(() => !touching && settle(), 150);
+        // What a scroll of dy should do from here: glide to another page,
+        // glide or stop at this page's edge, or nothing (let the browser
+        // scroll). When the rest of a page is short (a section a little
+        // taller than the window), one gesture glides over all of it rather
+        // than taking two or three wheel notches to get there.
+        const decide = (dy: number): { glide?: number; clamp?: number } | null => {
+          const ps = pages();
+          let y = scrollY;
+          const short = innerHeight / 3;
+          let i = 0;
+          for (let k = 0; k < ps.length; k++) if (ps[k].s <= y + 2) i = k;
+          // A menu link lands a section at its very top, a few pixels above
+          // where paging lands one that's only just too tall: that's still
+          // being on it, not on the page before.
+          const next = ps[i + 1];
+          if (next && next.s - y <= 20 && y >= ps[i].e - 2) {
+            i += 1;
+            y = next.s;
+          }
+          const p = ps[i];
+          if (dy > 0) {
+            if (y >= p.e - 2) return ps[i + 1] ? { glide: ps[i + 1].s } : null;
+            if (p.e - y <= short) return { glide: p.e };
+            if (y + dy > p.e) return { clamp: p.e };
+          } else if (dy < 0) {
+            if (y > p.e + 2) return { glide: p.e };
+            if (y <= p.s + 2) return ps[i - 1] ? { glide: ps[i - 1].e } : null;
+            if (y - p.s <= short) return { glide: p.s };
+            if (y + dy < p.s) return { clamp: p.s };
+          }
+          return null;
+        };
+
+        let gliding = false;
+        let settling = false; // swallowing the end of the gesture that started a glide
+        let lastWheel = 0;
+        let pending = 0; // small trackpad deltas, summed until they mean it
+
+        const ease = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
+        const glide = (to: number) => {
+          const from = scrollY;
+          const dist = to - from;
+          if (Math.abs(dist) < 1) return;
+          const dur = Math.min(900, 450 + Math.abs(dist) * 0.25);
+          const t0 = performance.now();
+          gliding = true;
+          const tick = (now: number) => {
+            const k = Math.min(1, (now - t0) / dur);
+            window.scrollTo({ top: from + dist * ease(k), behavior: "instant" });
+            if (k < 1) requestAnimationFrame(tick);
+            else {
+              gliding = false;
+              settling = true;
+            }
           };
-          window.addEventListener("scroll", later, { passive: true });
-          window.addEventListener("touchstart", () => (touching = true), { passive: true });
-          window.addEventListener("touchend", () => ((touching = false), later()), { passive: true });
-        }
+          requestAnimationFrame(tick);
+        };
+
+        // Something under the pointer that scrolls vertically itself gets the
+        // wheel first.
+        const scrollsItself = (el: Element | null, dy: number) => {
+          for (; el && el !== document.body && el !== document.documentElement; el = el.parentElement) {
+            if (!/(auto|scroll)/.test(getComputedStyle(el).overflowY) || el.scrollHeight <= el.clientHeight + 1) continue;
+            if (dy > 0 ? el.scrollTop + el.clientHeight < el.scrollHeight - 1 : el.scrollTop > 0) return true;
+          }
+          return false;
+        };
+
+        window.addEventListener(
+          "wheel",
+          (e) => {
+            if (e.ctrlKey || Math.abs(e.deltaX) > Math.abs(e.deltaY)) return; // zoom, or sideways
+            const now = performance.now();
+            const gap = now - lastWheel;
+            lastWheel = now;
+            if (gliding) return e.preventDefault();
+            if (settling) {
+              if (gap < 200) return e.preventDefault();
+              settling = false;
+            }
+            if (scrollsItself(e.target as Element, e.deltaY)) return;
+            const dy = e.deltaMode === 1 ? e.deltaY * 16 : e.deltaMode === 2 ? e.deltaY * innerHeight : e.deltaY;
+            if (gap > 200) pending = 0;
+            const to = decide(dy);
+            if (!to) return;
+            e.preventDefault();
+            if (to.clamp !== undefined) return window.scrollTo({ top: to.clamp, behavior: "instant" });
+            pending += dy;
+            if (Math.abs(pending) < 25) return;
+            pending = 0;
+            glide(to.glide!);
+          },
+          { passive: false },
+        );
+
+        // PageDown, PageUp and the space bar page the same way.
+        window.addEventListener("keydown", (e) => {
+          if (e.defaultPrevented || e.altKey || e.ctrlKey || e.metaKey) return;
+          if ((e.target as Element).closest("input, textarea, select, button, a, summary, [contenteditable], [role=tab]")) return;
+          const dir = e.key === "PageDown" || (e.key === " " && !e.shiftKey) ? 1 : e.key === "PageUp" || (e.key === " " && e.shiftKey) ? -1 : 0;
+          if (!dir) return;
+          if (gliding) return e.preventDefault();
+          const to = decide(dir * innerHeight * 0.85);
+          if (!to) return;
+          e.preventDefault();
+          if (to.clamp !== undefined) window.scrollTo({ top: to.clamp, behavior: "smooth" });
+          else glide(to.glide!);
+        });
       }
     </script>
   </body>
